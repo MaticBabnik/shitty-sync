@@ -1,0 +1,60 @@
+@font-face {
+    font-family: 'Jetbrains Mono';
+    src: url('./fonts/JetBrainsMono-Regular.woff2')
+}
+
+* {
+    font-family: 'Jetbrains Mono', monospace;
+    color:#fdf6e3;
+}
+
+.btn {
+    border: 1px solid #586e75;
+    margin: 5px !important;
+    padding: 5px !important;
+    user-select: none;
+    display: inline-block;
+    border-radius: 3px;
+}
+.btn:hover {
+    background-color: #fff4;
+}
+
+html,body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+html {
+    background: #002b36	;
+    width: 100%;
+    height: 100%;
+}
+#log {
+    border: 1px solid #586e75;
+    margin: 5px;
+    padding: 5px;
+    width: 600px;
+    overflow-y: scroll;
+    margin-top: 100px;
+    height: 500px;
+}
+
+.log-entry {
+    display: block;
+}
+
+#split {
+    display: flex;
+    flex-direction: row;
+    margin: 200px;
+    size:auto;
+    justify-content: center;
+    height: 100%;
+}
+
+#video {
+    width: 720px;
+    height: 480px;
+}
