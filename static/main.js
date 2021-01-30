@@ -33,6 +33,7 @@ socket.on('role',(msg)=>{
     isAdmin = msg == 'admin';
 })
 socket.on('set_status',(msg)=>{
+    if (isAdmin) return ;
     if (Math.abs(msg.time - supposedCurrentTime)>0.5)
         video.currentTime = msg.time;
     if (msg.playing != state.playing)
@@ -71,4 +72,4 @@ setInterval(()=>{
     if (isAdmin) {
         socket.emit('video_status', {playing:!video.paused,time:supposedCurrentTime});
     }
-},200)
+},1000 * 0.5)

@@ -1,38 +1,67 @@
 const express = require('express');
 const app = express();
+// noinspection JSValidateTypes
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
 let users = [];
 
+const socketsMap = new Map();
+
+let rooms = new Map();
+
 app.use('/', express.static('static'))
 
+const onVideoStatus = function (message) {
+    const roomId = socketsMap.get(this.id);
+    if (rooms.get(roomId).find(({ id }) => id === this.id).role !== "admin") return null;
 
-io.on('connection', (socket) => {
+    io.to(roomId).emit('set_status', message);
+}
 
-    console.log('a user connected')
-    const user ={ socket, role: users.length == 0 ? 'admin' : 'user' };
+const onDisconnect = function () {
+    const socket = this;
+    const roomId = socketsMap.get(socket.id)
+    const room = rooms.get(roomId);
+
+    const disconnectedUserIndex = room.findIndex(({ id }) => id === socket.id);
+    const disconnectedUser = room.splice(disconnectedUserIndex, 1)[0];
+
+    room.length ? rooms.set(roomId, room) : rooms.delete(roomId);
+    socketsMap.delete(socket.id)
+
+    if (disconnectedUser.role === 'admin' && room.length) {
+        console.log(`Gave admin to ${room[0].id}`)
+        room[0].role = 'admin';
+        io.to(room[0].id).emit('role', 'admin')
+    }
+}
+
+/**
+ *
+ * @param socket
+ */
+const onConnection = (socket) => {
+    console.log('New user connected');
+    const roomId = socket.request.headers.referer;
+    socket.join(roomId);
+
+    socketsMap.set(socket.id, roomId)
+
+    rooms.set(roomId, [{ id: socket.id, role: rooms.has(roomId)? 'user' : 'admin', latency: 0 }, ...(rooms.get(roomId) || [])])
+    console.log(rooms)
+
+    const user = { socket, role: rooms[roomId] === undefined ? 'admin' : 'user' };
+
     users.push(user);
-    console.log(`assigned role: ${user.role}`)
-    socket.emit('role',user.role);
+    socket.emit('role', rooms.get(roomId).find(({ id }) => id === socket.id).role);
 
-    socket.on('disconnect', () => {
-        users = users.filter((usr) => usr.socket.id != socket.id);
+    socket.on('video_status', onVideoStatus);
+    socket.on('disconnect', onDisconnect);
 
-        if (!users.find(x => x.role == 'admin') && users.length > 0) {
-            users[0].role = 'admin';
-            users[0].socket.emit('role','admin');
-            console.log(`gave admin to ${users[0].socket.id}`)
-        }
-    })
-    socket.on('video_status',(msg)=>{
-        if (users.find(x => x.socket.id == socket.id).role == 'admin'){
-            console.log(`admin sent: ${JSON.stringify(msg)}`);
-            socket.broadcast.emit('set_status',msg);
-        }
-    })
-});
+    console.log(socket.request.headers.referer);
+}
 
-
+io.on("connection", onConnection);
 
 http.listen(5500);
