@@ -58,10 +58,22 @@ html {
     width: 50%;
     max-width: 300px;
     overflow-y: scroll;
-    margin-top: 100px;
-    height: 500px;
-
 }
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background-color: #8884;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #2aa198;
+  }
 
 
 #videoc {
@@ -73,6 +85,7 @@ html {
 }
 
 #split {
+    align-items: stretch;
     display: flex;
     flex-direction: row;
     margin: 100px;

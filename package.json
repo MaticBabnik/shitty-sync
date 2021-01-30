@@ -7,8 +7,15 @@
     "start": "node .",
     "dev": "npx nodemon"
   },
-  "keywords": ["sync","video","websockets"],
-  "author": {"name": "Matic Babnik","email": "matic.babnik@outlook.com"},
+  "keywords": [
+    "sync",
+    "video",
+    "websockets"
+  ],
+  "author": {
+    "name": "Matic Babnik",
+    "email": "matic.babnik@outlook.com"
+  },
   "license": "MIT",
   "dependencies": {
     "@types/socket.io": "^2.1.13",
