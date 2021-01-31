@@ -4,43 +4,88 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const branchName = require('current-git-branch')() || '?';
+const { Socket } = require('socket.io')
 
-const socketsMap = new Map();
-const pingMap = {};
-const roomRegex = /(?<=\?room=)[^&]+/
-
-
-let adminPing = 0;
-let pingStart = 0;
 let rooms = new Map();
+const pingMap = new Map();
+const socketsMap = new Map();
+
+const roomRegex = /(?<=\?room=)[^&]+/;
 
 app.use('/', express.static('static'))
 
-const onPing = function () {
-    const roomId = socketsMap.get(this.id);
-    if (rooms.get(roomId).find(({ id }) => id === this.id).role === "admin") {
-        adminPing = (new Date() - pingStart) / 2 / 1000; // in seconds
-    };
-    const room = rooms.get(roomId);
-    room[rooms.get(roomId).findIndex(({id}) => id === this.id)].latency = (new Date() - pingStart) / 1000
-    rooms.set(roomId, room);
-}
 app.get('/branch',(req,res)=>{
-        res.send(branchName);
+    res.send(branchName);
 })
 
-const onPingRequest = function () {
-    const roomId = socketsMap.get(this.id);
-    if (rooms.get(roomId).find(({ id }) => id === this.id).role !== "admin") return null;
 
-    pingStart = new Date();
+/**
+ *
+ * @param {Socket.id | string} id
+ * @param newData
+ * @param property
+ */
+const updateUser = (id, newData, property) => {
+    const roomId = socketsMap.get(id);
+    const room = rooms.get(roomId);
+    const userIndex = rooms.get(roomId).findIndex(user => user.id === id)
+    if ( property ) {
+        room[userIndex][property] = newData
+    } else  {
+        room[userIndex] = newData
+    }
+    rooms.set(roomId, room);
+    return room[userIndex];
+}
+
+/**
+ * @param {Socket.id | string} id
+ * @param property
+ */
+const getUser = (id, property) => {
+    const roomId = socketsMap.get(id);
+    const user = rooms.get(roomId).find(user => user.id === id);
+    return property? user[property] : user;
+}
+
+/**
+ * @param {Socket.id} id
+ * @return boolean
+ */
+const isAdmin = (id) => rooms.get(socketsMap.get(id)).find(user => user.id === id).role === 'admin';
+
+const onPing = function () {
+    const pingStartTime = pingMap.get(socketsMap.get(this.id));
+    const latency = (new Date() -  pingStartTime) / 1000 // in seconds
+    updateUser(this.id, latency, 'latency')
+}
+
+const onPingRequest = function () {
+    if (!isAdmin(this.id)) return null;
+    const roomId = socketsMap.get(this.id);
+
+    pingMap.set(roomId, new Date());
     io.to(roomId).emit('ping');
 }
 
-const onVideoStatus = function ({ playing, time}) {
+const onMessage = function (message) {
     const roomId = socketsMap.get(this.id);
-    if (rooms.get(roomId).find(({ id }) => id === this.id).role !== "admin") return null;
-    const correctedTime = time - rooms.get(roomId).find(({id}) => this.id).latency - adminPing;
+    io.to(roomId).emit('message', { message, sender: this.id});
+}
+
+const onUsernameChange = function (newUsername) {
+    updateUser(this.id , newUsername, 'username');
+    const roomId = socketsMap.get(this.id);
+    io.to(roomId).emit('users', rooms.get(roomId));
+}
+
+const onVideoStatus = function ({ playing, time}) {
+    if (!isAdmin(this.id)) return null;
+
+    const roomId = socketsMap.get(this.id);
+    const adminPing = rooms.get(roomId).find(user => user.role === 'admin').latency;
+
+    const correctedTime = time - getUser(this.id, 'latency') - adminPing;
     this.to(roomId).emit('set_status', { playing, time: correctedTime });
 }
 
@@ -65,7 +110,7 @@ const onDisconnect = function () {
 
 /**
  *
- * @param socket
+ * @param { Socket }socket
  */
 const onConnection = (socket) => {
     console.log('New user connected');
@@ -74,20 +119,20 @@ const onConnection = (socket) => {
     console.log(roomId)
     socket.join(roomId);
     socketsMap.set(socket.id, roomId)
-    pingMap[socket.id] = new Date();
 
-    rooms.set(roomId, [{ id: socket.id, role: rooms.has(roomId)? 'user' : 'admin', latency: 0 }, ...(rooms.get(roomId) || [])])
+    rooms.set(roomId, [{ id: socket.id, username: 'Anonymous', role: rooms.has(roomId)? 'user' : 'admin', latency: 0 }, ...(rooms.get(roomId) || [])])
     console.log(rooms)
 
+    io.to(roomId).emit('users', rooms.get(roomId));
     socket.emit('role', rooms.get(roomId).find(({ id }) => id === socket.id).role);
 
     socket.on('request_ping', onPingRequest);
     socket.on('video_status', onVideoStatus);
+
+    socket.on('message', onMessage);
+    socket.on('username', onUsernameChange);
     socket.on('ping', onPing);
     socket.on('disconnect', onDisconnect);
-
-
-    console.log(socket.request.headers.referer);
 }
 
 

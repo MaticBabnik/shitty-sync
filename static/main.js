@@ -1,4 +1,11 @@
 const log = document.querySelector('#log');
+const membersTab = document.querySelector('#member-list');
+/**
+ *
+ * @type {HTMLInputElement}
+ */
+const messageTextbox = document.querySelector('#message-textbox');
+const sendButton = document.querySelector('#message-send-btn');
 /**
  * @type {HTMLVideoElement}
  */
@@ -20,15 +27,54 @@ const l = {
     }
 }
 
+const handleSendUsername = (inputElement) => {
+    socket.emit('username', inputElement.value);
+}
+
+const handleSendMessage = () => {
+    const message = messageTextbox.value;
+    messageTextbox.value = '';
+    socket.emit('message', message);
+}
+
 let isAdmin = false;
 let timesSkipped = 0;
 let state = {playing:true};
+let members = []
 
 fetch('/branch').then(async (res)=>{
     document.querySelector('p.branch').innerText = `branch: ${await res.text()}`; 
 })
 
 const socket = io();
+
+socket.on('message', ({ message, sender }) => {
+    const s = (sender === socket.id ? '(YOU)': '') + members.find(m =>m.id === sender).username;
+    l.print(`${s}: ${message}`);
+})
+
+socket.on('users', membersList => {
+    members = membersList;
+    membersTab.innerHTML = '';
+    membersList.forEach(m => {
+        let el
+        if  (m.id === socket.id ) {
+            el = document.createElement( 'input');
+            el.value = '(YOU)' + m.username;
+            el.autocomplete = 'off';
+            el.classList.add('textbox');
+            el.addEventListener('keydown', e => e.key === 'Enter'? handleSendUsername(e.target): null )
+
+        } else  {
+            el = document.createElement( 'span');
+            el.innerText = m.username
+
+        }
+        el.classList.add('log-entry');
+        el.style.color = m.role === 'admin'? '#dc322f' : '#586e75'
+        membersTab.appendChild(el)
+    })
+});
 
 socket.on('ping', () => socket.emit('ping'));
 
@@ -38,6 +84,7 @@ socket.on('role',(msg)=>{
 })
 
 socket.on('set_status',(msg)=>{
+    console.log(msg)
     if (msg.playing !== state.playing) {
         console.log(`state != message`)
         state.playing = msg.playing
@@ -75,14 +122,15 @@ video.addEventListener('seeking', function() {
   }
 });
 
+messageTextbox.addEventListener('keydown', e => e.key === 'Enter'? handleSendMessage(): null ) // on enter send message
+sendButton.addEventListener('click', () => handleSendMessage())
+
 setInterval(() => timesSkipped > 0? timesSkipped-- : null, 5000);
 
 setInterval(() => {
     if (isAdmin) socket.emit('request_ping');
-}, 1000)
+}, 5000)
 
 setInterval(()=>{
-    if (isAdmin) {
-        socket.emit('video_status', {playing:!video.paused,time:supposedCurrentTime});
-    }
-},100)
+    if (isAdmin) socket.emit('video_status', {playing:!video.paused,time:supposedCurrentTime});
+},500)
