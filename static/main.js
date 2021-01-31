@@ -56,9 +56,19 @@ video.onplay = () => {
 }
 
 var supposedCurrentTime = 0;
+
+
 video.addEventListener('timeupdate', function() {
   if (!video.seeking) {
         supposedCurrentTime = video.currentTime;
+  }
+});
+
+video.addEventListener('seeking', function() {
+  var delta = video.currentTime - supposedCurrentTime;
+  if (Math.abs(delta) > 0.01 && !isAdmin) {
+    
+    //ideo.currentTime = supposedCurrentTime;
   }
 });
 
