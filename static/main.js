@@ -24,6 +24,9 @@ let isAdmin = false;
 let timesSkipped = 0;
 let state = {playing:true};
 
+fetch('/branch').then(async (res)=>{
+    document.querySelector('p.branch').innerText = `branch: ${await res.text()}`; 
+})
 
 const socket = io();
 

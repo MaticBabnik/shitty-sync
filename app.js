@@ -3,6 +3,7 @@ const app = express();
 // noinspection JSValidateTypes
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const branchName = require('current-git-branch')() || '?';
 
 const socketsMap = new Map();
 const pingMap = {};
@@ -24,6 +25,9 @@ const onPing = function () {
     room[rooms.get(roomId).findIndex(({id}) => id === this.id)].latency = (new Date() - pingStart) / 1000
     rooms.set(roomId, room);
 }
+app.get('/branch',(req,res)=>{
+        res.send(branchName);
+})
 
 const onPingRequest = function () {
     const roomId = socketsMap.get(this.id);
