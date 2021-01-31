@@ -21,11 +21,23 @@
                 </video>
             </div>
         </div>
-        <div id="log">
+        <div class="tab-control">
+            <div class="tab-list">
+                <div class="tab-header active">Log</div>
+                <div class="tab-header">Media</div>
+                <div class="tab-header">Members</div>
+                <div class="tab-header">Debug</div>
+                <div class="tab-header-end"></div>
+            </div>
+            <div class="tab-content active" id="Log">Hello from tab 1</div>
+            <div class="tab-content" id="Media">Hello from tab 2</div>
+            <div class="tab-content" id="Members">Hello from tab 3</div>
+            <div class="tab-content" id="Debug">Hello from tab 4</div>
         </div>
     </div>
     <script src="https://vjs.zencdn.net/7.10.2/video.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="./tab.js"></script>
     <script src="./main.js"></script>
 </body>
 

@@ -2,11 +2,15 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+const branchName = require('current-git-branch')() || '?';
 
 let users = [];
 
 app.use('/', express.static('static'))
 
+app.get('/branch',(req,res)=>{
+        res.send(branchName);
+})
 
 io.on('connection', (socket) => {
 
