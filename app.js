@@ -6,8 +6,9 @@ const io = require('socket.io')(http);
 const branchName = require('current-git-branch')() || '?';
 const { Socket } = require('socket.io')
 
-let rooms = new Map();
+const rooms = new Map();
 const pingMap = new Map();
+const mediaMap = new Map();
 const socketsMap = new Map();
 
 const roomRegex = /(?<=\?room=)[^&]+/;
@@ -89,6 +90,13 @@ const onVideoStatus = function ({ playing, time}) {
     this.to(roomId).emit('set_status', { playing, time: correctedTime });
 }
 
+const onNewVideoSource = function (newVideoSource) {
+    if (!isAdmin(this.id)) return null;
+    const roomId = socketsMap.get(this.id);
+    mediaMap.set(roomId, newVideoSource);
+    io.to(roomId).emit('set_media', newVideoSource)
+}
+
 const onDisconnect = function () {
     const socket = this;
     const roomId = socketsMap.get(socket.id)
@@ -97,7 +105,6 @@ const onDisconnect = function () {
     const disconnectedUserIndex = room.findIndex(({ id }) => id === socket.id);
     const disconnectedUser = room.splice(disconnectedUserIndex, 1)[0];
 
-    room.length ? rooms.set(roomId, room) : rooms.delete(roomId);
     socketsMap.delete(socket.id)
 
     if (disconnectedUser.role === 'admin' && room.length) {
@@ -105,6 +112,15 @@ const onDisconnect = function () {
         room[0].role = 'admin';
         rooms.set(roomId, room)
         io.to(room[0].id).emit('role', 'admin')
+    }
+
+    if (room.length) {
+        rooms.set(roomId, room)
+        io.to(roomId).emit('users', room);
+    } else {
+        rooms.delete(roomId);
+        pingMap.delete(roomId);
+        mediaMap.delete(roomId);
     }
 }
 
@@ -125,9 +141,11 @@ const onConnection = (socket) => {
 
     io.to(roomId).emit('users', rooms.get(roomId));
     socket.emit('role', rooms.get(roomId).find(({ id }) => id === socket.id).role);
+    socket.emit('set_media', mediaMap.get(roomId) || mediaMap.set(roomId, 'http://vedro.works.si/%5BZ4ST1N%5D+Kaifuku+Jutsushi+no+Yarinaoshi+-+02+%5BB141BC23%5D.m4v') && mediaMap.get(roomId));
 
     socket.on('request_ping', onPingRequest);
     socket.on('video_status', onVideoStatus);
+    socket.on('video_source', onNewVideoSource);
 
     socket.on('message', onMessage);
     socket.on('username', onUsernameChange);

@@ -6,6 +6,8 @@ const membersTab = document.querySelector('#member-list');
  */
 const messageTextbox = document.querySelector('#message-textbox');
 const sendButton = document.querySelector('#message-send-btn');
+const loadMediaButton = document.querySelector('#Media .btn');
+const mediaTextbox = document.querySelector('#Media .textbox');
 /**
  * @type {HTMLVideoElement}
  */
@@ -83,8 +85,12 @@ socket.on('role',(msg)=>{
     isAdmin = msg === 'admin';
 })
 
+socket.on('set_media', videoSrc => {
+    video.src = videoSrc;
+    video.currentTime = 0;
+})
+
 socket.on('set_status',(msg)=>{
-    console.log(msg)
     if (msg.playing !== state.playing) {
         console.log(`state != message`)
         state.playing = msg.playing
@@ -123,7 +129,15 @@ video.addEventListener('seeking', function() {
 });
 
 messageTextbox.addEventListener('keydown', e => e.key === 'Enter'? handleSendMessage(): null ) // on enter send message
-sendButton.addEventListener('click', () => handleSendMessage())
+sendButton.addEventListener('click', handleSendMessage);
+
+
+
+const sendMediaSource = () => socket.emit('video_source', mediaTextbox.value);
+loadMediaButton.addEventListener('click', sendMediaSource);
+mediaTextbox.addEventListener('keydown', e => e.key === 'Enter' ?  sendMediaSource(): null)
+
+
 
 setInterval(() => timesSkipped > 0? timesSkipped-- : null, 5000);
 
