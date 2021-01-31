@@ -11,10 +11,10 @@
 </head>
 
 <body>
-    <noscript>FUCK YOU GIV JAVASCRIPT</noscript>
+    <noscript>! This page requires Javascript !</noscript>
     <div id="split">
         <div id="videoc">
-            <h1 class="title">Shitty video sync al neki idk</h1>
+            <h1 class="title">Shitty sync </h1>
             <div id="videow">
                 <video id="video" class="video-js vjs-theme-fr-solarized" controls preload="auto" data-setup="{}">
                     <source src="http://vedro.works.si/%5BZ4ST1N%5D+Kaifuku+Jutsushi+no+Yarinaoshi+-+02+%5BB141BC23%5D.m4v" type="video/mp4" />
@@ -29,10 +29,24 @@
                 <div class="tab-header">Debug</div>
                 <div class="tab-header-end"></div>
             </div>
-            <div class="tab-content active" id="Log">Hello from tab 1</div>
-            <div class="tab-content" id="Media">Hello from tab 2</div>
-            <div class="tab-content" id="Members">Hello from tab 3</div>
-            <div class="tab-content" id="Debug">Hello from tab 4</div>
+            <div class="tab-content active" id="Log">
+                <div id="log">
+                    <i>-- start of log --</i>
+                </div>
+            </div>
+            <div class="tab-content" id="Media">
+                <p>Media source: </p>
+                <input type="text" class="textbox">
+                <div class="btn">Load</div>
+            </div>
+            <div class="tab-content" id="Members">
+                <div id="member-list">
+
+                </div>
+            </div>
+            <div class="tab-content" id="Debug">
+                <p class="branch"></p>
+            </div>
         </div>
     </div>
     <script src="https://vjs.zencdn.net/7.10.2/video.min.js"></script>
@@ -40,5 +54,4 @@
     <script src="./tab.js"></script>
     <script src="./main.js"></script>
 </body>
-
 </html>

@@ -23,6 +23,9 @@ const l = {
 let isAdmin = false;
 let state = {playing:true};
 
+fetch('/branch').then(async (res)=>{
+    document.querySelector('p.branch').innerText = `branch: ${await res.text()}`; 
+})
 
 const socket = io();
 

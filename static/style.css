@@ -1,3 +1,4 @@
+/*#region colors*/
 /*
 Base03		15	−12	−12	#002b36	0	43	54	234	brblack
 Base02		20	−12	−12	#073642	7	54	66	235	black
@@ -16,6 +17,8 @@ Blue		55	−10	−45	#268bd2	38	139	210	33	blue
 Cyan		60	−35	−05	#2aa198	42	161	152	37	cyan
 Green		60	−20	65	#859900	133	153	0	64	green
 */
+/*#endregion*/
+
 
 @font-face {
     font-family: 'Jetbrains Mono';
@@ -32,7 +35,8 @@ Green		60	−20	65	#859900	133	153	0	64	green
 }
 
 .btn {
-    border: 1px solid #586e75;
+    border: 1px solid #268bd2;
+    color:#268bd2;
     margin: 5px !important;
     padding: 5px !important;
     user-select: none;
@@ -40,7 +44,8 @@ Green		60	−20	65	#859900	133	153	0	64	green
     border-radius: 3px;
 }
 .btn:hover {
-    background-color: #fff4;
+    background-color: #268bd2;
+    color:#002b36;
 }
 
 html,body {
@@ -52,9 +57,20 @@ html {
     background: #002b36	;
 }
 #log {
-    border: 1px solid #586e75;
-    margin: 5px;
-    padding: 5px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: scroll;
+}
+
+#member-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     overflow-y: scroll;
 }
 
@@ -115,6 +131,7 @@ html {
     flex-direction: column;
     align-items: stretch;
     width: 50%;
+    position: relative;
     max-width: 400px;
 }
 .tab-list {
@@ -141,11 +158,37 @@ html {
 }
 .tab-content {
     border: 1px solid #268bd2;
+    position: relative;
     border-top: none;
     display: none;
-    flex:1;
+    height: 100%;
 }
 
 .tab-content.active{
     display: block;
+}
+
+#Media {
+    padding:5px;
+}
+
+
+.textbox {
+    border:none;
+    outline: none;
+    padding: 5px;
+    background-color: #0001;
+
+}
+.textbox:active {
+    border-bottom: 1px #268bd2 solid;
+    outline: none;
+    background-color: #073642;
+    box-shadow: 0px 0px 3px #268bd2;
+}
+.textbox:focus {
+    border-bottom: 1px #268bd2 solid;
+    background-color: #073642;
+    outline: none;
+    box-shadow: 0px 0px 3px #268bd2;
 }
