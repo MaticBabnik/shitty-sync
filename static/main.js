@@ -11,6 +11,9 @@ const mediaTextbox = document.querySelector('#Media .textbox');
 /**
  * @type {HTMLVideoElement}
  */
+// https://docs.videojs.com/
+// READ THE DOCS REEEEEE
+const player = videojs('video');
 const video =document.querySelector('#video');
 
 const l = {
@@ -83,22 +86,29 @@ socket.on('ping', () => socket.emit('ping'));
 socket.on('role',(msg)=>{
     l.print(`got role: ${msg}`);
     isAdmin = msg === 'admin';
+    if (!isAdmin) {
+        player.controlBar.playToggle.disable();
+        player.controlBar.playToggle.hide();
+        player.controlBar.progressControl.disable();
+    } else {
+        player.controlBar.playToggle.enable();
+        player.controlBar.playToggle.show();
+        player.controlBar.progressControl.enable();
+    }
 })
 
 socket.on('set_media', videoSrc => {
     video.src = videoSrc;
-    video.currentTime = 0;
+    player.currentTime(0);
 })
 
 socket.on('set_status',(msg)=>{
     if (msg.playing !== state.playing) {
         console.log(`state != message`)
         state.playing = msg.playing
-        state.playing ? video.play() : video.pause()
+        state.playing ? player.play() : player.pause()
     }
-    if (Math.abs(msg.time - supposedCurrentTime) > 0.1) {
-        video.currentTime = msg.time;
-    }
+    if (Math.abs(msg.time - player.currentTime()) > 0.2) player.currentTime(parseInt(msg.time));
 })
 
 video.onpause = () => {
@@ -143,8 +153,8 @@ setInterval(() => timesSkipped > 0? timesSkipped-- : null, 5000);
 
 setInterval(() => {
     if (isAdmin) socket.emit('request_ping');
-}, 5000)
+}, 500)
 
 setInterval(()=>{
-    if (isAdmin) socket.emit('video_status', {playing:!video.paused,time:supposedCurrentTime});
-},500)
+    if (isAdmin) socket.emit('video_status', {playing:!player.paused(),time: player.currentTime()});
+},250)
