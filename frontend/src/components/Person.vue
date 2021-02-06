@@ -2,11 +2,12 @@
     <div class="user-card">
         <span class="nickname">
             {{nickname}}
+            <div class="small-btn" v-if="isLocalUser">Edit</div>    
         </span>
         <span class="id">
             {{id}}
         </span>
-        <span class="role">
+        <span :class="`role ${role == 'admin'?'admin':''}`">
             {{role}}
             <div class="small-btn" v-if="isLocalUserAdmin && role != 'admin'">Promote</div>    
         </span>
@@ -20,7 +21,8 @@ export default {
         nickname:{type:String,required:true},
         id:{type:String,required:true},
         role:{type:String,required:true},
-        isLocalUserAdmin:{type:Boolean,required:true}
+        isLocalUserAdmin:{type:Boolean,required:true},
+        isLocalUser:{type:Boolean,required:true}
     }
 }
 </script>
@@ -33,12 +35,16 @@ export default {
     padding: 4px;
     border: 1px solid @base01;
     border-radius: 4px;
+    font-size: 12px;
     .nickname{
         font-weight: 600;
         color:@green;
+        height: fit-content;
+        margin:2px;
         width: fit-content;
     }
     .id {
+        margin:2px;
         width: fit-content;
         background-color: @base02;
         border-radius: 2px;
@@ -47,8 +53,13 @@ export default {
         border: 1px solid @base01;
     }
     .role{
+        height: fit-content;
         width: fit-content;
+        margin:2px;
         font-weight: 600;
+        color:@blue;
+    }
+    .role.admin {
         color:@yellow;
     }
     .small-btn {

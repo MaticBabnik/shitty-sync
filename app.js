@@ -4,6 +4,7 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const branchName = require('current-git-branch')() || '?';
+const connectHistoryApiFallback = require('connect-history-api-fallback')
 
 const socketsMap = new Map();
 const pingMap = {};
@@ -13,8 +14,9 @@ const roomRegex = /(?<=\?room=)[^&]+/
 let adminPing = 0;
 let pingStart = 0;
 let rooms = new Map();
+app.use(connectHistoryApiFallback());
+app.use('/', express.static('frontend/dist'))
 
-app.use('/', express.static('static'))
 
 const onPing = function () {
     const roomId = socketsMap.get(this.id);
@@ -91,6 +93,6 @@ const onConnection = (socket) => {
 }
 
 
-io.on("connection", onConnection);
+//io.on("connection", onConnection);
 
-http.listen(5500);
+http.listen(8080);

@@ -11,6 +11,7 @@
           :id="person.id"
           :role="person.role"
           :isLocalUserAdmin="index != 0"
+          :isLocalUser="index == 0"
         />
       </div>
       <h1 class="section-title">Source:</h1>

@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "dev": "vue-cli-service build --watch",
     "lint": "vue-cli-service lint",
     "scan-emotes": "node ./misc/dump-emotes.js"
   },
@@ -12,6 +13,7 @@
     "core-js": "^3.6.5",
     "video.js": "^7.10.2",
     "vue": "^3.0.0",
+    "vue-github-button": "^3.0.0",
     "vue-router": "^4.0.0-0"
   },
   "devDependencies": {
