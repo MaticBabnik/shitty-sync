@@ -46,6 +46,12 @@ export default {
         Videojs,
         Person,
     },
+    //socketio events
+    sockets:{
+      connection() {
+        console.log('Sockets connected');
+      }
+    },
     data() {
         return {
             messages: [

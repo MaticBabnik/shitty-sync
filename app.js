@@ -1,10 +1,19 @@
 const express = require('express');
 const app = express();
-// noinspection JSValidateTypes
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+
 const branchName = require('current-git-branch')() || '?';
-const connectHistoryApiFallback = require('connect-history-api-fallback')
+const connectHistoryApiFallback = require('connect-history-api-fallback');
+const morgan = require('morgan')
+const { listen } = require('socket.io');
+
+const http = require('http').Server(app);
+
+const io = require('socket.io')(http);
+
+//express middleware
+app.use(morgan('tiny'));
+app.use(connectHistoryApiFallback());
+app.use('/', express.static('frontend/dist'))
 
 const socketsMap = new Map();
 const pingMap = {};
@@ -14,9 +23,6 @@ const roomRegex = /(?<=\?room=)[^&]+/
 let adminPing = 0;
 let pingStart = 0;
 let rooms = new Map();
-app.use(connectHistoryApiFallback());
-app.use('/', express.static('frontend/dist'))
-
 
 const onPing = function () {
     const roomId = socketsMap.get(this.id);
@@ -27,9 +33,6 @@ const onPing = function () {
     room[rooms.get(roomId).findIndex(({id}) => id === this.id)].latency = (new Date() - pingStart) / 1000
     rooms.set(roomId, room);
 }
-app.get('/branch',(req,res)=>{
-        res.send(branchName);
-})
 
 const onPingRequest = function () {
     const roomId = socketsMap.get(this.id);
@@ -70,6 +73,9 @@ const onDisconnect = function () {
  * @param socket
  */
 const onConnection = (socket) => {
+    console.log(`referer: ${socket.request.headers.referer}`)
+
+    return;
     console.log('New user connected');
     const regexMatch = roomRegex.exec(socket.request.headers.referer)
     const roomId = regexMatch===null? 'default' : regexMatch[0];
@@ -93,6 +99,8 @@ const onConnection = (socket) => {
 }
 
 
-//io.on("connection", onConnection);
+io.on("connection", onConnection);
 
-http.listen(8080);
+http.listen(8080,()=>{
+    console.log('Listening on 8080');
+});
