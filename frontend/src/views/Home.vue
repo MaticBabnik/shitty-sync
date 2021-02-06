@@ -19,25 +19,25 @@
 import GithubButton from 'vue-github-button'
 
 export default {
-  components: {
-      // eslint-disable-next-line
+    components: {
+        // eslint-disable-next-line
     GithubButton
-  },
-  methods: {
-      removeUnsafeChars(e) {
-          // eslint-disable-next-line
+    },
+    methods: {
+        removeUnsafeChars(e) {
+            // eslint-disable-next-line
           e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9\-]/ig,'').substring(0,16);
-      },
-      gotoRoom() {
-          // eslint-disable-next-line
+        },
+        gotoRoom() {
+            // eslint-disable-next-line
           const code = this.$refs.roomCode.value.toUpperCase().replace(/[^A-Z0-9\-]/ig,'').substring(0,16);
-          if (code.length > 2)
-            this.$router.push({name:'Room',params:{id:code}});
-          else
-            alert('Invalid code')
-      }
-  }
-  // ...
+            if (code.length > 2)
+                this.$router.push({name:'Room',params:{id:code}});
+            else
+                alert('Invalid code')
+        }
+    }
+    // ...
 }
 </script>
 
