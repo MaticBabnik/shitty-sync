@@ -105,6 +105,7 @@ export default {
                 user: "local",
                 content: this.$refs.chatInput.value,
             });
+            this.$socket.send('msg',{msg:this.$refs.chatInput.value})
             this.$refs.chatInput.value = "";
             this.singleLineAutoGrow({ target: this.$refs.chatInput });
         },
