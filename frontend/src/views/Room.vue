@@ -32,87 +32,119 @@
         @keypress.enter="sendMessage"
       ></textarea>
     </div>
+    <div class="popup" v-if="!roomReady">
+      <img src="@/assets/Spinner.svg" />
+      <p>{{ status }}</p>
+    </div>
   </div>
 </template>
 
 <script>
+import { io } from "socket.io-client";
+//const roomCodeRegex= /^[A-Z0-9\-]{3,16}$/i
+
 import Message from "../components/Message.vue";
 import Videojs from "../components/videojs.vue";
 import Person from "@/components/Person.vue";
-
+import { waitFor, delay } from "../async-utils";
+import util from "@/util";
 export default {
-    components: {
-        Message,
-        Videojs,
-        Person,
+  components: {
+    Message,
+    Videojs,
+    Person,
+  },
+  data() {
+    return {
+      latency: {
+        start: null,
+        records: [],
+        last: 0,
+      },
+      timeOffset: 0,
+      roomCode: "",
+      roomValid: false,
+      status: "Waiting for WS",
+      roomReady: false,
+      socket: null,
+      messages: [],
+      people: [],
+      videoOptions: {
+        autoplay: false,
+        controls: true,
+        sources: [],
+      },
+    };
+  },
+  methods: {
+    singleLineAutoGrow(e) {
+      e.target.value = e.target.value.replace(/\n/g, "");
+      e.target.value = e.target.value.substring(0, 140);
+      e.target.style.height = e.target.scrollHeight - 4 + "px";
     },
-    //socketio events
-    sockets:{
-      connection() {
-        console.log('Sockets connected');
-      }
+    sendMessage() {
+      //mock
+      this.messages.unshift({
+        user: "local",
+        content: this.$refs.chatInput.value,
+      });
+      this.socket.send("msg", { msg: this.$refs.chatInput.value });
+      this.$refs.chatInput.value = "";
+      this.singleLineAutoGrow({ target: this.$refs.chatInput });
     },
-    data() {
-        return {
-            messages: [
-                { user: "Test1", content: "lmfaodasdas" },
-                { user: "Test2", content: "lmdasdasdfao" },
-                { user: "Test3", content: "lmfaasdasdo" },
-                { user: "Test4", content: "lmfdasdaao" },
-                { user: "Test5", content: "lmfasdao" },
-                { user: "Test6", content: "lmsdadasfao" },
-                {
-                    user: "Test7",
-                    content:
-            "Any gifters in the chat? xqcL Any gifters in the chat? xqcL Any gifters in the chat? xqcL Any gifters in the chat? xqcL Any gifters in the chat? xqcL ",
-                },
-                { user: "Test8", content: "lmfao" },
-                { user: "Test9", content: "lmfaadso" },
-                { user: "Test10", content: "lmfasdao" },
-                { user: "Test1", content: "lmfadsado" },
-            ],
-            people: [
-                { username: "Matic", role: "admin", id: "3127912874912" },
-                { username: "David", role: "user", id: "2142549168942" },
-                { username: "MrPandaBear", role: "user", id: "4525287443915" },
-                { username: "GeorgeFloyd", role: "user", id: "2158891989212" },
-                { username: "xd", role: "user", id: "8421941284899" },
-                { username: "tilen", role: "user", id: "1241242125124" },
-                { username: "xd2", role: "user", id: "3128423841912" },
-            ],
-            videoOptions: {
-                autoplay: true,
-                controls: true,
-                sources: [
-                    {
-                        src:
-              "http://vedro.works.si/%5BRAPE%5D+Kaifuku+Jutsushi+no+Yarinaoshi+-+03+(720p)+%5B0556E66F%5D.m4v",
-                        type: "video/mp4",
-                    },
-                ],
-            },
-        };
+    async ping() {
+      this.latency.start = Date.now();
+      this.socket.emit("ping");
+      await waitFor(this.socket, "pingret");
     },
-    methods: {
-        singleLineAutoGrow(e) {
-            e.target.value = e.target.value.replace(/\n/g, "");
-            e.target.value = e.target.value.substring(0, 140);
-            e.target.style.height = e.target.scrollHeight - 4 + "px";
-        },
-        sendMessage() {
-            //mock
-            this.messages.unshift({
-                user: "local",
-                content: this.$refs.chatInput.value,
-            });
-            this.$socket.send('msg',{msg:this.$refs.chatInput.value})
-            this.$refs.chatInput.value = "";
-            this.singleLineAutoGrow({ target: this.$refs.chatInput });
-        },
+    onPingReturn() {
+      let latency = Date.now() - this.latency.start;
+      this.latency.records.push(latency);
+      this.latency.last = latency;
+      console.log(`Ping: ${latency}`);
     },
-    mounted() {
-        this.singleLineAutoGrow({ target: this.$refs.chatInput });
-    },
+    getTime() {
+      return Date.now() + this.timeOffset;
+    }
+  },
+  async mounted() {
+    this.singleLineAutoGrow({ target: this.$refs.chatInput });
+
+    // if (this.$route.path)
+    let roomCode = this.$route.path.split("/")[1];
+    this.roomCode = roomCode;
+    this.socket = io();
+
+    await waitFor(this.socket, "connect");
+    this.socket.on("pingret", this.onPingReturn);
+
+    await delay(200);
+
+    for (let i = 1; i <= 10; i++) {
+      this.status = `Calculating latency ${i}/10`;
+      await this.ping();
+    }
+
+    const latency = util.average(util.ignoreWorst(this.latency.records));
+
+    console.log({ latency });
+    this.status = "Syncing time...";
+
+    this.socket.emit("synctime", { latency });
+    const serverTime = await waitFor(this.socket, "synctime");
+    console.log(`The server time is ${serverTime}`);
+    this.timeOffset = serverTime - Date.now();
+
+    this.socket.emit('testtime',{time: this.getTime() + latency/2});
+    const delta = await waitFor(this.socket,'testtime');
+
+    console.log(`delta @ client : ${this.timeOffset}\ndelta @ sever : ${delta}`);
+
+    this.status = 'Getting room info';
+
+
+    this.roomReady = true ;
+  },
 };
 </script>
 
@@ -207,5 +239,30 @@ input:focus {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: #2aa198;
+}
+
+.popup {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  img {
+    height: 40%;
+    width: 40%;
+  }
+  p {
+    color: @base00;
+    font-size: 32px;
+  }
 }
 </style>
