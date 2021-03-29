@@ -56,7 +56,7 @@ export default morgan((tokens, req, res)=>{
         chalk.ansi256(15).bold(padRight(tokens.url(req, res),50)),
         chalk.ansi256(76).bold(tokens['response-time'](req, res) + ' ms')
     ]
-    if (status == '404' && req.url?.includes('login')){
+    if (status == '404' && req.url?.toLowerCase()?.includes('login')){
         a.push('\n');
         a.push(`chink spotted @ ${tokens['remote-addr'](req,res)}`);
     }

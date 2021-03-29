@@ -18,6 +18,19 @@ export class Room {
 
         this.status = new RoomStatus();
     }
+    /**
+     * Returns the room as a simple object for the frontend
+     */
+    public serialize() {
+        return {
+            id: this.roomId,
+            users: [...this.users.entries()].map(user=>({
+                nickname:user[1].name,
+                id: user[0],
+                role: user[0] == this.ownerId ? 'admin' : 'user'
+            }))
+        }
+    }
 
 }
 

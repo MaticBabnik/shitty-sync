@@ -1,15 +1,23 @@
 <template>
     <div class="user-card">
-        <span class="nickname">
+        <span v-if="!editing" class="nickname">
             {{nickname}}
-            <div class="small-btn" v-if="isLocalUser">Edit</div>    
+            <div class="small-btn" v-if="isLocalUser" @click="editing=true" >Edit</div>    
         </span>
+        <input type="text" v-else 
+            @keydown.enter="changeNick"
+            @keydown.esc="editing=false"
+        >
         <span class="id">
             {{id}}
         </span>
         <span :class="`role ${role == 'admin'?'admin':''}`">
             {{role}}
-            <div class="small-btn" v-if="isLocalUserAdmin && role != 'admin'">Promote</div>    
+            <div 
+                class="small-btn"
+                v-if="isLocalUserAdmin && role != 'admin'"
+                @click="$emit('promote',id)"
+                >Promote</div>    
         </span>
         
     </div>
@@ -23,6 +31,21 @@ export default {
         role:{type:String,required:true},
         isLocalUserAdmin:{type:Boolean,required:true},
         isLocalUser:{type:Boolean,required:true}
+    },
+    emits:[
+        'promote',
+        'changeNick'
+    ],
+    data() {
+        return {
+            editing:false
+        }
+    },
+    methods:{
+        changeNick(e) {
+            this.editing=false;
+            this.$emit('changeNick',e.target.value);
+        }
     }
 }
 </script>
@@ -51,6 +74,7 @@ export default {
         font-family: monospace;
         color: @base00;
         border: 1px solid @base01;
+        font-size: 9px;
     }
     .role{
         height: fit-content;
