@@ -21,18 +21,27 @@
         </div>
         <div id="chat">
             <div class="msg-container">
-                <message
-                    v-for="(message, index) in messages"
-                    :key="index"
-                    :username="message.user"
-                    :message="message.content"
-                />
+                <template v-for="(message, index) in messages">
+                    <message
+                        v-if="message.type == 0"
+                        :key="index * 2"
+                        :username="message.username"
+                        :message="message.text"
+                    />
+                    <system-message
+                        v-else
+                        :key="index * 2 + 1"
+                        :message="message.text"
+                        :level="message.level"
+                    />
+                </template>
             </div>
             <textarea
                 ref="chatInput"
                 @input="singleLineAutoGrow"
                 @keypress.enter="sendMessage"
             ></textarea>
+            <progress-bar :value="nextMessage.progress" />
         </div>
         <div class="popup" v-if="!roomReady">
             <img src="@/assets/Spinner.svg" />
@@ -44,19 +53,24 @@
 <script>
 import { io } from "socket.io-client";
 
-const roomCodeRegex = /^[A-Z0-9\-]{3,16}$/i;
-const nicknameRegex = /^[a-z0-9_-]{3,24}$/i;
-import Message from "../components/Message.vue";
-import Videojs from "../components/videojs.vue";
+import SystemMessage from "@/components/SystemMessage.vue";
+import ProgressBar from "@/components/ProgressBar.vue";
+import Message from "@/components/Message.vue";
+import Videojs from "@/components/videojs.vue";
 import Person from "@/components/Person.vue";
+
 import { waitFor, delay } from "../async-utils";
+import constants from "@/constants";
 import util from "@/util";
-import { compile } from "morgan";
+
 export default {
     components: {
         Message,
         Videojs,
         Person,
+        ProgressBar,
+        SystemMessage,
+        Message,
     },
     data() {
         return {
@@ -68,10 +82,15 @@ export default {
             timeOffset: 0,
             roomCode: "",
             roomValid: false,
+            nextMessage: {
+                time: Date.now(),
+                progress: 100,
+            },
             status: "Waiting for WS",
             roomReady: false,
             socket: null,
-            messages: [],
+            messages: [
+            ],
             users: [],
             admin: false,
             videoOptions: {
@@ -88,14 +107,22 @@ export default {
             e.target.style.height = e.target.scrollHeight - 4 + "px";
         },
         sendMessage() {
-            //mock
-            this.messages.unshift({
-                user: "local",
-                content: this.$refs.chatInput.value,
-            });
-            this.socket.send("msg", { msg: this.$refs.chatInput.value });
+            if (this.nextMessage.progress !== 100) return;
+            if (this.$refs.chatInput.value.trim().length < 1) return;
+            this.socket.emit("msg", { text: this.$refs.chatInput.value });
             this.$refs.chatInput.value = "";
             this.singleLineAutoGrow({ target: this.$refs.chatInput });
+            this.nextMessage.time = Date.now() + constants.messageCooldown;
+            requestAnimationFrame(this.updateProgressbar);
+        },
+        updateProgressbar() {
+            const d =
+                Date.now() - this.nextMessage.time + constants.messageCooldown;
+
+            this.nextMessage.progress =
+                Math.min(d, constants.messageCooldown) / 10.0;
+            if (this.nextMessage.progress !== 100)
+                requestAnimationFrame(this.updateProgressbar);
         },
         async ping() {
             this.latency.start = Date.now();
@@ -117,14 +144,20 @@ export default {
                 this.users.find((x) => x.id === this.socket.id).role ===
                 "admin";
         },
+        msg(args) {
+            this.messages.unshift({type:0,username:args.username,text:args.text});
+        },
+        sysmsg(args) {
+            this.messages.unshift({type:1,level:args.level,text:args.text});
+        },
         promote(id) {
             this.socket.emit("promote", { target: id });
         },
         changeNick(newNick) {
-            if (nicknameRegex.test(newNick)) {
-                this.socket.emit('changenick',{nickname:newNick});
+            if (constants.nameRegex.test(newNick)) {
+                this.socket.emit("changenick", { nickname: newNick });
             }
-        }
+        },
     },
     async mounted() {
         this.singleLineAutoGrow({ target: this.$refs.chatInput });
@@ -170,7 +203,8 @@ export default {
         this.updateRoom(roomdata);
 
         this.socket.on("updateroom", this.updateRoom);
-
+        this.socket.on("msg", this.msg);
+        this.socket.on("sysmsg",this.sysmsg);
         this.roomReady = true;
     },
 };

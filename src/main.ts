@@ -5,7 +5,6 @@ import morgan from './misc/morgan'
 import { Socket } from 'socket.io';
 import { Room } from './Room';
 import User from './User';
-import { italic } from 'chalk';
 
 const roomRegex = /(room\/)([a-z0-9\-]{3,16})(\/|$)/i;
 const app = express();
@@ -64,7 +63,7 @@ io.on('connect', (socket: Socket) => {
                 if (room?.ownerId == socket.id && targetUser) {
                     room.ownerId = args.target;
                 }
-
+                io.to(roomId).emit('sysmsg',{text:`${socket.id} set ${args.target} as new owner`,level:'info'})
                 io.to(roomId).emit('updateroom', room?.serialize());
             });
 
@@ -73,12 +72,22 @@ io.on('connect', (socket: Socket) => {
                     
                     const e = room?.users.get(socket.id)?.changeName(args.nickname);
                     if (e) {
-                        socket.emit('error',{error:e});
+                        socket.emit('sysmsg',{text:e,level:'warn'});
                     }
-                    io.to(roomId).emit('updateroom',room?.serialize());/^[a-z0-9_-]{3,24}$/
+                    io.to(roomId).emit('updateroom',room?.serialize());
                 }
             })
-
+            socket.on('msg', args=>{
+                if (typeof(args.text) === 'string') {
+                    if (room?.users.get(socket.id)?.canSendMessage()) {
+                        io.to(roomId).emit('msg',{username: room.users.get(socket.id)?.name,text:args.text})
+                    } else {
+                        socket.emit('sysmsg',{text:"You are sending messages to fast.",level:"warn"});
+                    }
+                } else {
+                    socket.emit('sysmsg',{text:"Invalid message"});
+                }
+            })
             socket.on('disconnect', () => {
                 console.log(`${socket.id} left ${roomId}`);
                 room?.users.delete(socket.id);

@@ -19,6 +19,7 @@
 import GithubButton from 'vue-github-button'
 
 export default {
+    //TODO: FIX THIS CRAP
     components: {
         // eslint-disable-next-line
     GithubButton
