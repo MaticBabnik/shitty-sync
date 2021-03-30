@@ -89,8 +89,7 @@ export default {
             status: "Waiting for WS",
             roomReady: false,
             socket: null,
-            messages: [
-            ],
+            messages: [],
             users: [],
             admin: false,
             videoOptions: {
@@ -101,20 +100,17 @@ export default {
         };
     },
     methods: {
+        
+        //? ------------------------------------------------------------------------
+        //? UI CODE
+        //? ------------------------------------------------------------------------
+
         singleLineAutoGrow(e) {
             e.target.value = e.target.value.replace(/\n/g, "");
             e.target.value = e.target.value.substring(0, 140);
             e.target.style.height = e.target.scrollHeight - 4 + "px";
         },
-        sendMessage() {
-            if (this.nextMessage.progress !== 100) return;
-            if (this.$refs.chatInput.value.trim().length < 1) return;
-            this.socket.emit("msg", { text: this.$refs.chatInput.value });
-            this.$refs.chatInput.value = "";
-            this.singleLineAutoGrow({ target: this.$refs.chatInput });
-            this.nextMessage.time = Date.now() + constants.messageCooldown;
-            requestAnimationFrame(this.updateProgressbar);
-        },
+
         updateProgressbar() {
             const d =
                 Date.now() - this.nextMessage.time + constants.messageCooldown;
@@ -124,46 +120,79 @@ export default {
             if (this.nextMessage.progress !== 100)
                 requestAnimationFrame(this.updateProgressbar);
         },
+
+        getTime() {
+            return Date.now() + this.timeOffset;
+        },
+
+        //? ------------------------------------------------------------------------
+        //? Socket event emitters
+        //? ------------------------------------------------------------------------
+        
+        promote(id) {
+            this.socket.emit("promote", { target: id });
+        },
+
+        changeNick(newNick) {
+            if (constants.nameRegex.test(newNick)) {
+                this.socket.emit("changenick", { nickname: newNick });
+            }
+        },
+
         async ping() {
             this.latency.start = Date.now();
             this.socket.emit("ping");
             await waitFor(this.socket, "pingret");
         },
+
+        sendMessage() {
+            if (this.nextMessage.progress !== 100) return;
+            if (this.$refs.chatInput.value.trim().length < 1) return;
+            this.socket.emit("msg", { text: this.$refs.chatInput.value });
+            this.$refs.chatInput.value = "";
+            this.singleLineAutoGrow({ target: this.$refs.chatInput });
+            this.nextMessage.time = Date.now() + constants.messageCooldown;
+            requestAnimationFrame(this.updateProgressbar);
+        },
+
+        //? ------------------------------------------------------------------------
+        //? Socket event handlers
+        //? ------------------------------------------------------------------------
+        
         onPingReturn() {
-            let latency = Date.now() - this.latency.start;
+            const latency = Date.now() - this.latency.start;
             this.latency.records.push(latency);
             this.latency.last = latency;
-            console.log(`Ping: ${latency}`);
         },
-        getTime() {
-            return Date.now() + this.timeOffset;
-        },
+
         updateRoom(args) {
             this.users = args.users;
             this.admin =
                 this.users.find((x) => x.id === this.socket.id).role ===
                 "admin";
         },
+
         msg(args) {
-            this.messages.unshift({type:0,username:args.username,text:args.text});
+            this.messages.unshift({
+                type: 0,
+                username: args.username,
+                text: args.text,
+            });
         },
+
         sysmsg(args) {
-            this.messages.unshift({type:1,level:args.level,text:args.text});
+            this.messages.unshift({
+                type: 1,
+                level: args.level,
+                text: args.text,
+            });
         },
-        promote(id) {
-            this.socket.emit("promote", { target: id });
-        },
-        changeNick(newNick) {
-            if (constants.nameRegex.test(newNick)) {
-                this.socket.emit("changenick", { nickname: newNick });
-            }
-        },
+
     },
     async mounted() {
+        //make sure the input is sized properly 
         this.singleLineAutoGrow({ target: this.$refs.chatInput });
-
-        // if (this.$route.path)
-        let roomCode = this.$route.path.split("/")[1];
+        let roomCode = this.$route.params.id;
         this.roomCode = roomCode;
         this.socket = io();
 
@@ -179,12 +208,10 @@ export default {
 
         const latency = util.average(util.ignoreWorst(this.latency.records));
 
-        console.log({ latency });
         this.status = "Syncing time...";
 
         this.socket.emit("synctime", { latency });
         const serverTime = await waitFor(this.socket, "synctime");
-        console.log(`The server time is ${serverTime}`);
         this.timeOffset = serverTime - Date.now();
 
         this.socket.emit("testtime", { time: this.getTime() + latency / 2 });
@@ -204,7 +231,7 @@ export default {
 
         this.socket.on("updateroom", this.updateRoom);
         this.socket.on("msg", this.msg);
-        this.socket.on("sysmsg",this.sysmsg);
+        this.socket.on("sysmsg", this.sysmsg);
         this.roomReady = true;
     },
 };

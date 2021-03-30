@@ -9,11 +9,9 @@
 import emotePaths from "../assets/emotes.json";
 
 const emoteReplacer = emotePaths.map(x=>{
-    //eslint-disable-next-line
     return [new RegExp(`(^|\\s)${x[0]}($|\\s)`,'gi'),`<img class="emote" src="${x[1]}">`]
 })
 
-console.log(emoteReplacer);
 
 export default {
     props: {
