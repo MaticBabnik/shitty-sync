@@ -235,6 +235,9 @@ export default {
         this.socket.on("sysmsg", this.sysmsg);
         this.roomReady = true;
     },
+    beforeUnmount() {
+        this.socket.disconnect()
+    },
 };
 </script>
 
