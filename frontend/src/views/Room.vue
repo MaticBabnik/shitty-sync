@@ -16,8 +16,7 @@
                     @changeNick="changeNick"
                 />
             </div>
-            <h1 class="section-title">Source:</h1>
-            <input type="text" ref="source" class="input-url" />
+            <video-picker />
         </div>
         <div id="chat">
             <div class="msg-container">
@@ -55,6 +54,7 @@ import { io } from "socket.io-client";
 
 import SystemMessage from "@/components/SystemMessage.vue";
 import ProgressBar from "@/components/ProgressBar.vue";
+import VideoPicker from "@/components/VideoPicker.vue";
 import Message from "@/components/Message.vue";
 import Videojs from "@/components/videojs.vue";
 import Person from "@/components/Person.vue";
@@ -71,6 +71,7 @@ export default {
         ProgressBar,
         SystemMessage,
         Message,
+        VideoPicker
     },
     data() {
         return {
