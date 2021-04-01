@@ -1,8 +1,13 @@
 <template>
-    <div>   
-            <h1 class="section-title">Source:</h1>
-            <input type="text" ref="source" class="input-url" />
-    </div> 
+    <div class="video-picker">
+        <h1>Source:</h1>
+        <div class="tabs-flex">
+            <div class="tab">CDN file</div>
+            <div class="tab">Youtube video</div>
+        </div>
+        <input type="text" name="" id="">
+        <div class="button">Set</div>
+    </div>
 </template>
 
 <script>

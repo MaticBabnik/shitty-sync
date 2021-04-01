@@ -15,7 +15,6 @@ export default class User {
 
         this._name = newNick;
         this.lastNameChange = Date.now();
-
         return false;
     }
     /**

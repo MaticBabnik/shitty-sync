@@ -16,7 +16,7 @@
                     @changeNick="changeNick"
                 />
             </div>
-            <video-picker />
+            <video-picker v-if="admin" />
         </div>
         <div id="chat">
             <div class="msg-container">

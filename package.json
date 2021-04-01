@@ -4,8 +4,8 @@
   "description": "A shitty way to watch videos together",
   "main": "src/main.ts",
   "scripts": {
-    "start": "ts-node .",
-    "dev": "nodemon -e ts --exec npm run start"
+    "start": "cd frontend ; npm run build ; cd .. ; ts-node .",
+    "dev": "nodemon -e ts,vue  --exec npm run start"
   },
   "keywords": [
     "sync",

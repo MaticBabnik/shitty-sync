@@ -5,6 +5,7 @@ import morgan from './misc/morgan'
 import { Socket } from 'socket.io';
 import { Room } from './Room';
 import User from './User';
+import ignoreBrave from './misc/brave-block'
 
 const roomRegex = /(room\/)([a-z0-9\-]{3,16})(\/|$)/i;
 const app = express();
@@ -12,9 +13,11 @@ const http = new Server(app);
 const io: Socket = require('socket.io')(http);
 
 //middleware
+app.use(ignoreBrave);
 app.use(morgan);
 app.use(historyApi());
 app.use('/', express.static('frontend/dist'));
+
 
 const rooms = new Map<string, Room>();
 
