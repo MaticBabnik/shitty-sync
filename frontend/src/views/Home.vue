@@ -95,8 +95,8 @@ export default {
 }
 .button-big {
     font-size: 18px;
-    border: 1px solid @red;
-    color: @red;
+    border: 1px solid @orange;
+    color: @orange;
     border-radius: 4px;
     display: inline;
     padding: 7px;
@@ -107,6 +107,6 @@ export default {
 }
 .button-big:hover {
     color: @base03;
-    background-color: @red;
+    background-color: @orange;
 }
 </style>
