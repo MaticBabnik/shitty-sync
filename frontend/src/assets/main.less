@@ -1,0 +1,80 @@
+@import url('./theme.less');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+//
+// DARK THEME
+//
+:root,
+:root[data-theme="dark"] {
+    --background      : @d-background;
+    --background-light: @d-background-light;
+    --primary         : @d-primary;
+    --accent          : @d-accent;
+    --text            : @d-text;
+}
+
+//
+// LIGHT THEME
+//
+:root[data-theme="light"] {
+    --background      : @l-background;
+    --background-light: @l-background-light;
+    --primary         : @l-primary;
+    --accent          : @l-accent;
+    --text            : @l-text;
+}
+
+html,
+body {
+    background-color: @background;
+}
+
+* {
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color      : @text;
+}
+
+.icon {
+    fill: @accent;
+}
+
+.icon:hover {
+    fill: @primary;
+}
+
+
+::-webkit-scrollbar {
+    width : 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-button {
+    width : 0px;
+    height: 0px;
+}
+
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb:hover {
+    background   : @accent;
+    border       : none;
+    border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: @primary;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track:hover {
+    background   : @background;
+    border       : none;
+    border-radius: 0px;
+}
+
+::-webkit-scrollbar-track:active {
+    background: @background-light;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}

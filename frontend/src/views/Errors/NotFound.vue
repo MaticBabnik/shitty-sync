@@ -6,7 +6,7 @@
 </template>
 
 <style lang="less">
-@import url('@/assets/colors.less');
+@import url('@/assets/theme.less');
 .main.error-page {
   display: flex;
   flex-direction: column;

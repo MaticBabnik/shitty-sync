@@ -2,20 +2,54 @@
     <div class="video-picker">
         <h1>Source:</h1>
         <div class="tabs-flex">
-            <div class="tab">CDN file</div>
-            <div class="tab active">Youtube video</div>
+            <div
+                :class="`tab ${videoType === type ? 'active' : ''}`"
+                v-for="(type, index) in videoTypes"
+                :key="index"
+                @click="
+                    () => {
+                        videoType = type;
+                    }
+                "
+            >
+                {{ type }}
+            </div>
         </div>
-        <input type="text" name="" id="" />
-        <div class="small-btn">Set</div>
+        <input type="text" name="" id="" ref="url" />
+        <div class="small-btn" @click="verify">Set</div>
     </div>
 </template>
 
 <script>
-export default {};
+export default {
+    methods:{
+        verifyCDN () {
+            
+        },
+        verifyYT () {
+
+        },
+        async verify () {
+            if (await this[`verify${videoType}`](this.$refs.url.value)) {
+
+            } else {
+                alert('video not work');                
+            }
+        }
+    },
+    created() {
+        this.videoTypes = ["CDN", "YT"];
+    },
+    data() {
+        return {
+            videoType: "CDN",
+        };
+    },
+};
 </script>
 
 <style lang="less">
-@import url("@/assets/colors.less");
+@import url("@/assets/theme.less");
 
 .video-picker {
     border: 1px solid @base00;
@@ -37,10 +71,12 @@ export default {};
             color: @orange;
             margin: 0;
             padding: 1px 4px;
+            user-select: none;
         }
         .tab.active {
             background-color: @orange;
             color: @base03;
+            border-radius: 3px 3px 0 0;
         }
         margin-bottom: 0;
     }

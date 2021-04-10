@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory} from 'vue-router'
 import Room from '@/views/Room.vue'
+import NRoom from '@/views/NewRoom.vue'
 import NotFound from '@/views/Errors/NotFound.vue'
 import Home from '@/views/Home.vue'
 
@@ -15,6 +16,12 @@ const routes = [
         name: 'Room',
         component:Room,
         title:'Shitty sync'
+    },
+    {
+        path: '/nroom/',
+        name: 'NRoom',
+        component:NRoom,
+        title:'Nr' 
     },
     {
         path: '/:pathMatch(.*)*',

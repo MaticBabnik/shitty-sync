@@ -191,6 +191,7 @@ export default {
 
     },
     async mounted() {
+        console.time();
         //make sure the input is sized properly 
         this.singleLineAutoGrow({ target: this.$refs.chatInput });
         let roomCode = this.$route.params.id;
@@ -198,6 +199,8 @@ export default {
         this.socket = io();
 
         await waitFor(this.socket, "connect");
+        console.timeLog();
+        console.timeEnd();
         this.socket.on("pingret", this.onPingReturn);
 
         await delay(200);
@@ -241,8 +244,8 @@ export default {
 };
 </script>
 
-<style lang="less">
-@import url("../assets/colors.less");
+<style lang="less" scoped>
+@import url("../assets/theme.less");
 * {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }

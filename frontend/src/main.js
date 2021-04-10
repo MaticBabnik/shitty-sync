@@ -1,7 +1,21 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import cookie from './cookie-helper'
+import '@/assets/main.less'
 
+//THEME
+const root = document.querySelector('html');
+const theme = cookie.get('theme');
+
+if (['dark','light'].includes(theme)) {
+    root.dataset['theme'] = theme;
+} else {
+    cookie.set('theme','dark');
+    root.dataset['theme'] = 'dark';
+}
+
+//ANTI BRAVE
 if (!navigator.brave)
     window.vue = createApp(App).use(router).mount('#app')
 else {

@@ -1,41 +1,48 @@
 <template>
-    <div class="main home">
+    <div class="main">
         <h1 class="title">
-            Shitty-sync
-            <github-button
-                href="https://github.com/fubuki-fanclub/shitty-sync"
-                data-color-scheme="no-preference: dark; light: dark; dark: dark;"
-                data-icon="octicon-star"
-                data-show-count="true"
-                aria-label="Star fubuki-fanclub/shitty-sync on GitHub"
-                >Star</github-button
-            >
+            Shitty<br>Sync
         </h1>
-        <p class="desc">A pretty shitty way to watch stuff together</p>
-        <div class="room-code-container">
+        <div class="text-btn">
             <input
-                class="textbox-big"
+                class="text"
                 type="text"
+                spellcheck="false"
+                placeholder="Room code"
                 @input="removeUnsafeChars"
                 ref="roomCode"
+                size="16"
+                maxlength="16"
             />
-            <p class="button-big" @click="gotoRoom">Join/Create</p>
+            <div class="btn" @click="gotoRoom">GO</div>
         </div>
+        <theme-toggle class="theme-toggle"/>
+        <span class="stats">
+            <a href="https://github.com/fubuki-fanclub/shitty-sync">Repo</a><br>
+            Branch: {{branch}}<br>
+            Commit: {{commit}}
+        </span>
     </div>
 </template>
 
 <script>
-import GithubButton from "vue-github-button";
-
+import ThemeToggle from '../components/ThemeToggle.vue';
 export default {
     components: {
-        GithubButton,
+        ThemeToggle
+
+    },
+    data() {
+        return {
+            branch:process.env['VUE_APP_BRANCH'] ?? 'unknown',
+            commit:(process.env['VUE_APP_COMMIT'] ?? 'unknown').substr(0,7)
+        }
     },
     methods: {
         removeUnsafeChars(e) {
             e.target.value = e.target.value
                 .toUpperCase()
-                .replace(/[^A-Z0-9\-]/gi, "")  //TODO: this code is still quite bad
+                .replace(/[^A-Z0-9\-]/gi, "") //TODO: this code is still quite bad
                 .substring(0, 16);
         },
         gotoRoom() {
@@ -51,62 +58,78 @@ export default {
 };
 </script>
 
-<style lang="less">
-@import url("@/assets/colors.less");
+<style lang="less" scoped>
+@import url("@/assets/theme.less");
 
-.main.home {
+.main {
+    background-color: @background;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     .title {
-        margin: 10px 0;
-        color: @cyan;
-    }
-    .desc {
-        color: @base00;
-    }
-    .room-code-container {
-        display: flex;
-        height: 40px;
-        flex-direction: row;
+        background: linear-gradient(@primary 75%, transparent 100%);
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+
+        font-size: 144px;
+        font-weight: 500px;
+        line-height: 150px;
+        text-transform: uppercase;
+        text-align: center;
+
+        margin: 10px;
     }
 }
 
-.textbox-big {
-    border: none;
-    background-image: none;
-    background-color: transparent;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
+.text-btn {
+    height: 48px;
+    border-radius: 24px;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    border: 2px solid @background-light;
 
-    color: @base00;
-    background-color: @base02;
-    border-radius: 4px;
-    box-sizing: border-box;
+    .text {
+        background-color: @background;
+        color: @text;
+        font-size: 36px;
+        border: 0px !important;
+        padding: 0;
+        margin-left: 12px;
+    }
+    .btn {
+        color: @background;
+        margin: 0;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 0 10px;
+        line-height: 48px;
+        user-select: none;
+        background-color: @background-light;
+    }
+    .btn:hover {
+        background-color: @primary;
+    }
+}
+.stats {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    
+    text-align: right;
+    padding: 10px;
 
-    font-family: monospace;
-    font-size: 24px;
-    padding: 3px;
+    color: @background-light;
+    
+    a {
+        color:@accent;
+    }
 }
-.textbox-big:focus {
-    border-bottom: 1px solid @base00;
-}
-.button-big {
-    font-size: 18px;
-    border: 1px solid @orange;
-    color: @orange;
-    border-radius: 4px;
-    display: inline;
-    padding: 7px;
-    user-select: none;
-    cursor: pointer;
-    margin: 0 10px;
-    line-height: 100%;
-}
-.button-big:hover {
-    color: @base03;
-    background-color: @orange;
+.theme-toggle {
+    position: absolute;
+    top:0;
+    right:0;
 }
 </style>

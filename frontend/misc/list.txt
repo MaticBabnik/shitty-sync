@@ -1,0 +1,11 @@
+https://fonts.gstatic.com/s/i/materialiconsoutlined/light_mode/v2/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/dark_mode/v2/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/clear/v10/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/edit/v10/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/admin_panel_settings/v11/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/share/v13/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/playlist_play/v12/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/cloud/v10/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/description/v10/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/info/v15/24px.svg
+https://fonts.gstatic.com/s/i/materialiconsoutlined/done/v14/24px.svg

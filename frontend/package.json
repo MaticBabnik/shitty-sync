@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "dev": "vue-cli-service build --watch",
+    "serve": "./setvars.sh; vue-cli-service serve",
+    "build": "./setvars.sh; vue-cli-service build",
+    "dev": "./setvars.sh; vue-cli-service build --watch",
     "lint": "vue-cli-service lint",
     "scan-emotes": "node ./misc/dump-emotes.js"
   },

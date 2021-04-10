@@ -53,7 +53,7 @@ export default {
 </script>
 
 <style lang="less">
-@import url("@/assets/colors.less");
+@import url("@/assets/theme.less");
 .user-card {
     display: flex;
     flex-direction: column;

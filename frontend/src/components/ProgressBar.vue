@@ -18,7 +18,7 @@ export default {
 </script>
 
 <style lang="less">
-@import url('@/assets/colors.less');
+@import url('@/assets/theme.less');
 
 .progress-bar 
 {
