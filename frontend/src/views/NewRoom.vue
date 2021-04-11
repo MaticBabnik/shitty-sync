@@ -2,7 +2,7 @@
     <div class="main" ref="main">
         <div class="content">
             <div class="media-container"></div>
-            <div class="users">
+            <div class="users" ref="users">
                 <user name="TestTestTestTest" :admin="true" :local="true" />
                 <user
                     v-for="n in 15"
@@ -10,13 +10,14 @@
                     :name="`test${n}`"
                     :admin="false"
                     :local="false"
+                    :islocaladmin="true"
                 />
             </div>
         </div>
         <div class="chat">
             <div class="top">
                 <span>(room code)</span>
-                <icon class="icon" file="/icons.svg" name="share" />
+                <share /> 
                 <icon class="icon" file="/icons.svg" name="edit" />
                 <theme-toggle />
             </div>
@@ -28,14 +29,26 @@
 
 <script>
 import Icon from "../components/Icon.vue";
+import Share from '../components/Share.vue';
 import ThemeToggle from "../components/ThemeToggle.vue";
 import User from "../components/User.vue";
 export default {
-    components: { ThemeToggle, Icon, User },
+    components: { ThemeToggle, Icon, User, Share },
+    $refs: {
+        users: HTMLDivElement,
+    },
+    
+    methods: {
+        userScroll(e) {
+            this.$refs.users.scrollLeft += e.deltaY;
+        },
+    },
     data() {
         return {};
     },
-    methods: {},
+    mounted() {
+        this.$refs.users.addEventListener("wheel", this.userScroll, {passive:true});
+    },
 };
 </script>
 

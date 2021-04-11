@@ -3,7 +3,7 @@
         <div
             v-for="item in items"
             :key="item.name"
-            :class="`child ${item.enabled ? 'enabled' : 'disabled'}`"
+            :class="`child ${item.enabled ? '' : 'disabled'}`"
         >
             <icon file="/icons.svg" :name="item.icon" />
             {{ item.name }}
@@ -16,7 +16,7 @@ import Icon from "./Icon.vue";
 export default {
     components: { Icon },
     props: {
-        aitems: {
+        items: {
             type: Array,
             required: false,
         },
@@ -44,10 +44,6 @@ export default {
     },
     data() {
         return {
-            items: [
-                { name: "opt1", icon: "dark", enabled: "true" },
-                { name: "opt2", icon: "light", enabled: "true" },
-            ],
             offset: 0,
         };
     },
@@ -56,6 +52,7 @@ export default {
 
 <style lang="less">
 @import url("@/assets/theme.less");
+
 .ctx-menu-body {
     display: flex;
     flex-direction: column;
@@ -63,5 +60,41 @@ export default {
     background-color: @background;
     border: 2px solid @background-light;
     border-radius: 5px;
+
+    .child {
+        display: flex;
+        user-select: none;
+        padding: 2px;
+        margin: 0;
+        line-height: 24px;
+
+        color: @text;
+
+        svg {
+            fill: @accent;
+        }
+
+    }
+    .child:hover {
+        background-color: @primary;
+        color:@background;
+        svg{
+            fill: @background;
+        }
+    }
+    .disabled {
+        color: @background-light;
+
+        svg {
+            fill: @background-light;
+        }
+    }
+    .disabled:hover {
+        background-color: @background-light;
+        color:@background;
+        svg{
+            fill: @background;
+        }
+    }
 }
 </style>

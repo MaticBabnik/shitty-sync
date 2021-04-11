@@ -7,7 +7,9 @@
                 v-if="menuShow"
                 ref="ctxMenu"
                 class="ctx-menu"
-                :left="menuLeft" :top="menuTop"
+                :left="menuLeft"
+                :top="menuTop"
+                :items="options"
             ></context-menu>
         </teleport>
     </div>
@@ -27,7 +29,17 @@ export default {
             menuShow: false,
             menuLeft: 0,
             menuTop: 0,
+            options: [
+                { name: "Kick", icon: "close", enabled: false },
+                { name: "Promote", icon: "admin", enabled: false },
+                { name: "Change nickname", icon: "edit", enabled: false },
+            ],
         };
+    },
+    mounted() {
+        this.options[0].enabled = this.islocaladmin && !this.local;
+        this.options[1].enabled = this.islocaladmin && !this.local;
+        this.options[2].enabled = this.local;
     },
     methods: {
         openMenu(e) {
@@ -48,6 +60,7 @@ export default {
         name: { type: String, required: true },
         admin: { type: Boolean, required: true },
         local: { type: Boolean, required: true },
+        islocaladmin: { type: Boolean, required: true },
     },
 };
 </script>
