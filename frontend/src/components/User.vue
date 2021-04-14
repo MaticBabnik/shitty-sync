@@ -1,5 +1,5 @@
 <template>
-    <div class="user" @mouseup="openMenu">
+    <div class="user" @click="openMenu">
         <img :src="admin ? '/admin.jpg' : '/user.jpg'" />
         <span :class="local ? 'local' : ''">{{ name }}</span>
         <teleport to="#app">
@@ -10,16 +10,21 @@
                 :left="menuLeft"
                 :top="menuTop"
                 :items="options"
+                @action="action"
             ></context-menu>
+            <popup-dialog v-if="rename" @close="()=>rename=false" :title="`Change nickname for ${name}`">
+            </popup-dialog>
         </teleport>
     </div>
 </template>
 
 <script>
 import ContextMenu from "./ContextMenu.vue";
+import PopupDialog from './PopupDialog.vue';
 export default {
     components: {
         ContextMenu,
+        PopupDialog,
     },
     $refs: {
         ctxMenu: HTMLDivElement,
@@ -30,10 +35,21 @@ export default {
             menuLeft: 0,
             menuTop: 0,
             options: [
-                { name: "Kick", icon: "close", enabled: false },
-                { name: "Promote", icon: "admin", enabled: false },
-                { name: "Change nickname", icon: "edit", enabled: false },
+                { name: "kick", text: "Kick", icon: "close", enabled: false },
+                {
+                    name: "promote",
+                    text: "Promote",
+                    icon: "admin",
+                    enabled: false,
+                },
+                {
+                    name: "rename",
+                    text: "Change nickname",
+                    icon: "edit",
+                    enabled: false,
+                },
             ],
+            rename:false,
         };
     },
     mounted() {
@@ -48,16 +64,30 @@ export default {
             this.$nextTick(() => {
                 this.menuLeft = e.clientX;
                 this.menuTop = e.clientY;
-                document.addEventListener("mousedown", this.closeMenu);
+                requestAnimationFrame(() => {
+                    document.addEventListener("click", this.closeMenu);
+                });
             });
         },
         closeMenu(e) {
-            document.removeEventListener("mousedown", this.closeMenu);
+            document.removeEventListener("click", this.closeMenu);
             this.menuShow = false;
+        },
+        action(a) {
+            switch (a) {
+                case "kick":
+                    break;
+                case "promote":
+                    break;
+                case "rename":
+                    this.rename = true;
+                    break;
+            }
         },
     },
     props: {
         name: { type: String, required: true },
+        id: { type: String, required: true },
         admin: { type: Boolean, required: true },
         local: { type: Boolean, required: true },
         islocaladmin: { type: Boolean, required: true },

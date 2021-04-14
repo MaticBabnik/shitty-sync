@@ -102,5 +102,6 @@ svg {
     animation: anim 2s linear;
     opacity: 0;
     background-color: @primary;
+    user-select: none;
 }
 </style>

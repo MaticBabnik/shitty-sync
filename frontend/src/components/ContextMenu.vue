@@ -4,9 +4,10 @@
             v-for="item in items"
             :key="item.name"
             :class="`child ${item.enabled ? '' : 'disabled'}`"
+            @click="(a)=>emitIfEnabled(a,item)"
         >
             <icon file="/icons.svg" :name="item.icon" />
-            {{ item.name }}
+            {{ item.text }}
         </div>
     </div>
 </template>
@@ -33,6 +34,13 @@ export default {
     },
     $refs: {
         menu: HTMLDivElement,
+    },
+    methods: {
+        emitIfEnabled (e,item) {
+            if (item.enabled) {
+                this.$emit('action',item.name);
+            }
+        }
     },
     mounted() {
         // it finally works

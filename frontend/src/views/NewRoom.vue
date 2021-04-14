@@ -3,7 +3,12 @@
         <div class="content">
             <div class="media-container"></div>
             <div class="users" ref="users">
-                <user name="TestTestTestTest" :admin="true" :local="true" />
+                <user
+                    name="TestTestTestTest"
+                    :admin="true"
+                    :local="true"
+                    id="admin"
+                />
                 <user
                     v-for="n in 15"
                     :key="n"
@@ -11,43 +16,50 @@
                     :admin="false"
                     :local="false"
                     :islocaladmin="true"
+                    :id="`${n}a${n * n}`"
                 />
             </div>
         </div>
         <div class="chat">
             <div class="top">
                 <span>(room code)</span>
-                <share /> 
+                <share />
                 <icon class="icon" file="/icons.svg" name="edit" />
                 <theme-toggle />
             </div>
             <div class="messages"></div>
-            <div class="message-box">kek</div>
+            <chat-textbox :maxlength="120" />
         </div>
     </div>
 </template>
 
 <script>
+import ChatTextbox from "../components/ChatTextbox.vue";
 import Icon from "../components/Icon.vue";
-import Share from '../components/Share.vue';
+import Share from "../components/Share.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
 import User from "../components/User.vue";
 export default {
-    components: { ThemeToggle, Icon, User, Share },
+    components: {
+        ThemeToggle,
+        Icon,
+        User,
+        Share,
+        ChatTextbox,
+    },
     $refs: {
         users: HTMLDivElement,
     },
-    
+
     methods: {
         userScroll(e) {
             this.$refs.users.scrollLeft += e.deltaY;
         },
     },
-    data() {
-        return {};
-    },
     mounted() {
-        this.$refs.users.addEventListener("wheel", this.userScroll, {passive:true});
+        this.$refs.users.addEventListener("wheel", this.userScroll, {
+            passive: true,
+        });
     },
 };
 </script>
