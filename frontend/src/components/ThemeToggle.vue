@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import cookie from "@/cookie-helper.js";
 export default {
     data() {
         return {
@@ -18,7 +17,7 @@ export default {
         toggleTheme() {
             this.dark = !this.dark;
             const theme = this.dark ? "dark" : "light";
-            cookie.set("theme", theme);
+            localStorage.setItem("theme", theme);
             document.querySelector("html").dataset["theme"] = theme;
         },
     },

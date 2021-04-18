@@ -12,7 +12,13 @@
                 :items="options"
                 @action="action"
             ></context-menu>
-            <popup-dialog v-if="rename" @close="()=>rename=false" :title="`Change nickname for ${name}`">
+            <popup-dialog
+                v-if="rename"
+                @close="() => (rename = false)"
+                :title="`Change nickname for ${name}`"
+            >
+                <input type="text" name="" id="" />
+                <div class="button" @click="rename">Apply</div>
             </popup-dialog>
         </teleport>
     </div>
@@ -20,7 +26,7 @@
 
 <script>
 import ContextMenu from "./ContextMenu.vue";
-import PopupDialog from './PopupDialog.vue';
+import PopupDialog from "./PopupDialog.vue";
 export default {
     components: {
         ContextMenu,
@@ -49,7 +55,7 @@ export default {
                     enabled: false,
                 },
             ],
-            rename:false,
+            rename: false,
         };
     },
     mounted() {
@@ -84,6 +90,9 @@ export default {
                     break;
             }
         },
+        rename() {
+            
+        }
     },
     props: {
         name: { type: String, required: true },

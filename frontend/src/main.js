@@ -6,12 +6,12 @@ import '@/assets/main.less'
 
 //THEME
 const root = document.querySelector('html');
-const theme = cookie.get('theme');
+const theme = localStorage.getItem('theme');
 
 if (['dark','light'].includes(theme)) {
     root.dataset['theme'] = theme;
 } else {
-    cookie.set('theme','dark');
+    localStorage.setItem('theme','dark');
     root.dataset['theme'] = 'dark';
 }
 

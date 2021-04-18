@@ -42,6 +42,23 @@ body {
     fill: @primary;
 }
 
+input[type="text"].input {}
+
+.button {
+    color           : #fff; //TODO maybe make a --white var or something
+    width           : fit-content;
+    height          : fit-content;
+    padding         : 4px;
+    font-weight     : bold;
+    user-select     : none;
+    border-radius   : 2px;
+    text-transform  : uppercase;
+    background-color: @primary;
+}
+.button:hover {
+    transition: 200ms;
+    background-color: @accent;
+}
 
 ::-webkit-scrollbar {
     width : 4px;
