@@ -53,8 +53,8 @@ export default {
         border-radius: 5px;
         padding: 3px;
 
-        min-width: 400px;
-        min-height: 200px;
+        min-width: 300px;
+        min-height: 100px;
 
         .titlebar {
             user-select: none;
@@ -63,10 +63,12 @@ export default {
             width: 100%;
             span {
                 flex: 1;
+                vertical-align: middle;
             }
             .close-btn {
                 fill: @text;
             }
+            margin-bottom: 10px;
         }
     }
 }

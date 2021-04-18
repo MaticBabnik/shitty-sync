@@ -42,7 +42,19 @@ body {
     fill: @primary;
 }
 
-input[type="text"].input {}
+input[type="text"].input {
+    background-color: @background;
+    border: 1px solid @background-light;
+    font-size: 1.5rem;
+    border-radius: 0.2rem;
+}
+input[type="text"].input:hover {
+    border: 1px solid @accent;
+}
+input[type="text"].input:active,
+input[type="text"].input:focus {
+    border: 1px solid @primary;
+}
 
 .button {
     color           : #fff; //TODO maybe make a --white var or something

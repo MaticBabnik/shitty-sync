@@ -17,8 +17,21 @@
                 @close="() => (rename = false)"
                 :title="`Change nickname for ${name}`"
             >
-                <input type="text" name="" id="" />
-                <div class="button" @click="rename">Apply</div>
+                <input
+                    type="text"
+                    name=""
+                    id=""
+                    class="input"
+                    placeholder="New nickname"
+                />
+                <div class="rules">
+                    <span>New nickname:</span>
+                    <ul>
+                        <li>Must be 3-24 chars long</li>
+                        <li>Can contain only A-Z, 0-9, - and _</li>
+                    </ul>
+                </div>
+                <div class="button" @click="renamee">Apply</div>
             </popup-dialog>
         </teleport>
     </div>
@@ -82,17 +95,19 @@ export default {
         action(a) {
             switch (a) {
                 case "kick":
+                    this.$emit('kick',this.id);
                     break;
                 case "promote":
+                    this.$emit('promote',this.id);
                     break;
                 case "rename":
                     this.rename = true;
                     break;
             }
         },
-        rename() {
-            
-        }
+        renamee() {
+            this.rename = false;
+        },
     },
     props: {
         name: { type: String, required: true },
@@ -149,5 +164,17 @@ export default {
     height: fit-content;
     left: 50%;
     right: 50%;
+}
+
+.rules {
+    padding: 0;
+    margin: 10px 0;
+
+    ul {
+        margin: 0;
+        li {
+            color: @background-light;
+        }
+    }
 }
 </style>
