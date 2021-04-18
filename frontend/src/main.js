@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import cookie from './cookie-helper'
 import '@/assets/main.less'
 
 //THEME
