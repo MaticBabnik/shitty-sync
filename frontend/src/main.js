@@ -1,7 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+
 import '@/assets/main.less'
+import "@/assets/video-js.min.css";
+import "@/assets/vjs.orange.css";
 
 //THEME
 const root = document.querySelector('html');

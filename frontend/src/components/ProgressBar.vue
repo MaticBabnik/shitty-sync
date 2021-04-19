@@ -23,12 +23,12 @@ export default {
 .progress-bar 
 {
     width: 100%;
-    height: 4px;
+    height: 2px;
     margin: 0;
     padding: 0;
     position: relative;
     .progress{
-        background-color: @blue;
+        background-color: @primary;
         position: absolute;
         top: 0;
         bottom: 0;

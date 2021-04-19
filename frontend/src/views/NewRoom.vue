@@ -1,7 +1,9 @@
 <template>
     <div class="main" ref="main">
         <div class="content">
-            <div class="media-container"></div>
+            <div class="media-container">
+                <videojs class="video" :options="videoOptions" />
+            </div>
             <div class="users" ref="users">
                 <user
                     name="TestTestTestTest"
@@ -24,10 +26,17 @@
             <div class="top">
                 <span>(room code)</span>
                 <share />
-                <icon class="icon" file="/icons.svg" name="edit" />
+                <media-picker />
                 <theme-toggle />
             </div>
-            <div class="messages"></div>
+            <div class="messages">
+                <message
+                    v-for="n in 100"
+                    :key="n"
+                    username="m"
+                    :message="`kek ${n}`"
+                />
+            </div>
             <chat-textbox :maxlength="120" />
         </div>
     </div>
@@ -35,22 +44,34 @@
 
 <script>
 import ChatTextbox from "../components/ChatTextbox.vue";
-import Icon from "../components/Icon.vue";
+import MediaPicker from "../components/MediaPicker.vue";
+import Message from "../components/Message.vue";
 import Share from "../components/Share.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
 import User from "../components/User.vue";
+import Videojs from "../components/videojs.vue";
 export default {
     components: {
         ThemeToggle,
-        Icon,
         User,
         Share,
         ChatTextbox,
+        Message,
+        MediaPicker,
+        Videojs,
     },
     $refs: {
         users: HTMLDivElement,
     },
-
+    data() {
+        return {
+            videoOptions: {
+                autoplay: false,
+                controls: true,
+                sources: [],
+            },
+        };
+    },
     methods: {
         userScroll(e) {
             this.$refs.users.scrollLeft += e.deltaY;
@@ -99,6 +120,10 @@ export default {
         .media-container {
             background-color: #000;
             flex: 1;
+            .video{
+                width: 100%;
+                height: 100%;
+            }
         }
         .users {
             height: 96px;

@@ -1,9 +1,9 @@
 <template>
-        <video ref="videoPlayer" class="video-js vjs-theme-fr-solarized"></video>
+    <video ref="videoPlayer" class="video-js vjs-theme-orange"></video>
 </template>
 
 <script>
-import videojs from 'video.js';
+import videojs from "video.js";
 
 export default {
     props: {
@@ -11,23 +11,27 @@ export default {
             type: Object,
             default() {
                 return {};
-            }
-        }
+            },
+        },
     },
     data() {
         return {
-            player: null
-        }
+            player: null,
+        };
     },
     mounted() {
-        this.player = videojs(this.$refs.videoPlayer, this.options, function onPlayerReady() {
-            //console.log('onPlayerReady', this);
-        })
+        this.player = videojs(
+            this.$refs.videoPlayer,
+            this.options,
+            function onPlayerReady() {
+                //console.log('onPlayerReady', this);
+            }
+        );
     },
     beforeUnmount() {
         if (this.player) {
-            this.player.dispose()
+            this.player.dispose();
         }
-    }
-}
+    },
+};
 </script>

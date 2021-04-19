@@ -12,15 +12,15 @@
   flex-direction: column;
   justify-content: center;
   .error {
-    color:@red;
+    color:@primary;
     text-align: center;
     font-size: 72px;
     .gray {
-      color:@base01;
+      color:@background-light;
     }
   }
   .link{
-    color:@cyan;
+    color:@primary;
     text-align: center;
   }
 }

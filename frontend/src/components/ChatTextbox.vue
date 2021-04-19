@@ -1,25 +1,81 @@
 <template>
     <div class="chat-textbox">
-        <span class="textbox" contenteditable placeholder="Message..." @input="change"></span>
+        <textarea
+            rows="1"
+            ref="textarea"
+            class="textbox"
+            :maxlength="maxlength"
+            placeholder="Message..."
+            @keypress.enter="send"
+            @input="change"
+            @change="change"
+        />
         <span class="char-limit">{{ len }}/{{ maxlength }}</span>
+        <progress-bar :value="nextMsgProgress" />
     </div>
 </template>
 
 <script>
+import ProgressBar from "./ProgressBar.vue";
 export default {
+    components: { ProgressBar },
     data() {
         return {
             len: 0,
+            nextMsgTime: Date.now(),
+            nextMsgProgress: 100,
         };
+    },
+    $refs: {
+        textarea: HTMLTextAreaElement,
     },
     props: {
         maxlength: { type: Number, required: true },
+        timeout: { type: Number, default: () => 2000 },
     },
     methods: {
-        change(e) {
-            this.len = e.target.innerText.length;
-            e.target.innerText = e.target.innerText.substr(0,120);
+        send(e) {
+            e.preventDefault();
+
+            if (this.nextMsgProgress !== 100) return;
+
+            this.$emit("send", this.$refs.textarea.value);
+            this.$refs.textarea.value = "";
+            this.nextMsgTime = Date.now() + this.timeout;
+            this.change(e);
+            requestAnimationFrame(this.autoGrow);
+            this.updateProgress();
         },
+        updateProgress() {
+            this.nextMsgProgress =
+                ((this.timeout - Math.max(this.nextMsgTime - Date.now(), 0)) /
+                    this.timeout) *
+                100;
+            if (this.nextMsgProgress < 100)
+                requestAnimationFrame(this.updateProgress);
+        },
+        change(e) {
+            this.len = e.target.value.length;
+            this.autoGrow();
+        },
+        autoGrow() {
+            const style = window.getComputedStyle(this.$refs.textarea);
+            this.$refs.textarea.style.height = "auto";
+            this.$refs.textarea.style.height = `calc(${style.borderTopWidth} + ${style.borderBottomWidth} + ${this.$refs.textarea.scrollHeight}px)`;
+
+            if (
+                parseFloat(this.$refs.textarea.style.height) >=
+                parseFloat(this.$refs.textarea.style.maxHeight)
+            ) {
+                this.$refs.textarea.style.overflowY = "scroll";
+                this.$refs.textarea.style.height = this.$refs.textarea.style.maxHeight;
+            } else {
+                this.$refs.textarea.style.overflow = "hidden";
+            }
+        },
+    },
+    mounted() {
+        this.autoGrow();
     },
 };
 </script>
@@ -33,16 +89,19 @@ export default {
     background-color: @background;
     color: @text;
     align-items: stretch;
-
-    span[contenteditable] {
-        font-size: 20px;
+    textarea {
         background-color: @background;
         color: @text;
-        border: none !important;
+        font-size: 1.2rem;
+        border: 0px !important;
+        padding: 2;
+        resize: none;
+        overflow: hidden;
     }
     span.char-limit {
         color: @background-light;
         text-align: right;
+        font-size: 0.6rem;
     }
 }
 .textbox,

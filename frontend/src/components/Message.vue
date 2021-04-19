@@ -1,6 +1,6 @@
 <template>
   <p class="msg">
-    <span class="user">{{ username }}: </span>
+    <span class="username">{{ username }}: </span>
     <span class="text" v-html="emoteHtml"></span>
   </p>
 </template>
@@ -50,7 +50,7 @@ export default {
 @import url("../assets/theme.less");
 
 .msg {
-  color: @base00;
+  color: @text;
   margin: 3px;
   font-size: medium;
   .text {
@@ -65,8 +65,8 @@ export default {
           vertical-align: middle;
       }
   }
-  .user {
-    color: @cyan;
+  .username {
+    color: @accent;
   }
 }
 </style>
