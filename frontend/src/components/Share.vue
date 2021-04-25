@@ -93,7 +93,7 @@ svg {
 }
 
 .notification {
-    left: 0;
+    left: -100px;
     top: 100%;
     color: @text;
     padding: 5px;

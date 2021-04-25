@@ -19,8 +19,7 @@
             >
                 <input
                     type="text"
-                    name=""
-                    id=""
+                    ref="newnick"
                     class="input"
                     placeholder="New nickname"
                 />
@@ -38,6 +37,9 @@
 </template>
 
 <script>
+/* eslint-disable */
+//keep eslint from being annoying (indent issues on switch statements)
+
 import ContextMenu from "./ContextMenu.vue";
 import PopupDialog from "./PopupDialog.vue";
 export default {
@@ -79,6 +81,11 @@ export default {
     methods: {
         openMenu(e) {
             if (this.menuShow) return;
+
+            this.options[0].enabled = this.islocaladmin && !this.local;
+            this.options[1].enabled = this.islocaladmin && !this.local;
+            this.options[2].enabled = this.local;
+
             this.menuShow = true;
             this.$nextTick(() => {
                 this.menuLeft = e.clientX;
@@ -95,10 +102,10 @@ export default {
         action(a) {
             switch (a) {
                 case "kick":
-                    this.$emit('kick',this.id);
+                    this.$emit("kick", this.id);
                     break;
                 case "promote":
-                    this.$emit('promote',this.id);
+                    this.$emit("promote", this.id);
                     break;
                 case "rename":
                     this.rename = true;
@@ -107,6 +114,7 @@ export default {
         },
         renamee() {
             this.rename = false;
+            this.$emit("rename", this.$refs.newnick.value);
         },
     },
     props: {

@@ -5,7 +5,7 @@
                 <span>{{ title }}</span>
                 <icon
                     @click="close"
-                    file="icons.svg"
+                    file="/icons.svg"
                     name="close"
                     class="close-btn"
                 />
