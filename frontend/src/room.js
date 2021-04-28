@@ -93,7 +93,6 @@ export default {
     async mounted() {
         console.log('room.js mixin mounted');
 
-        //make sure the input is sized properly 
         let roomCode = this.$route.params.id;
         this.roomCode = roomCode;
         this.socket = io();
