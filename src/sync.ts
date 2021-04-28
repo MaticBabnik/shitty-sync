@@ -1,18 +1,45 @@
+/*
+------------------------------------------------
+!   Sync.ts - Server side socket code
+?   Most of this is prolly quite bad,    
+?   but the OOP code makes my C#
+?   mind happy.
+------------------------------------------------
+*/
+
+
 import { Socket } from "socket.io";
+import { nameRegex, roomRegex } from './misc/constants'
+
 
 export class RoomManager {
+    public io: Socket;
     private rooms: Map<string, Room>;
 
     constructor(io: Socket, options?: any) {
         this.rooms = new Map<string, Room>();
-
+        this.io = io;
         io.on('connect', socket => {
             socket.on('ping', (args: any) => this.ping(socket, args));
             socket.on('synctime', (args: any) => this.synctime(socket, args));
             socket.on('testtime', (args: any) => this.testtime(socket, args));
 
-            socket.on('joinroom', (args:any) => this.joinroom(socket,args));
+            socket.on('joinroom', (args: any) => this.joinroom(socket, args));
         })
+    }
+
+    public deleteRoom(id: string) {
+        this.rooms.delete(id);
+    }
+
+    private joinRoom(id: string, socket: Socket) {
+        let room = this.rooms.get(id);
+
+        if (!room) {
+            room = new Room(id, this, socket);
+        }
+
+        room.join(socket);
     }
 
     private ping(socket: Socket, args: any) {
@@ -25,41 +52,94 @@ export class RoomManager {
         socket.emit('testtime', Date.now() - args.time ?? 0);
     }
 
-    private joinroom(socket: Socket, args: any) {
+    private joinroom(socket: Socket, roomId: any) {
+        if (typeof (roomId) !== "string") return;
+        if (!roomRegex.test(roomId)) return;
 
+        console.log('joining room')
+        this.joinRoom(roomId, socket);
     }
 
 }
 
 export class Room {
     public id: string;
-    private roomManager: RoomManager;
+    public roomManager: RoomManager;
     private users: Map<string, User>;
     public owner: string;
 
     public serialize() {
         return {
             id: this.id,
-            owner: this.owner,
             media: null,
             users: Array.from(this.users.values(), x => x.serialize())
         }
     }
+
+    public join(socket: Socket) {
+        socket.join(this.id);
+        console.log(this);
+        this.users.set(socket.id, new User(socket, this));
+
+        //notify the other users
+        this.syncRoom();
+    }
+
+    public promote(id: string): boolean {
+        const user = this.users.get(id);
+
+        if (!user) return false;
+
+        this.owner = id;
+
+        this.syncRoom();
+        return true;
+    }
+
+    public kick(id: string): boolean {
+        const user = this.users.get(id);
+
+        if (!user) return false;
+
+        user.socket.emit('kicked');
+        user.socket.disconnect(true);
+        this.users.delete(id);
+
+        this.syncRoom();
+        return true;
+    }
+    public userDisconnect(id: string) {
+        this.users.delete(id);
+
+        if (this.users.size === 0) {
+            this.roomManager.deleteRoom(this.id);
+            return;
+        }
+
+        this.syncRoom();
+    }
+
+    public syncRoom() {
+        this.roomManager.io.to(this.id).emit('updateroom', this.serialize());
+    }
+
     constructor(id: string, roomManager: RoomManager, creator: Socket) {
         this.id = id;
         this.roomManager = roomManager;
         this.users = new Map<string, User>();
 
-        this.users.set(creator.id, new User(creator, this))
-        this.owner = creator.id;
+        this.owner = creator.id;// we set the id but don't create the user
     }
 }
 
 export class User {
     public id: string;
     public name: string;
-    private socket: Socket;
+    public socket: Socket;
     private room: Room;
+
+    private lastMessage: number;
+    private lastNickChange: number;
 
     private get isAdmin(): boolean {
         return this.id === this.room.owner;
@@ -68,8 +148,8 @@ export class User {
     public serialize() {
         return {
             id: this.id,
-            name: this.name,
-            admin: this.isAdmin
+            nickname: this.name,
+            role: this.isAdmin ? 'admin' : 'user',
         }
     }
 
@@ -78,7 +158,58 @@ export class User {
         this.socket = socket;
 
         this.room = room;
+        console.log(room);
+        this.lastMessage = Date.now() - 2_000;
+        this.lastNickChange = Date.now() - 60_000; //make sure we can do everything right away
 
         this.name = `Anon#${this.id.substr(0, 5)}`;
+
+        this.socket.on('msg', this.msg);
+        this.socket.on('promote', this.promote);
+        this.socket.on('changenick', this.changeNick);
+        this.socket.on('kick', this.kick);
+
+        this.socket.on('disconnect', this.disconnect);
+
+        this.socket.emit('joinroom', this.room.serialize());
+        console.log("created new user");
+    }
+
+    private msg(args: any) {
+        if (typeof (args.text) !== 'string') return;
+        if (Date.now() - this.lastMessage < 2_000) return; //sending too fast
+        //TODO: max length check
+
+        this.lastMessage = Date.now();
+        this.room.roomManager.io.to(this.room.id).emit('msg', { username: this.name, text: args.text });
+    }
+
+    private promote(args: any) {
+        if (typeof (args.target) !== 'string') return; //invalid params
+        if (this.id !== this.room.owner) return; //no perms
+
+        if (!this.room.promote(args.target)) return; //no such user or something
+        //sucess!
+    }
+    private changeNick(args: any) {
+        if (typeof (args.nickname) !== 'string') return; //invalid params
+        if (!nameRegex.test(args.nickname)) return; //invalid nick
+        if (Date.now() - this.lastNickChange < 60_000) return; //too fast
+
+        this.name = args.nickname;
+        this.lastNickChange = Date.now();
+        console.log(this.room);
+        this.room.syncRoom();
+
+    }
+    private kick(args: any) {
+        if (typeof (args.target) !== 'string') return; //invalid params
+        if (this.id !== this.room.owner) return; //no perms
+
+        if (!this.room.kick(args.target)) return; //no such user or something
+    }
+
+    private disconnect(args: any) {
+        this.room?.userDisconnect(this.id);
     }
 }

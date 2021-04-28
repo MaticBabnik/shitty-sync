@@ -71,7 +71,7 @@ export default {
         updateRoom(args) {
             this.users = args.users;
             this.admin =
-                this.users.find((x) => x.id === this.socket.id).role ===
+                this.users.find((x) => x.id === this.socket.id)?.role ===
                 "admin";
         },
         msg(args) {
@@ -115,7 +115,7 @@ export default {
             `delta @ client : ${this.timeOffset}\ndelta @ sever : ${delta}`
         );
         this.status = "Getting room info";
-        this.socket.emit("joinroom");
+        this.socket.emit("joinroom",this.$route?.params?.id ?? '');
         const roomdata = await waitFor(this.socket, "joinroom");
         this.updateRoom(roomdata);
         this.socket.on("updateroom", this.updateRoom);
