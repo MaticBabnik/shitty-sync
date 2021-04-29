@@ -186,7 +186,7 @@ export class User {
         this.socket.on('changenick', (args) => this.changeNick(args));
         this.socket.on('kick', (args) => this.kick(args));
 
-        this.socket.on('disconnect', this.disconnect);
+        this.socket.on('disconnect', (args) => this.disconnect(args));
 
         this.socket.emit('joinroom', this.room.serialize());
         
@@ -236,8 +236,6 @@ export class User {
     }
 
     private disconnect(args: any) {
-        
-
         this.room?.userDisconnect(this.id);
     }
 }
