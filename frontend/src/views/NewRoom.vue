@@ -21,14 +21,14 @@
         </div>
         <div class="chat">
             <div class="top">
-                <span>{{roomCode}}</span>
+                <span>{{ roomCode }}</span>
                 <share />
-                <media-picker v-if="admin"/>
+                <media-picker v-if="admin" />
                 <theme-toggle />
             </div>
             <div class="messages">
                 <message
-                    v-for="(msg,index) in messages"
+                    v-for="(msg, index) in messages"
                     :key="index"
                     :username="msg.username"
                     :message="msg.text"
@@ -39,7 +39,15 @@
         <div class="l-overlay" v-if="!roomReady">
             <h1>Joining...</h1>
             <div class="progress-bar"></div>
-            <p>{{status}}</p>
+            <p>{{ status }}</p>
+        </div>
+        <div class="l-overlay" v-if="kicked">
+            <h1>Kicked from room</h1>
+            <p>
+                #unlucky
+                <br />
+                <i>psst! nothing is stopping you from reloading the page 🙃</i>
+            </p>
         </div>
     </div>
 </template>
@@ -76,9 +84,9 @@ export default {
                 controls: true,
                 sources: [
                     {
-                        src:'http://cdn.femboy.si/floppa.mp4',
-                        type:'video/mp4'
-                    }
+                        src: "http://cdn.femboy.si/floppa.mp4",
+                        type: "video/mp4",
+                    },
                 ],
             },
         };
@@ -104,7 +112,7 @@ export default {
     z-index: 3;
 }
 
-.l-overlay{
+.l-overlay {
     position: absolute;
     top: 0;
     left: 0;

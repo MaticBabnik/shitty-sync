@@ -1,25 +1,30 @@
 import express from 'express'
 import morgan from 'morgan'
 import compress from 'compression';
-import history from 'connect-history-api-fallback'
+import history from 'connect-history-api-fallback';
 
-import { Server } from 'http'
+import register from './video-sources';
+
+import { Server } from 'http';
 import { Socket } from 'socket.io';
 
-import {RoomManager} from './sync'
+import { RoomManager } from './sync';
 import { getIPs } from './misc/misc';
 import chalk from 'chalk';
 
 const app = express();
+
+register(app);
 
 //logging
 app.use(morgan('dev'))
 //history for vue
 app.use(history());
 //compression
-app.use(compress({level: 7}));
+app.use(compress({ level: 7 }));
 //vue frontend
 app.use('/', express.static('./frontend/dist'));
+
 
 const http = new Server(app);
 const io: Socket = require('socket.io')(http);

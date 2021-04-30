@@ -31,7 +31,7 @@ export class RoomManager {
 
 
     public deleteRoom(id: string) {
-        
+
         this.rooms.delete(id);
     }
 
@@ -49,9 +49,11 @@ export class RoomManager {
     private ping(socket: Socket, args: any) {
         socket.emit('pingret');
     }
+    
     private synctime(socket: Socket, args: any) {
         socket.emit('synctime', Date.now() + (args?.latency ?? 0) / 2);
     }
+
     private testtime(socket: Socket, args: any) {
         socket.emit('testtime', Date.now() - args.time ?? 0);
     }
@@ -60,7 +62,7 @@ export class RoomManager {
         if (typeof (roomId) !== "string") return;
         if (!roomRegex.test(roomId)) return;
 
-        
+
         this.joinRoom(roomId, socket);
     }
 
@@ -81,8 +83,6 @@ export class Room {
     }
 
     public join(socket: Socket) {
-        
-
         socket.join(this.id);
         this.users.set(socket.id, new User(socket, this));
 
@@ -91,8 +91,6 @@ export class Room {
     }
 
     public promote(id: string): boolean {
-        
-
         const user = this.users.get(id);
 
         if (!user) return false;
@@ -104,7 +102,6 @@ export class Room {
     }
 
     public kick(id: string): boolean {
-        
         const user = this.users.get(id);
 
         if (!user) return false;
@@ -116,9 +113,11 @@ export class Room {
         this.syncRoom();
         return true;
     }
+
     public userDisconnect(id: string) {
-        
         this.users.delete(id);
+
+        if (id == this.owner) this.owner = this.users.keys().next().value;
 
         if (this.users.size === 0) {
             this.roomManager.deleteRoom(this.id);
@@ -129,14 +128,10 @@ export class Room {
     }
 
     public syncRoom() {
-        
         this.roomManager.io.to(this.id).emit('updateroom', this.serialize());
     }
 
     constructor(id: string, roomManager: RoomManager, creator: Socket) {
-        
-
-
         this.id = id;
         this.roomManager = roomManager;
         this.users = new Map<string, User>();
@@ -155,12 +150,12 @@ export class User {
     private lastNickChange: number;
 
     private get isAdmin(): boolean {
-        
+
         return this.id === this.room.owner;
     }
 
     public serialize() {
-        
+
         return {
             id: this.id,
             nickname: this.name,
@@ -175,7 +170,7 @@ export class User {
 
         this.room = room;
 
-        
+
         this.lastMessage = Date.now() - MESSAGE_COOLDOWN;
         this.lastNickChange = Date.now() - RENAME_COOLDOWN; //make sure we can do everything right away
 
@@ -189,11 +184,11 @@ export class User {
         this.socket.on('disconnect', (args) => this.disconnect(args));
 
         this.socket.emit('joinroom', this.room.serialize());
-        
+
     }
 
     private msg(args: any) {
-        
+
 
         if (typeof (args.text) !== 'string') return;
         if (Date.now() - this.lastMessage < 2_000) return; //sending too fast
@@ -204,7 +199,7 @@ export class User {
     }
 
     private promote(args: any) {
-        
+
 
         if (typeof (args.target) !== 'string') return; //invalid params
         if (this.id !== this.room.owner) return; //no perms
@@ -213,7 +208,7 @@ export class User {
         //sucess!
     }
     private changeNick(args: any) {
-        
+
 
         if (typeof (args.nickname) !== 'string') return; //invalid params
         if (!nameRegex.test(args.nickname)) return; //invalid nick
@@ -221,13 +216,13 @@ export class User {
 
         this.name = args.nickname;
         this.lastNickChange = Date.now();
-        
-        
+
+
         this.room.syncRoom();
 
     }
     private kick(args: any) {
-        
+
 
         if (typeof (args.target) !== 'string') return; //invalid params
         if (this.id !== this.room.owner) return; //no perms

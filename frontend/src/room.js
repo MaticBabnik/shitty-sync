@@ -25,6 +25,7 @@ export default {
             roomValid: false,
             status: "Waiting for WS",
             roomReady: false,
+            kicked: false,
             messages: [],
             users: [],
             admin: false
@@ -89,6 +90,9 @@ export default {
                 text: args.text,
             });
         },
+        onKicked(args) {
+            this.kicked = true;
+        }
     },
     async mounted() {
         console.log('room.js mixin mounted');
@@ -120,6 +124,8 @@ export default {
         this.socket.on("updateroom", this.updateRoom);
         this.socket.on("msg", this.msg);
         this.socket.on("sysmsg", this.sysmsg);
+
+        this.socket.on("kicked",this.onKicked);
         this.roomReady = true;
     },
 
