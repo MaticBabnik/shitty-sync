@@ -28,7 +28,8 @@ function prettifySize(size: any): string {
         return `${pSize} B`
 }
 
-router.get('/test', async (req, res) => {
+router.post('/test', async (req, res) => {
+    try {
     if (typeof (req.body['src']) !== 'string') {
         res.status(400).send()
         return;
@@ -41,6 +42,9 @@ router.get('/test', async (req, res) => {
         type: response.headers['content-type'],
         size: prettifySize(response.headers['content-length'])
     })
+    } catch {
+        res.status(503).send();
+    }
 });
 
 export default router;

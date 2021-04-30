@@ -50,6 +50,10 @@ export default {
         background-color: @background;
         border: 2px @background-light solid;
 
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+
         border-radius: 5px;
         padding: 3px;
 

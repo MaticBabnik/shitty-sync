@@ -14,10 +14,11 @@ import chalk from 'chalk';
 
 const app = express();
 
-register(app);
 
 //logging
 app.use(morgan('dev'))
+//media selection stuff
+register(app);
 //history for vue
 app.use(history());
 //compression

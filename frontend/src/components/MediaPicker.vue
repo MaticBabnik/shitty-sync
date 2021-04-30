@@ -4,11 +4,12 @@
             class="icon"
             file="/icons.svg"
             name="edit"
-            @click="() => (show = true)"
+            @click="resetAndShow"
         />
         <teleport to="body">
             <popup-dialog
                 title="Select media"
+                class="flex-diag"
                 @close="() => (show = false)"
                 v-if="show"
             >
@@ -22,11 +23,7 @@
                     <div
                         class="item"
                         v-if="options.includes('youtube-link')"
-                        @click="
-                            () => {
-                                selectedSource = 'youtube-link';
-                            }
-                        "
+                        @click="doYoutube"
                     >
                         <icon file="/icons.svg" name="youtube" />
                         Youtube link
@@ -34,44 +31,58 @@
                     <div
                         class="item"
                         v-if="options.includes('cdn')"
-                        @click="
-                            () => {
-                                selectedSource = 'cdn';
-                            }
-                        "
+                        @click="doCdn"
                     >
                         <icon file="/icons.svg" name="cdn" />CDN file
                     </div>
                     <div
                         class="item"
                         v-if="options.includes('youtube-search')"
-                        @click="
-                            () => {
-                                selectedSource = 'youtube-search';
-                            }
-                        "
+                        @click="doSearch"
                     >
                         <icon file="/icons.svg" name="search" />Search for "{{
                             query
                         }}"
                     </div>
                 </div>
+                <div class="loading" v-else-if="!loaded">
+                    <div class="progress-bar"></div>
+                </div>
                 <div class="cdn" v-else-if="selectedSource == 'cdn'">
-                    Show file info
+                    <span class="file-valid">{{
+                        result.valid ? "File is valid" : "File is invalid"
+                    }}</span>
+                    <span class="file-info" v-if="result.valid">{{
+                        result.type
+                    }}</span>
+                    <span class="file-info" v-if="result.valid">{{
+                        result.size
+                    }}</span>
                 </div>
                 <div
                     class="yt-search"
                     v-else-if="selectedSource == 'youtube-search'"
                 >
-                    Show results
+                    <video-card
+                        v-for="(video, index) in result"
+                        :class="{ selected: video.url == selected }"
+                        :key="index"
+                        :title="video.title"
+                        :author="video.author"
+                        :url="video.url"
+                        :thumbnail="video.thumbnailUrl"
+                        @click="
+                            () => {
+                                selected = video.url;
+                            }
+                        "
+                    />
                 </div>
                 <div
-                    class="yt-link"
-                    v-else-if="selectedSource == 'youtube-link'"
+                    v-if="ready || selected"
+                    class="button"
+                    @click="selectMedia"
                 >
-                    show video info
-                </div>
-                <div v-if="ready" class="button" @click="selectMedia">
                     CHANGE
                 </div>
             </popup-dialog>
@@ -82,14 +93,16 @@
 <script>
 import Icon from "../components/Icon";
 import PopupDialog from "./PopupDialog.vue";
+import VideoCard from "./VideoCard.vue";
 
 const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?youtu(?:\.be\/|be.com\/\S*(?:watch|embed)(?:(?:(?=\/[^&\s\?]+(?!\S))\/)|(?:\S*v=|v\/)))([^&\s\?]+)$/i;
-const urlRegex = /^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/;
+const urlRegex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/;
 
 export default {
     components: {
         Icon,
         PopupDialog,
+        VideoCard,
     },
     data() {
         return {
@@ -97,8 +110,10 @@ export default {
             ready: false,
             options: [],
             selectedSource: null,
+            loaded: false,
             selected: null,
             query: "",
+            result: null,
         };
     },
     watch: {
@@ -107,8 +122,28 @@ export default {
         },
     },
     methods: {
+        resetAndShow() {
+            this.ready = false;
+            this.options = [];
+            this.selectedSource = null;
+            this.loaded = false;
+            this.selected = null;
+            this.query = "";
+            this.result = null;
+
+            this.show = true;
+        },
         selectMedia() {
-            console.log("SELECT");
+            const a = {
+                type: this.selectedSource,
+                src:
+                    this.selectedSource == "youtube-search"
+                        ? this.selected
+                        : this.query,
+            };
+            console.log(a);
+            this.$emit("select", a);
+
             this.show = false;
         },
         change() {
@@ -120,10 +155,40 @@ export default {
                 this.options.push("youtube-search");
             }
         },
+        async doSearch() {
+            this.selectedSource = "youtube-search";
+            this.result = await this.ytSearch(this.query);
+            this.loaded = true;
+        },
+        async doCdn() {
+            this.selectedSource = "cdn";
+            this.result = await this.cdnTest(this.query);
+            this.loaded = true;
+            this.ready = this.result.valid;
+        },
+        async doYoutube() {
+            this.selectedSource = "youtube-search";
+            this.result = [await this.ytTest(this.query)];
+
+            this.selected = this.result[0].url;
+            
+            this.loaded = true;
+            this.ready = true;
+        },
+        async ytTest(url) {
+            return await (
+                await fetch("/youtube/test", {
+                    method: "POST",
+                    body: new URLSearchParams({
+                        url,
+                    }),
+                })
+            ).json();
+        },
         async ytSearch(query) {
             return await (
                 await fetch("/youtube/search", {
-                    method: "GET",
+                    method: "POST",
                     body: new URLSearchParams({
                         query,
                     }),
@@ -133,9 +198,9 @@ export default {
         async cdnTest(src) {
             return await (
                 await fetch("/cdn/test", {
-                    method: "GET",
+                    method: "POST",
                     body: new URLSearchParams({
-                        src
+                        src,
                     }),
                 })
             ).json();
@@ -153,13 +218,20 @@ input.input[type="text"] {
     line-height: 1.5rem;
 }
 
+.video-card.selected {
+    background-color: @background-light;
+    overflow: hidden;
+    box-shadow: 0px 0px 5px @primary;
+    border-radius: 3px;
+}
+
 .results {
     margin-top: 10px;
 
     display: flex;
     flex-direction: column;
 
-    height: 20vh;
+    height: 72px;
     border: 1px solid @background-light;
     border-radius: 4px;
     overflow-x: scroll;
@@ -185,6 +257,30 @@ input.input[type="text"] {
                 fill: @background;
             }
         }
+    }
+}
+.loading {
+    .progress-bar {
+        width: 100%;
+        height: 4px;
+        background-color: #222;
+        background: linear-gradient(90deg, #0000 40%, @primary 50%, #0000 60%);
+        background-size: 220%;
+        animation: Loading 1s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+        border-radius: 2px;
+    }
+}
+.cdn {
+    padding: 10px;
+    .file-valid {
+        color: @accent;
+        font-size: 1rem;
+        display: block;
+    }
+    .file-info {
+        color: @text;
+        font-size: 0.7rem;
+        display: block;
     }
 }
 </style>
