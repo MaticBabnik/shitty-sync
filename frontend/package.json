@@ -10,16 +10,12 @@
     "scan-emotes": "node ./misc/dump-emotes.js"
   },
   "dependencies": {
-    "@maticbabnik/vue-socket.io": "^3.3.5",
     "core-js": "^3.6.5",
     "socket.io-client": "^3.1.0",
     "video.js": "^7.11.4",
     "videojs-youtube": "^2.6.1",
     "vue": "^3.0.0",
-    "vue-github-button": "^3.0.0",
-    "vue-router": "^4.0.0-0",
-    "vue-socket.io": "^3.0.10",
-    "vue-socket.io-extended": "^4.0.6"
+    "vue-router": "^4.0.0-0"
   },
   "devDependencies": {
     "@vue/cli": "^4.5.11",
