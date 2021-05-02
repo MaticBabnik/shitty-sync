@@ -2,6 +2,7 @@
   "name": "shitty-sync",
   "version": "1.2.0",
   "description": "A shitty way to watch videos together",
+  "private": true,
   "main": "src/main.ts",
   "scripts": {
     "start": "ts-node .",
@@ -46,7 +47,6 @@
     "chalk": "^4.1.0",
     "compression": "^1.7.4",
     "connect-history-api-fallback": "^1.6.0",
-    "current-git-branch": "^1.1.0",
     "express": "^4.17.1",
     "morgan": "^1.10.0",
     "needle": "^2.6.0",

@@ -3,7 +3,10 @@
 </template>
 
 <script>
+
 import videojs from "video.js";
+import "video.js/dist/video-js.css";
+import "@/assets/vjs.orange.css";
 
 export default {
     props: {
@@ -24,7 +27,6 @@ export default {
             this.$refs.videoPlayer,
             this.options,
             function onPlayerReady() {
-                //console.log('onPlayerReady', this);
             }
         );
     },
