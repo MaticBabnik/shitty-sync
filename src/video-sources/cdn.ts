@@ -11,7 +11,7 @@ const GIBIBYTE = 1 << 30;
 
 function prettifySize(size: any): string {
     let pSize: number;
-    if (!['string','number'].includes(typeof(size)))
+    if (!['string', 'number'].includes(typeof (size)))
         return '???'
     if (typeof (size) === 'string')
         pSize = parseInt(size);
@@ -28,20 +28,25 @@ function prettifySize(size: any): string {
         return `${pSize} B`
 }
 
-router.post('/test', async (req, res) => {
-    try {
-    if (typeof (req.body['src']) !== 'string') {
-        res.status(400).send()
-        return;
-    }
+export async function test(url: string) {
+    const response = await needle('head', url);
 
-    const response = await needle('head', req.body['src']);
-
-    res.send({
+    return {
         valid: response.headers['content-type']?.includes('video'),
         type: response.headers['content-type'],
         size: prettifySize(response.headers['content-length'])
-    })
+    }
+}
+
+router.post('/test', async (req, res) => {
+    try {
+        if (typeof (req.body['src']) !== 'string') {
+            res.status(400).send()
+            return;
+        }
+
+        res.send(await test(req.body['src']));
+
     } catch {
         res.status(503).send();
     }

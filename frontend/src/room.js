@@ -1,11 +1,10 @@
 /*
 *   Room.js
 ?   A mixin for handling all of the socket.io communication
-!   prolly a bad idea...
-!   IDFK what im doing
 */
 
 import { io } from "socket.io-client";
+import videojs from 'video.js'
 
 import util from "@/util";
 import constants from "@/constants";
@@ -28,7 +27,12 @@ export default {
             kicked: false,
             messages: [],
             users: [],
-            admin: false
+            admin: false,
+            videoOptions: {
+                autoplay: false,
+                controls: false,
+                techOrder: ['youtube','html5'],
+            }
         };
     },
     methods: {
@@ -42,7 +46,7 @@ export default {
         //? Socket event emitters
         //? ------------------------------------------------------------------------
         kick(id) {
-            this.socket.emit("kick",{target:id});
+            this.socket.emit("kick", { target: id });
         },
         promote(id) {
             this.socket.emit("promote", { target: id });
@@ -60,6 +64,10 @@ export default {
         sendMessage(text) {
             this.socket.emit("msg", { text });
         },
+        changeMedia(media) {
+            this.socket.emit("changemedia", media);
+        },
+
         //? ------------------------------------------------------------------------
         //? Socket event handlers
         //? ------------------------------------------------------------------------
@@ -71,9 +79,18 @@ export default {
         },
         updateRoom(args) {
             this.users = args.users;
+
+            if (args.media.type == 'yt-search')
+                this.videojs.src({ src: args.media.src, type: 'video/youtube' });
+            else
+                this.videojs.src(args.media.src);
+
             this.admin =
                 this.users.find((x) => x.id === this.socket.id)?.role ===
                 "admin";
+
+
+            this.videojs.controls(this.admin);
         },
         msg(args) {
             this.messages.unshift({
@@ -97,6 +114,8 @@ export default {
     async mounted() {
         console.log('room.js mixin mounted');
 
+        this.videojs = videojs('video-main');
+        console.log(this.videojs);
         let roomCode = this.$route.params.id;
         this.roomCode = roomCode;
         this.socket = io();
@@ -118,14 +137,14 @@ export default {
             `delta @ client : ${this.timeOffset}\ndelta @ sever : ${delta}`
         );
         this.status = "Getting room info";
-        this.socket.emit("joinroom",this.$route?.params?.id ?? '');
+        this.socket.emit("joinroom", this.$route?.params?.id ?? '');
         const roomdata = await waitFor(this.socket, "joinroom");
         this.updateRoom(roomdata);
         this.socket.on("updateroom", this.updateRoom);
         this.socket.on("msg", this.msg);
         this.socket.on("sysmsg", this.sysmsg);
 
-        this.socket.on("kicked",this.onKicked);
+        this.socket.on("kicked", this.onKicked);
         this.roomReady = true;
     },
 

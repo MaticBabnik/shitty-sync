@@ -79,9 +79,8 @@
                     />
                 </div>
                 <div
-                    v-if="ready || selected"
-                    class="button"
-                    @click="selectMedia"
+                    :class="{button:true, disabled:(!ready && !selected)}"
+                    @click="(e)=>{if (ready || selected) selectMedia()}"
                 >
                     CHANGE
                 </div>
@@ -148,6 +147,9 @@ export default {
         },
         change() {
             this.options = [];
+
+            if (this.query === "") return;
+
             if (youtubeRegex.test(this.query))
                 this.options.push("youtube-link");
             if (urlRegex.test(this.query)) this.options.push("cdn");
@@ -226,7 +228,7 @@ input.input[type="text"] {
 }
 
 .results {
-    margin-top: 10px;
+    margin: 10px 0;
 
     display: flex;
     flex-direction: column;

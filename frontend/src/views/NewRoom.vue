@@ -2,7 +2,7 @@
     <div class="main" ref="main">
         <div class="content">
             <div class="media-container">
-                <videojs class="video" :options="videoOptions" />
+                <videojs class="video" id="video-main" :options="videoOptions" />
             </div>
             <div class="users" ref="users">
                 <user
@@ -23,7 +23,7 @@
             <div class="top">
                 <span>{{ roomCode }}</span>
                 <share />
-                <media-picker v-if="admin" />
+                <media-picker v-if="admin" @select="changeMedia"/>
                 <theme-toggle />
             </div>
             <div class="messages">
@@ -63,6 +63,8 @@ import Videojs from "../components/videojs.vue";
 
 import roomMixin from "@/room.js";
 
+import 'videojs-youtube'; //this module wasnt made with webpack in mind
+
 export default {
     mixins: [roomMixin],
     components: {
@@ -76,20 +78,6 @@ export default {
     },
     $refs: {
         users: HTMLDivElement,
-    },
-    data() {
-        return {
-            videoOptions: {
-                autoplay: false,
-                controls: true,
-                sources: [
-                    {
-                        src: "http://cdn.femboy.si/floppa.mp4",
-                        type: "video/mp4",
-                    },
-                ],
-            },
-        };
     },
     methods: {
         userScroll(e) {

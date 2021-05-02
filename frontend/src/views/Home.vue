@@ -10,6 +10,7 @@
                 spellcheck="false"
                 placeholder="Room code"
                 @input="removeUnsafeChars"
+                @keypress.enter="gotoRoom"
                 ref="roomCode"
                 size="16"
                 maxlength="16"

@@ -10,6 +10,14 @@
 
 import { Socket } from "socket.io";
 import { MESSAGE_COOLDOWN, nameRegex, RENAME_COOLDOWN, roomRegex } from './misc/constants'
+import * as cdn from './video-sources/cdn';
+import * as yt from './video-sources/youtube';
+
+
+export interface Media {
+    type: 'cdn'|'yt-search'|'offline',
+    src:string
+}
 
 
 export class RoomManager {
@@ -49,7 +57,7 @@ export class RoomManager {
     private ping(socket: Socket, args: any) {
         socket.emit('pingret');
     }
-    
+
     private synctime(socket: Socket, args: any) {
         socket.emit('synctime', Date.now() + (args?.latency ?? 0) / 2);
     }
@@ -73,11 +81,12 @@ export class Room {
     public roomManager: RoomManager;
     private users: Map<string, User>;
     public owner: string;
+    public media: Media;
 
     public serialize() {
         return {
             id: this.id,
-            media: null,
+            media: this.media,
             users: Array.from(this.users.values(), x => x.serialize())
         }
     }
@@ -135,6 +144,7 @@ export class Room {
         this.id = id;
         this.roomManager = roomManager;
         this.users = new Map<string, User>();
+        this.media = {type:'offline',src:''};
 
         this.owner = creator.id;// we set the id but don't create the user
     }
@@ -179,6 +189,7 @@ export class User {
         this.socket.on('msg', (args) => this.msg(args));
         this.socket.on('promote', (args) => this.promote(args));
         this.socket.on('changenick', (args) => this.changeNick(args));
+        this.socket.on('changemedia', (args) => this.verifyMedia(args));
         this.socket.on('kick', (args) => this.kick(args));
 
         this.socket.on('disconnect', (args) => this.disconnect(args));
@@ -228,6 +239,35 @@ export class User {
         if (this.id !== this.room.owner) return; //no perms
 
         if (!this.room.kick(args.target)) return; //no such user or something
+    }
+
+    private async verifyMedia(args: any) {
+        if (!this.isAdmin) return;
+        if (typeof (args.src) !== 'string' && typeof (args.type) !== 'string') return;
+        if (!['youtube-search', 'cdn'].includes(args.type)) return;
+
+        try {
+            switch (args.type) {
+                case 'youtube-search':
+                    if (!(await yt.test(args.src)).title) return;
+                    break;
+                case 'cdn':
+                    if (!(await cdn.test(args.src)).valid) return;
+                    break;
+                default:
+                    return;
+            }
+        } catch {
+            return;
+        }
+
+        //media is valid
+        this.room.media = args;
+        this.room.syncRoom();
+    }
+
+    private sync() {
+        //implement sync
     }
 
     private disconnect(args: any) {
