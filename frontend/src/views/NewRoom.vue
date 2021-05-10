@@ -63,7 +63,6 @@ import Videojs from "../components/videojs.vue";
 
 import roomMixin from "@/room.js";
 
-import 'videojs-youtube'; //this module wasnt made with webpack in mind
 
 export default {
     mixins: [roomMixin],
