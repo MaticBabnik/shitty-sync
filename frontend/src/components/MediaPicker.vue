@@ -44,6 +44,14 @@
                             query
                         }}"
                     </div>
+                    <div class="item" v-if="isDev" @click="doDebugCDN">
+                        <icon file="/icons.svg" name="debug" />
+                        Test CDN file
+                    </div>
+                    <div class="item" v-if="isDev" @click="doDebugYT">
+                        <icon file="/icons.svg" name="debug" />
+                        Test YT
+                    </div>
                 </div>
                 <div class="loading" v-else-if="!loaded">
                     <div class="progress-bar"></div>
@@ -79,8 +87,12 @@
                     />
                 </div>
                 <div
-                    :class="{button:true, disabled:(!ready && !selected)}"
-                    @click="(e)=>{if (ready || selected) selectMedia()}"
+                    :class="{ button: true, disabled: !ready && !selected }"
+                    @click="
+                        (e) => {
+                            if (ready || selected) selectMedia();
+                        }
+                    "
                 >
                     CHANGE
                 </div>
@@ -113,6 +125,7 @@ export default {
             selected: null,
             query: "",
             result: null,
+            isDev: false,
         };
     },
     watch: {
@@ -131,6 +144,7 @@ export default {
             this.result = null;
 
             this.show = true;
+            this.isDev = localStorage.getItem("dev") == "true";
         },
         selectMedia() {
             const a = {
@@ -157,6 +171,14 @@ export default {
                 this.options.push("youtube-search");
             }
         },
+        async doDebugCDN() {
+            this.query = "http://cdn.femboy.si/floppa.mp4";
+            await this.doCdn();
+        },
+        async doDebugYT() {
+            this.query = "https://www.youtube.com/watch?v=ybHUgHVCtNs";
+            await this.doYoutube();
+        },
         async doSearch() {
             this.selectedSource = "youtube-search";
             this.result = await this.ytSearch(this.query);
@@ -173,7 +195,7 @@ export default {
             this.result = [await this.ytTest(this.query)];
 
             this.selected = this.result[0].url;
-            
+
             this.loaded = true;
             this.ready = true;
         },

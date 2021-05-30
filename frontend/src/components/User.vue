@@ -1,7 +1,7 @@
 <template>
     <div class="user" @click="openMenu">
         <img :src="admin ? '/admin.jpg' : '/user.jpg'" />
-        <span :class="local ? 'local' : ''">{{ name }}</span>
+        <span :class="{'local':local}">{{ name }}</span>
         <teleport to="#app">
             <context-menu
                 v-if="menuShow"
@@ -162,7 +162,7 @@ export default {
 }
 
 .local {
-    color: @accent;
+    color: @accent !important;
 }
 
 .ctx-menu {

@@ -15,8 +15,8 @@ import * as yt from './video-sources/youtube';
 
 
 export interface Media {
-    type: 'cdn'|'yt-search'|'offline',
-    src:string
+    type: 'cdn' | 'yt-search' | 'offline',
+    src: string
 }
 
 
@@ -82,6 +82,7 @@ export class Room {
     private users: Map<string, User>;
     public owner: string;
     public media: Media;
+    public status: MediaSync;
 
     public serialize() {
         return {
@@ -140,11 +141,16 @@ export class Room {
         this.roomManager.io.to(this.id).emit('updateroom', this.serialize());
     }
 
+    public sync() {
+        this.roomManager.io.to(this.id).emit('sync', this.status);
+    }
+
     constructor(id: string, roomManager: RoomManager, creator: Socket) {
         this.id = id;
         this.roomManager = roomManager;
         this.users = new Map<string, User>();
-        this.media = {type:'offline',src:''};
+        this.media = { type: 'offline', src: '' };
+        this.status = { status: 'PAUSED', timestamp: 0 };
 
         this.owner = creator.id;// we set the id but don't create the user
     }
@@ -191,10 +197,12 @@ export class User {
         this.socket.on('changenick', (args) => this.changeNick(args));
         this.socket.on('changemedia', (args) => this.verifyMedia(args));
         this.socket.on('kick', (args) => this.kick(args));
+        this.socket.on('sync', (args) => this.sync(args));
 
         this.socket.on('disconnect', (args) => this.disconnect(args));
 
         this.socket.emit('joinroom', this.room.serialize());
+        this.socket.emit('sync', this.room.status);
 
     }
 
@@ -266,11 +274,33 @@ export class User {
         this.room.syncRoom();
     }
 
-    private sync() {
-        //implement sync
+    private sync(args: any) {
+        if (!this.isAdmin) return; //no perms
+        if (typeof args !== 'object') return; //invalid params
+        switch (args.status) {
+            case 'PLAYING':
+                
+                if (typeof args.offset !== "number") return
+                this.room.status = { status: 'PLAYING', offset: args.offset }
+                this.room.sync();
+                break;
+            case 'PAUSED':
+                
+                if (typeof args.timestamp !== "number") return
+                this.room.status = { status: 'PAUSED', timestamp: args.timestamp }
+                this.room.sync();
+                break;
+        }
+
     }
 
     private disconnect(args: any) {
         this.room?.userDisconnect(this.id);
     }
+}
+
+interface MediaSync {
+    status: 'PLAYING' | 'PAUSED',
+    offset?: number,
+    timestamp?: number
 }

@@ -2,7 +2,16 @@
     <div class="main" ref="main">
         <div class="content">
             <div class="media-container">
-                <videojs class="video" id="video-main" :options="videoOptions" />
+                <videojs
+                    class="video"
+                    id="video-main"
+                    :source="source"
+                    :playing="player?.playing ?? false"
+                    :time="player?.time ?? 0"
+                    @vplay="syncPlay"
+                    @vpause="syncPause"
+                    @vseek="syncSeek"
+                />
             </div>
             <div class="users" ref="users">
                 <user
@@ -23,8 +32,36 @@
             <div class="top">
                 <span>{{ roomCode }}</span>
                 <share />
-                <media-picker v-if="admin" @select="changeMedia"/>
+                <media-picker v-if="admin" @select="changeMedia" />
                 <theme-toggle />
+            </div>
+            <div class="dev" v-if="debug.isDev">
+                <span>Stats [ /dev to toggle ]</span>
+                <br />
+                <span>Info </span>
+                <span>---------------------------------------</span>
+                <span>Last ping: {{ latency.last }}</span>
+                <span>Time offset: {{ timeOffset }} </span>
+                <span>Time error: {{ debug.timeError }}</span>
+
+                <br />
+                <template v-if="admin">
+                    <span>Sync host stats </span>
+                    <span>---------------------------------------</span>
+                    <span>Last sync: {{ debug.lastSyncSent }}</span>
+                    <span>Last event: {{ debug.lastEvent }}</span>
+                </template>
+                <template v-else>
+                    <span>Sync client stats </span>
+                    <span>---------------------------------------</span>
+                    <span>Last sync: {{ debug.lastSyncRecv }}</span>
+                </template>
+                <br />
+                <span>Build info </span>
+                <span>---------------------------------------</span>
+                <span>Built from: fubuki-fanclub/shitty-sync</span>
+                <span>Branch: {{ branch }}</span>
+                <span>Commit: {{ commit }}</span>
             </div>
             <div class="messages">
                 <message
@@ -59,10 +96,9 @@ import Message from "../components/Message.vue";
 import Share from "../components/Share.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
 import User from "../components/User.vue";
-import Videojs from "../components/videojs.vue";
+import Videojs from "../components/Vjs-fixed.vue";
 
 import roomMixin from "@/room.js";
-
 
 export default {
     mixins: [roomMixin],
@@ -77,6 +113,12 @@ export default {
     },
     $refs: {
         users: HTMLDivElement,
+    },
+    data() {
+        return {
+            branch: process.env["VUE_APP_BRANCH"] ?? "unknown",
+            commit: (process.env["VUE_APP_COMMIT"] ?? "unknown").substr(0, 7),
+        };
     },
     methods: {
         userScroll(e) {
@@ -167,7 +209,7 @@ export default {
         .media-container {
             background-color: #000;
             flex: 1;
-            .video {
+            .video-container {
                 width: 100%;
                 height: 100%;
             }
@@ -208,6 +250,20 @@ export default {
                 flex: 1;
             }
         }
+
+        .dev {
+            background-color: #000;
+            border: 2px solid @primary;
+            * {
+                color: #aaa;
+                font-family: monospace;
+            }
+            flex: 0.5;
+            flex-direction: column;
+            overflow-y: scroll;
+            display: flex;
+        }
+
         .messages {
             flex: 1;
             overflow-y: scroll;

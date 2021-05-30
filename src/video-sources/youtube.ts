@@ -1,7 +1,6 @@
 import express from 'express'
 import ytsr from 'ytsr'
 import ytdl from 'ytdl-core'
-import morgan from 'morgan';
 
 
 const router = express.Router();
