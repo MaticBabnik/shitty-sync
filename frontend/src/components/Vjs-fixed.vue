@@ -13,8 +13,8 @@ import "videojs-youtube";
 export default {
     props: {
         source: { type: Object },
-        playing: { type: Boolean },
-        time: { type: Number },
+        //playing: { type: Boolean },
+        //time: { type: Number },
     },
     data() {
         return {
@@ -28,8 +28,8 @@ export default {
     },
     created() {
         this.$watch("source", this.change, true);
-        this.$watch("playing", this.play, true);
-        this.$watch("time", this.seek, true);
+        //this.$watch("playing", this.play, true);
+        //this.$watch("time", this.seek, true);
     },
 
     mounted() {
@@ -76,11 +76,11 @@ export default {
         },
 
         seek (cur) {
-            console.log('seeking')
+            //console.log('seeking')
             this.player.currentTime(cur);
         },
         play(cur) {
-            console.log('changing play state')
+            //console.log('changing play state')
             if (cur) this.player.play();
             else this.player.pause();
         },

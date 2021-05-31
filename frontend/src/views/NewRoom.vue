@@ -6,8 +6,7 @@
                     class="video"
                     id="video-main"
                     :source="source"
-                    :playing="player?.playing ?? false"
-                    :time="player?.time ?? 0"
+                    ref="vjsContainer"
                     @vplay="syncPlay"
                     @vpause="syncPause"
                     @vseek="syncSeek"
@@ -40,6 +39,7 @@
                 <br />
                 <span>Info </span>
                 <span>---------------------------------------</span>
+                <span>T: {{debug.t}}</span>
                 <span>Last ping: {{ latency.last }}</span>
                 <span>Time offset: {{ timeOffset }} </span>
                 <span>Time error: {{ debug.timeError }}</span>
@@ -55,6 +55,7 @@
                     <span>Sync client stats </span>
                     <span>---------------------------------------</span>
                     <span>Last sync: {{ debug.lastSyncRecv }}</span>
+                    <span>Last type: {{ debug.lastRecvType }}</span>
                 </template>
                 <br />
                 <span>Build info </span>

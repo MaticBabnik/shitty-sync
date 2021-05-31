@@ -36,7 +36,9 @@ export default {
                 lastSyncRecv: 0,
                 lastSyncSent: 0,
                 lastEvent: '?',
+                lastRecvType: '?',
                 timeError: 0,
+                t: 0
             }
         };
     },
@@ -44,6 +46,11 @@ export default {
         //Return the corrected time to decrease latency
         getTime() {
             return Date.now() + this.timeOffset;
+        },
+
+        getTimeVideo () { //same as get time but in seconds
+            return (Date.now() + this.timeOffset) / 1_000;
+
         },
         //? ------------------------------------------------------------------------
         //? Socket event emitters
@@ -67,7 +74,7 @@ export default {
         sendMessage(text) {
             if (text === '/dev') {
                 this.debug.isDev = !this.debug.isDev;
-                localStorage.setItem('dev',this.debug.isDev.toString());
+                localStorage.setItem('dev', this.debug.isDev.toString());
                 return;
             }
 
@@ -78,19 +85,19 @@ export default {
         },
 
         syncPlay(time) {
-            console.log({time})
+            console.log({ time })
 
             if (!this.admin) return;
 
-            const tO = this.getTime() - time;
+            const tO = this.getTimeVideo() - time;
 
             this.debug.lastSyncSent = Date.now();
             this.debug.lastEvent = 'PLAY';
 
-            this.socket.emit('sync',{status:'PLAYING',offset:tO});
+            this.socket.emit('sync', { status: 'PLAYING', offset: tO });
         },
         syncPause(time) {
-            console.log({time})
+            console.log({ time })
 
             if (!this.admin) return;
 
@@ -98,16 +105,16 @@ export default {
             this.debug.lastSyncSent = Date.now();
             this.debug.lastEvent = 'PAUSE';
 
-            this.socket.emit('sync',{status:'PAUSED',timestamp:time});
+            this.socket.emit('sync', { status: 'PAUSED', timestamp: time });
         },
-        syncSeek(time,isPlaying) {
+        syncSeek(time, isPlaying) {
             if (!this.admin) return;
-            const tO = this.getTime() - time;
-            console.log({time,isPlaying})
+            const tO = this.getTimeVideo() - time;
+            console.log({ time, isPlaying })
             this.debug.lastSyncSent = Date.now();
             this.debug.lastEvent = `SEEK (${isPlaying ? 'play' : 'pause'})`;
 
-            this.socket.emit('sync',{status:isPlaying? 'PLAYING' : 'PAUSED',timestamp: time,offset:tO});
+            this.socket.emit('sync', { status: isPlaying ? 'PLAYING' : 'PAUSED', timestamp: time, offset: tO });
         },
 
 
@@ -132,19 +139,20 @@ export default {
                 this.users.find((x) => x.id === this.socket.id)?.role ===
                 "admin";
         },
-        sync (args) {
-            console.log(args);
+        sync(args) {
 
             this.debug.lastSyncRecv = Date.now();
-            
+
             if (this.admin) return;
 
+            this.debug.lastRecvType = args.status;
+
             if (args.status === 'PLAYING') {
-                this.time = this.getTime() - args.offset;
-                this.playing = true;
-            }else {
-                this.time = args.timestamp;
-                this.playing = false;
+                this.$refs.vjsContainer.seek(this.getTimeVideo() - args.offset);
+                this.$refs.vjsContainer.play(true);
+            } else {
+                this.$refs.vjsContainer.seek(args.timestamp);
+                this.$refs.vjsContainer.play(false);
             }
         },
         msg(args) {
@@ -164,6 +172,12 @@ export default {
         },
         onKicked(args) {
             this.kicked = true;
+        },
+        time() {
+            this.debug.t = this.getTime();
+            
+            if (this.debug.isDev)
+                requestAnimationFrame(this.time);
         }
     },
     async mounted() {
@@ -198,7 +212,7 @@ export default {
 
         this.status = "Getting room info";
         this.socket.emit("joinroom", this.$route?.params?.id ?? '');
-        
+
         const roomdata = await waitFor(this.socket, "joinroom");
         this.updateRoom(roomdata);
 
@@ -209,6 +223,9 @@ export default {
         this.socket.on("kicked", this.onKicked);
 
         this.roomReady = true;
+
+        if (this.debug.isDev)
+            requestAnimationFrame(this.time);
     },
 
     beforeUnmount() {
