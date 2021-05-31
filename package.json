@@ -1,30 +1,67 @@
 {
   "name": "shitty-sync",
-  "version": "1.1.0",
-  "description": "A shitty way to watch files together",
-  "main": "app.js",
+  "version": "1.2.0",
+  "description": "A shitty way to watch videos together",
+  "private": true,
+  "main": "src/main.ts",
   "scripts": {
-    "start": "node .",
-    "dev": "npx nodemon"
+    "start": "ts-node .",
+    "dev": "nodemon -e ts --exec npm run start"
   },
   "keywords": [
     "sync",
     "video",
-    "websockets"
+    "websockets",
+    "vue"
   ],
-  "author": {
-    "name": "Matic Babnik",
-    "email": "matic.babnik@outlook.com"
+  "maintainers": [
+    {
+      "name": "Matic Babnik",
+      "email": "matic.babnik@outlook.com",
+      "web": "https://github.com/MaticBabnik"
+    },
+    {
+      "name": "Martin Hanzlowsky",
+      "email": "martin.hanzlowskyg@gmail.com",
+      "web": "https://github.com/marwuint"
+    }
+  ],
+  "bugs": {
+    "web": "https://github.com/fubuki-fanclub/shitty-sync/issues"
   },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/fubuki-fanclub/shitty-sync.git"
+    }
+  ],
   "license": "MIT",
+  "homepage": "https://github.com/fubuki-fanclub/shitty-sync",
   "dependencies": {
+    "@types/compression": "^1.7.0",
+    "@types/connect-history-api-fallback": "^1.3.3",
+    "@types/express": "^4.17.11",
+    "@types/morgan": "^1.9.2",
+    "@types/needle": "^2.5.1",
     "@types/socket.io": "^2.1.13",
-    "current-git-branch": "^1.1.0",
+    "chalk": "^4.1.0",
+    "compression": "^1.7.4",
+    "connect-history-api-fallback": "^1.6.0",
     "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "needle": "^2.6.0",
     "socket.io": "^3.1.0",
-    "ws": "^7.4.2"
+    "socket.io-events": "^0.4.6",
+    "ws": "^7.4.2",
+    "ytdl-core": "^4.8.2",
+    "ytsr": "^3.5.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

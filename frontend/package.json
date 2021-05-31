@@ -1,0 +1,56 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "./setvars.sh; vue-cli-service serve",
+    "build": "./setvars.sh; vue-cli-service build",
+    "dev": "./setvars.sh; vue-cli-service build --watch",
+    "lint": "vue-cli-service lint",
+    "scan-emotes": "node ./misc/dump-emotes.js"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "socket.io-client": "^3.1.0",
+    "video.js": "^7.11.4",
+    "videojs-youtube": "^2.6.1",
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0-0"
+  },
+  "devDependencies": {
+    "@vue/cli": "^4.5.11",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "^4.5.11",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.0.0-0",
+    "less": "^4.1.1",
+    "less-loader": "^7.3.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "rules": {
+      "indent": [
+        "warn",
+        4
+      ]
+    },
+    "extends": [
+      "plugin:vue/vue3-essential"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
