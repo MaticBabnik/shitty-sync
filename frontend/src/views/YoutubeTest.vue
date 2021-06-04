@@ -1,7 +1,7 @@
 <template>
     <div>
         <h1>Youtube source switch test</h1>
-        <videojs id="test" :source="source"></videojs>
+        <videojs id="test" ref="vjs" :source="source"></videojs>
 
         <div id="btns">
             <div class="button" @click="()=>src(0)">Source 1</div>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import videojs from "../components/Vjs-fixed.vue";
+import videojs from "../components/VideoJS.vue";
 import vjs from "video.js";
 
 export default {
@@ -24,8 +24,7 @@ export default {
     },
     methods: {
         src(n) {
-            console.log(n);
-            this.source = [
+            this.$refs.vjs.change([
                 { src: "http://cdn.femboy.si/floppa.mp4", type: "video/mp4" },
                 {
                     src: "https://www.youtube.com/watch?v=TZ1V33GqeLM",
@@ -35,7 +34,7 @@ export default {
                     src: "https://www.youtube.com/watch?v=jPFNKhWlHqU",
                     type: "video/youtube",
                 },
-            ][n]
+            ][n]);
         },
     },
 };

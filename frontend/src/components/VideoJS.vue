@@ -13,8 +13,6 @@ import "videojs-youtube";
 export default {
     props: {
         source: { type: Object },
-        //playing: { type: Boolean },
-        //time: { type: Number },
     },
     data() {
         return {
@@ -26,12 +24,6 @@ export default {
             reset: false,
         };
     },
-    created() {
-        this.$watch("source", this.change, true);
-        //this.$watch("playing", this.play, true);
-        //this.$watch("time", this.seek, true);
-    },
-
     mounted() {
         this.recreate();
     },
@@ -44,9 +36,11 @@ export default {
     methods: {
         recreate() {
             if (this.player) this.player.dispose();
+
             const video = document.createElement("video");
             video.classList = "video-js vjs-theme-orange";
             this.$el.appendChild(video);
+
             this.player = videojs(video, this.options);
 
             this.player.on("play", () => {
@@ -65,17 +59,20 @@ export default {
                 );
             });
         },
-        async change(cur, prev) {
-            console.log({ cur, prev });
-
-            this.options.techOrder =
-                cur.type == "video/youtube" ? ["youtube"] : ["html5"];
-
-            this.options.sources = [{ src: cur.src, type: cur.type }];
+        change(src) {
+            if (src.type == "video/youtube") {
+                this.options.sources = [
+                    { src: src.src, type: "video/youtube" },
+                ];
+                this.options.techOrder = ["youtube"];
+            } else {
+                this.options.sources = [{ src: src.src }];
+                this.options.techOrder = ["html5"];
+            }
             this.recreate();
         },
 
-        seek (cur) {
+        seek(cur) {
             //console.log('seeking')
             this.player.currentTime(cur);
         },

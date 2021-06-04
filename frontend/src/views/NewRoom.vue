@@ -5,7 +5,6 @@
                 <videojs
                     class="video"
                     id="video-main"
-                    :source="source"
                     ref="vjsContainer"
                     @vplay="syncPlay"
                     @vpause="syncPause"
@@ -97,7 +96,7 @@ import Message from "../components/Message.vue";
 import Share from "../components/Share.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
 import User from "../components/User.vue";
-import Videojs from "../components/Vjs-fixed.vue";
+import Videojs from "../components/VideoJS.vue";
 
 import roomMixin from "@/room.js";
 

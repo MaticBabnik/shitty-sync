@@ -48,7 +48,7 @@ export default {
             return Date.now() + this.timeOffset;
         },
 
-        getTimeVideo () { //same as get time but in seconds
+        getTimeVideo() { //same as get time but in seconds
             return (Date.now() + this.timeOffset) / 1_000;
 
         },
@@ -130,10 +130,14 @@ export default {
         updateRoom(args) {
             this.users = args.users;
 
-            if (args.media.type == 'youtube-search')
+            if (args.media.type == 'youtube-search') {
                 this.source = { src: args.media.src, type: 'video/youtube' };
-            else
+            }
+            else {
                 this.source = args.media;
+            }
+            this.$refs.vjsContainer.change(this.source)
+
 
             this.admin =
                 this.users.find((x) => x.id === this.socket.id)?.role ===
@@ -175,7 +179,7 @@ export default {
         },
         time() {
             this.debug.t = this.getTime();
-            
+
             if (this.debug.isDev)
                 requestAnimationFrame(this.time);
         }

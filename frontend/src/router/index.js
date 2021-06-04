@@ -12,7 +12,7 @@ const routes = [
         title: 'Shitty sync | Home'
     },
     {
-        path: '/nroom/:id/',
+        path: '/room/:id/',
         name: 'NRoom',
         component: NRoom,
         title: 'Nr'
