@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import NRoom from '@/views/NewRoom.vue'
 import NotFound from '@/views/Errors/NotFound.vue'
 import Home from '@/views/Home.vue'
-import Test from '@/views/YoutubeTest.vue'
 
 const routes = [
     {
@@ -22,11 +21,6 @@ const routes = [
         name: 'NotFound',
         component: NotFound,
         title: 'Shitty sync | Not Found'
-    },
-    {
-        path: '/test',
-        name: 'test',
-        component: Test
     }
 ]
 

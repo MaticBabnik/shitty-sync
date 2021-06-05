@@ -77,6 +77,7 @@
             <h1>Joining...</h1>
             <div class="progress-bar"></div>
             <p>{{ status }}</p>
+            <div class="button" v-if="interactionNeeded" @click="interaction">Continue</div>
         </div>
         <div class="l-overlay" v-if="kicked">
             <h1>Kicked from room</h1>
