@@ -8,6 +8,10 @@
             <div class="button" @click="()=>src(1)">Source 2</div>
             <div class="button" @click="()=>src(2)">Source 3</div>
         </div>
+        <div id="btns">
+            <div class="button" @click="()=>admin(true)">Admin</div>
+            <div class="button" @click="()=>admin(false)">User</div>
+        </div>
     </div>
 </template>
 
@@ -36,6 +40,9 @@ export default {
                 },
             ][n]);
         },
+        admin(v) {
+            this.$refs.vjs.setAdmin(v);
+        }
     },
 };
 </script>

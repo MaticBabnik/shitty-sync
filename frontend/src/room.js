@@ -131,18 +131,20 @@ export default {
         updateRoom(args) {
             this.users = args.users;
 
-            if (args.media.type == 'youtube-search') {
-                this.source = { src: args.media.src, type: 'video/youtube' };
+            if (args.media?.src !== this?.source?.src) {
+                if (args.media.type == 'youtube-search') {
+                    this.source = { src: args.media.src, type: 'video/youtube' };
+                }
+                else {
+                    this.source = args.media;
+                }
+                this.$refs.vjsContainer.change(this.source)
             }
-            else {
-                this.source = args.media;
-            }
-            this.$refs.vjsContainer.change(this.source)
-
 
             this.admin =
                 this.users.find((x) => x.id === this.socket.id)?.role ===
                 "admin";
+            this.$refs.vjsContainer.setAdmin(this.admin);
         },
         sync(args) {
 
@@ -231,7 +233,7 @@ export default {
         },
 
 
-        interaction () {
+        interaction() {
             this.joinroom();
             this.interactionNeeded = false;
         }

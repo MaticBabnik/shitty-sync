@@ -1,7 +1,6 @@
 <template>
     <div class="video-container">
-        <!-- The video here gets created in runtime -->
-        <!-- I wish there was a better way -->
+        <!-- Video gets created here -->
     </div>
 </template>
 
@@ -17,7 +16,13 @@ export default {
     data() {
         return {
             player: null,
+            customOptions: {
+                admin: false,
+            },
             options: {
+                userActions: {
+                    hotkeys: false,
+                },
                 autoplay: false,
                 controls: true,
             },
@@ -41,8 +46,9 @@ export default {
             video.classList = "video-js vjs-theme-orange";
             this.$el.appendChild(video);
 
+            this.options.userActions.hotkeys = this.customOptions.admin;
             this.player = videojs(video, this.options);
-
+            window.pl = this.player;
             this.player.on("play", () => {
                 this.$emit("vplay", this.player.currentTime());
             });
@@ -58,6 +64,18 @@ export default {
                     !this.player.paused()
                 );
             });
+
+            window.v = this.player;
+
+            if (this.customOptions.admin) {
+                this.player.controlBar.progressControl.enable();
+                this.player.controlBar.playToggle.enable();
+                this.player.removeClass("disable-user");
+            } else {
+                this.player.controlBar.progressControl.disable();
+                this.player.controlBar.playToggle.disable();
+                this.player.addClass("disable-user");
+            }
         },
         change(src) {
             if (src.type == "video/youtube") {
@@ -81,6 +99,20 @@ export default {
             if (cur) this.player.play();
             else this.player.pause();
         },
+        setAdmin(val) {
+            this.customOptions.admin = val;
+
+            if (this.customOptions.admin) {
+                //TODO implement custom hotkey handler, just to be sure...
+                this.player.controlBar.progressControl.enable();
+                this.player.controlBar.playToggle.enable();
+                this.player.removeClass("disable-user");
+            } else {
+                this.player.controlBar.progressControl.disable();
+                this.player.controlBar.playToggle.disable();
+                this.player.addClass("disable-user");
+            }
+        },
     },
 };
 </script>
@@ -103,5 +135,10 @@ export default {
         right: 0;
         bottom: 0;
     }
+}
+
+//I hate this
+.disable-user.video-js>*:not(.vjs-control-bar) {
+    pointer-events: none;
 }
 </style>
