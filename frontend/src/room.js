@@ -21,6 +21,7 @@ export default {
             roomCode: "",
             roomValid: false,
             status: "Waiting for WS",
+            interactionNeeded: false,
             roomReady: false,
             kicked: false,
             messages: [],
@@ -48,7 +49,7 @@ export default {
             return Date.now() + this.timeOffset;
         },
 
-        getTimeVideo () { //same as get time but in seconds
+        getTimeVideo() { //same as get time but in seconds
             return (Date.now() + this.timeOffset) / 1_000;
 
         },
@@ -130,14 +131,20 @@ export default {
         updateRoom(args) {
             this.users = args.users;
 
-            if (args.media.type == 'youtube-search')
-                this.source = { src: args.media.src, type: 'video/youtube' };
-            else
-                this.source = args.media;
+            if (args.media?.src !== this?.source?.src) {
+                if (args.media.type == 'youtube-search') {
+                    this.source = { src: args.media.src, type: 'video/youtube' };
+                }
+                else {
+                    this.source = args.media;
+                }
+                this.$refs.vjsContainer.change(this.source)
+            }
 
             this.admin =
                 this.users.find((x) => x.id === this.socket.id)?.role ===
                 "admin";
+            this.$refs.vjsContainer.setAdmin(this.admin);
         },
         sync(args) {
 
@@ -175,10 +182,64 @@ export default {
         },
         time() {
             this.debug.t = this.getTime();
-            
+
             if (this.debug.isDev)
                 requestAnimationFrame(this.time);
+        },
+
+
+        async joinroom() {
+
+
+            let roomCode = this.$route.params.id;
+            this.roomCode = roomCode;
+            this.socket = io();
+
+            await waitFor(this.socket, "connect");
+
+            this.socket.on("pingret", this.onPingReturn);
+            await delay(200);
+            for (let i = 1; i <= 10; i++) {
+                this.status = `Calculating latency ${i}/10`;
+                await this.ping();
+            }
+            const latency = util.average(util.ignoreWorst(this.latency.records));
+
+            this.status = "Syncing time...";
+            this.socket.emit("synctime", { latency });
+            const serverTime = await waitFor(this.socket, "synctime");
+
+            this.timeOffset = serverTime - Date.now();
+            this.socket.emit("testtime", { time: this.getTime() + latency / 2 });
+
+            this.debug.timeError = await waitFor(this.socket, "testtime");
+
+            this.status = "Getting room info";
+            this.socket.emit("joinroom", this.$route?.params?.id ?? '');
+
+            const roomdata = await waitFor(this.socket, "joinroom");
+            this.updateRoom(roomdata);
+
+            this.socket.on("updateroom", this.updateRoom);
+            this.socket.on("msg", this.msg);
+            this.socket.on("sysmsg", this.sysmsg);
+            this.socket.on("sync", this.sync)
+            this.socket.on("kicked", this.onKicked);
+
+            this.roomReady = true;
+
+            if (this.debug.isDev)
+                requestAnimationFrame(this.time);
+        },
+
+
+        interaction() {
+            this.joinroom();
+            this.interactionNeeded = false;
         }
+
+
+
     },
     async mounted() {
         console.log('room.js mixin mounted');
@@ -187,47 +248,17 @@ export default {
             this.debug.isDev = true;
         }
 
-        let roomCode = this.$route.params.id;
-        this.roomCode = roomCode;
-        this.socket = io();
+        const canJoin = await util.checkAutoplay();
 
-        await waitFor(this.socket, "connect");
-
-        this.socket.on("pingret", this.onPingReturn);
-        await delay(200);
-        for (let i = 1; i <= 10; i++) {
-            this.status = `Calculating latency ${i}/10`;
-            await this.ping();
+        if (canJoin) {
+            await this.joinroom();
+        } else {
+            this.status = "Click the button bellow to enable autoplay";
+            this.interactionNeeded = true;
         }
-        const latency = util.average(util.ignoreWorst(this.latency.records));
 
-        this.status = "Syncing time...";
-        this.socket.emit("synctime", { latency });
-        const serverTime = await waitFor(this.socket, "synctime");
 
-        this.timeOffset = serverTime - Date.now();
-        this.socket.emit("testtime", { time: this.getTime() + latency / 2 });
-
-        this.debug.timeError = await waitFor(this.socket, "testtime");
-
-        this.status = "Getting room info";
-        this.socket.emit("joinroom", this.$route?.params?.id ?? '');
-
-        const roomdata = await waitFor(this.socket, "joinroom");
-        this.updateRoom(roomdata);
-
-        this.socket.on("updateroom", this.updateRoom);
-        this.socket.on("msg", this.msg);
-        this.socket.on("sysmsg", this.sysmsg);
-        this.socket.on("sync", this.sync)
-        this.socket.on("kicked", this.onKicked);
-
-        this.roomReady = true;
-
-        if (this.debug.isDev)
-            requestAnimationFrame(this.time);
     },
-
     beforeUnmount() {
         this.socket.disconnect()
     },

@@ -18,6 +18,7 @@
                     class="input"
                     v-model="query"
                     placeholder="Paste a link or search"
+                    v-if="selectedSource == null"
                 />
                 <div class="results" v-if="!selectedSource">
                     <div

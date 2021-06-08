@@ -5,7 +5,6 @@
                 <videojs
                     class="video"
                     id="video-main"
-                    :source="source"
                     ref="vjsContainer"
                     @vplay="syncPlay"
                     @vpause="syncPause"
@@ -78,6 +77,7 @@
             <h1>Joining...</h1>
             <div class="progress-bar"></div>
             <p>{{ status }}</p>
+            <div class="button" v-if="interactionNeeded" @click="interaction">Continue</div>
         </div>
         <div class="l-overlay" v-if="kicked">
             <h1>Kicked from room</h1>
@@ -97,7 +97,7 @@ import Message from "../components/Message.vue";
 import Share from "../components/Share.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
 import User from "../components/User.vue";
-import Videojs from "../components/Vjs-fixed.vue";
+import Videojs from "../components/VideoJS.vue";
 
 import roomMixin from "@/room.js";
 
