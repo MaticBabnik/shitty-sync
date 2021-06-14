@@ -20,6 +20,7 @@ export default {
                 admin: false,
             },
             options: {
+                preload:true,
                 userActions: {
                     hotkeys: false,
                 },
