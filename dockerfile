@@ -1,4 +1,6 @@
-FROM node:16-alpine
+FROM node:16
+
+RUN apt install git
 
 RUN mkdir /app
 
