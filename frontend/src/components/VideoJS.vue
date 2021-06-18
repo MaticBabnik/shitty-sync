@@ -1,7 +1,6 @@
 <template>
     <div class="video-container">
-        <!-- The video here gets created in runtime -->
-        <!-- I wish there was a better way -->
+        <!-- Video gets created here -->
     </div>
 </template>
 
@@ -13,25 +12,24 @@ import "videojs-youtube";
 export default {
     props: {
         source: { type: Object },
-        //playing: { type: Boolean },
-        //time: { type: Number },
     },
     data() {
         return {
             player: null,
+            customOptions: {
+                admin: false,
+            },
             options: {
+                preload:true,
+                userActions: {
+                    hotkeys: false,
+                },
                 autoplay: false,
                 controls: true,
             },
             reset: false,
         };
     },
-    created() {
-        this.$watch("source", this.change, true);
-        //this.$watch("playing", this.play, true);
-        //this.$watch("time", this.seek, true);
-    },
-
     mounted() {
         this.recreate();
     },
@@ -44,11 +42,14 @@ export default {
     methods: {
         recreate() {
             if (this.player) this.player.dispose();
+
             const video = document.createElement("video");
             video.classList = "video-js vjs-theme-orange";
             this.$el.appendChild(video);
-            this.player = videojs(video, this.options);
 
+            this.options.userActions.hotkeys = this.customOptions.admin;
+            this.player = videojs(video, this.options);
+            window.pl = this.player;
             this.player.on("play", () => {
                 this.$emit("vplay", this.player.currentTime());
             });
@@ -64,18 +65,33 @@ export default {
                     !this.player.paused()
                 );
             });
+
+            window.v = this.player;
+
+            if (this.customOptions.admin) {
+                this.player.controlBar.progressControl.enable();
+                this.player.controlBar.playToggle.enable();
+                this.player.removeClass("disable-user");
+            } else {
+                this.player.controlBar.progressControl.disable();
+                this.player.controlBar.playToggle.disable();
+                this.player.addClass("disable-user");
+            }
         },
-        async change(cur, prev) {
-            console.log({ cur, prev });
-
-            this.options.techOrder =
-                cur.type == "video/youtube" ? ["youtube"] : ["html5"];
-
-            this.options.sources = [{ src: cur.src, type: cur.type }];
+        change(src) {
+            if (src.type == "video/youtube") {
+                this.options.sources = [
+                    { src: src.src, type: "video/youtube" },
+                ];
+                this.options.techOrder = ["youtube"];
+            } else {
+                this.options.sources = [{ src: src.src }];
+                this.options.techOrder = ["html5"];
+            }
             this.recreate();
         },
 
-        seek (cur) {
+        seek(cur) {
             //console.log('seeking')
             this.player.currentTime(cur);
         },
@@ -83,6 +99,20 @@ export default {
             //console.log('changing play state')
             if (cur) this.player.play();
             else this.player.pause();
+        },
+        setAdmin(val) {
+            this.customOptions.admin = val;
+
+            if (this.customOptions.admin) {
+                //TODO implement custom hotkey handler, just to be sure...
+                this.player.controlBar.progressControl.enable();
+                this.player.controlBar.playToggle.enable();
+                this.player.removeClass("disable-user");
+            } else {
+                this.player.controlBar.progressControl.disable();
+                this.player.controlBar.playToggle.disable();
+                this.player.addClass("disable-user");
+            }
         },
     },
 };
@@ -106,5 +136,10 @@ export default {
         right: 0;
         bottom: 0;
     }
+}
+
+//I hate this
+.disable-user.video-js>*:not(.vjs-control-bar) {
+    pointer-events: none;
 }
 </style>

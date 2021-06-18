@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import NRoom from '@/views/NewRoom.vue'
 import NotFound from '@/views/Errors/NotFound.vue'
 import Home from '@/views/Home.vue'
-import Test from '@/views/YoutubeTest.vue'
+import VjsTest from '@/views/vjsTest.vue'
 
 const routes = [
     {
@@ -12,7 +12,7 @@ const routes = [
         title: 'Shitty sync | Home'
     },
     {
-        path: '/nroom/:id/',
+        path: '/room/:id/',
         name: 'NRoom',
         component: NRoom,
         title: 'Nr'
@@ -24,10 +24,11 @@ const routes = [
         title: 'Shitty sync | Not Found'
     },
     {
-        path: '/test',
+        path: '/test/',
         name: 'test',
-        component: Test
-    }
+        component: VjsTest,
+        title: 'test'
+    },
 ]
 
 const router = createRouter({
