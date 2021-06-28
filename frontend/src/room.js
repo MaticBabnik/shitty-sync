@@ -32,6 +32,7 @@ export default {
                 playing: false,
                 time: 0,
             },
+            syncState: null,
             debug: {
                 isDev: false,
                 lastSyncRecv: 0,
@@ -40,7 +41,8 @@ export default {
                 lastRecvType: '?',
                 timeError: 0,
                 t: 0
-            }
+            },
+            intervals: []
         };
     },
     methods: {
@@ -49,7 +51,7 @@ export default {
             return Date.now() + this.timeOffset;
         },
 
-        getTimeVideo() { //same as get time but in seconds
+        getTimeSeconds() { //same as get time but in seconds
             return (Date.now() + this.timeOffset) / 1_000;
 
         },
@@ -86,11 +88,9 @@ export default {
         },
 
         syncPlay(time) {
-            console.log({ time })
-
             if (!this.admin) return;
 
-            const tO = this.getTimeVideo() - time;
+            const tO = this.getTimeSeconds() - time;
 
             this.debug.lastSyncSent = Date.now();
             this.debug.lastEvent = 'PLAY';
@@ -98,8 +98,6 @@ export default {
             this.socket.emit('sync', { status: 'PLAYING', offset: tO });
         },
         syncPause(time) {
-            console.log({ time })
-
             if (!this.admin) return;
 
             // For pause we send the actual timestap, so that it is *perfect*
@@ -110,8 +108,7 @@ export default {
         },
         syncSeek(time, isPlaying) {
             if (!this.admin) return;
-            const tO = this.getTimeVideo() - time;
-            console.log({ time, isPlaying })
+            const tO = this.getTimeSeconds() - time;
             this.debug.lastSyncSent = Date.now();
             this.debug.lastEvent = `SEEK (${isPlaying ? 'play' : 'pause'})`;
 
@@ -153,9 +150,10 @@ export default {
             if (this.admin) return;
 
             this.debug.lastRecvType = args.status;
+            this.syncState = args;
 
             if (args.status === 'PLAYING') {
-                this.$refs.vjsContainer.seek(this.getTimeVideo() - args.offset);
+                this.$refs.vjsContainer.seek(this.getTimeSeconds() - args.offset);
                 this.$refs.vjsContainer.play(true);
             } else {
                 this.$refs.vjsContainer.seek(args.timestamp);
@@ -227,6 +225,7 @@ export default {
             this.socket.on("kicked", this.onKicked);
 
             this.roomReady = true;
+            this.intervals.push(setInterval(this.watchdog, 100));
 
             if (this.debug.isDev)
                 requestAnimationFrame(this.time);
@@ -236,10 +235,48 @@ export default {
         interaction() {
             this.joinroom();
             this.interactionNeeded = false;
+        },
+
+        watchdog() {
+            if (this.admin) return;
+            if (this.syncState === null) return;
+
+
+            if (this.syncState.status === 'PLAYING') {
+
+                if (this.$refs.vjsContainer.player.paused()) {
+                    console.warn("[WD] Player should be playing!");
+
+                    if (this.$refs.vjsContainer.player.readyState < 3) //dont bother playing if no data is ready
+                        console.warn("[WD] player.readyState is less than HAVE_FUTURE_DATA");
+                    else
+                        this.$refs.vjsContainer.play(true);
+                }
+                const delta = Math.abs(this.$refs.vjsContainer.player.currentTime() - (this.getTimeSeconds() - this.syncState.offset));
+                if (delta > constants.desyncTolerance) {
+                    console.warn(`[WD] Player sync failing (delta =${delta})`);
+
+                    this.$refs.vjsContainer.seek(this.getTimeSeconds() - this.syncState.offset);
+
+                }
+
+            } else {
+
+                if (!this.$refs.vjsContainer.player.paused()) {
+                    console.warn("[WD] Player not paused");
+
+                    this.$refs.vjsContainer.play(false); //make sure the player is paused
+                }
+
+                const delta = Math.abs(this.$refs.vjsContainer.player.currentTime() - this.syncState.timestamp);
+                if (delta > constants.desyncTolerance) {
+                    console.warn(`[WD] Player at wrong timestamp (delta = ${delta})`);
+
+                    this.$refs.vjsContainer.seek(args.timestamp);
+                }
+            }
+
         }
-
-
-
     },
     async mounted() {
         console.log('room.js mixin mounted');
@@ -256,10 +293,9 @@ export default {
             this.status = "Click the button bellow to enable autoplay";
             this.interactionNeeded = true;
         }
-
-
     },
     beforeUnmount() {
         this.socket.disconnect()
+        this.intervals.forEach(x => clearInterval(x));
     },
 }
