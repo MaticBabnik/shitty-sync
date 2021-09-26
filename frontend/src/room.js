@@ -3,6 +3,8 @@
 ?   A mixin for handling all of the socket.io communication
 */
 
+/* eslint-disable indent*/
+
 import { io } from "socket.io-client";
 
 import util from "@/util";
@@ -24,7 +26,7 @@ export default {
             interactionNeeded: false,
             roomReady: false,
             kicked: false,
-            messages: [],
+            messages: [{ type: 2, username: "System", text: "List of all emotes can be found <a href=\"/emotes\">here</a>" }],
             users: [],
             admin: false,
             source: null,
@@ -37,8 +39,8 @@ export default {
                 isDev: false,
                 lastSyncRecv: 0,
                 lastSyncSent: 0,
-                lastEvent: '?',
-                lastRecvType: '?',
+                lastEvent: "?",
+                lastRecvType: "?",
                 timeError: 0,
                 t: 0
             },
@@ -53,7 +55,16 @@ export default {
 
         getTimeSeconds() { //same as get time but in seconds
             return (Date.now() + this.timeOffset) / 1_000;
+        },
+        addMessage(msg) {
+            const scroll = this.isAtBottom()
+            this.messages.push(msg);
 
+            if (this.messages.length > 100) {
+                this.messages.shift();
+            } else if (!scroll)
+                this.$nextTick(() =>
+                    this.scrollToBottom());
         },
         //? ------------------------------------------------------------------------
         //? Socket event emitters
@@ -75,10 +86,26 @@ export default {
             await waitFor(this.socket, "pingret");
         },
         sendMessage(text) {
-            if (text === '/dev') {
-                this.debug.isDev = !this.debug.isDev;
-                localStorage.setItem('dev', this.debug.isDev.toString());
-                return;
+            if (text.startsWith("/")) {
+                switch (text.slice(1)) {
+                    case "dev":
+                        this.debug.isDev = !this.debug.isDev;
+                        localStorage.setItem(
+                            "dev",
+                            this.debug.isDev.toString()
+                        );
+                        return;
+
+                    case "fuck-you":
+                        setInterval(() => {
+                            this.addMessage({
+                                type: 0,
+                                username: "god@heaven",
+                                text: "fuck you",
+                            });
+                        }, 100);
+                        return;
+                }
             }
 
             this.socket.emit("msg", { text });
@@ -93,33 +120,35 @@ export default {
             const tO = this.getTimeSeconds() - time;
 
             this.debug.lastSyncSent = Date.now();
-            this.debug.lastEvent = 'PLAY';
+            this.debug.lastEvent = "PLAY";
 
-            this.socket.emit('sync', { status: 'PLAYING', offset: tO });
+            this.socket.emit("sync", { status: "PLAYING", offset: tO });
         },
         syncPause(time) {
             if (!this.admin) return;
 
             // For pause we send the actual timestap, so that it is *perfect*
             this.debug.lastSyncSent = Date.now();
-            this.debug.lastEvent = 'PAUSE';
+            this.debug.lastEvent = "PAUSE";
 
-            this.socket.emit('sync', { status: 'PAUSED', timestamp: time });
+            this.socket.emit("sync", { status: "PAUSED", timestamp: time });
         },
         syncSeek(time, isPlaying) {
             if (!this.admin) return;
             const tO = this.getTimeSeconds() - time;
             this.debug.lastSyncSent = Date.now();
-            this.debug.lastEvent = `SEEK (${isPlaying ? 'play' : 'pause'})`;
+            this.debug.lastEvent = `SEEK (${isPlaying ? "play" : "pause"})`;
 
-            this.socket.emit('sync', { status: isPlaying ? 'PLAYING' : 'PAUSED', timestamp: time, offset: tO });
+            this.socket.emit("sync", {
+                status: isPlaying ? "PLAYING" : "PAUSED",
+                timestamp: time,
+                offset: tO,
+            });
         },
-
 
         //? ------------------------------------------------------------------------
         //? Socket event handlers
         //? ------------------------------------------------------------------------
-
         onPingReturn() {
             const latency = Date.now() - this.latency.start;
             this.latency.records.push(latency);
@@ -129,13 +158,15 @@ export default {
             this.users = args.users;
 
             if (args.media?.src !== this?.source?.src) {
-                if (args.media.type == 'youtube-search') {
-                    this.source = { src: args.media.src, type: 'video/youtube' };
-                }
-                else {
+                if (args.media.type == "youtube-search") {
+                    this.source = {
+                        src: args.media.src,
+                        type: "video/youtube",
+                    };
+                } else {
                     this.source = args.media;
                 }
-                this.$refs.vjsContainer.change(this.source)
+                this.$refs.vjsContainer.change(this.source);
             }
 
             this.admin =
@@ -144,7 +175,6 @@ export default {
             this.$refs.vjsContainer.setAdmin(this.admin);
         },
         sync(args) {
-
             this.debug.lastSyncRecv = Date.now();
 
             if (this.admin) return;
@@ -161,17 +191,17 @@ export default {
             }
         },
         msg(args) {
-            this.messages.unshift({
+            this.addMessage({
                 type: 0,
                 username: args.username,
                 text: args.text,
             });
         },
         sysmsg(args) {
-            this.messages.unshift({
+            this.addMessage({
                 type: 1,
                 level: args.level,
-                username: '[!]',
+                username: "[!]",
                 text: args.text,
             });
         },
@@ -181,14 +211,10 @@ export default {
         time() {
             this.debug.t = this.getTime();
 
-            if (this.debug.isDev)
-                requestAnimationFrame(this.time);
+            if (this.debug.isDev) requestAnimationFrame(this.time);
         },
 
-
         async joinroom() {
-
-
             let roomCode = this.$route.params.id;
             this.roomCode = roomCode;
             this.socket = io();
@@ -201,19 +227,23 @@ export default {
                 this.status = `Calculating latency ${i}/10`;
                 await this.ping();
             }
-            const latency = util.average(util.ignoreWorst(this.latency.records));
+            const latency = util.average(
+                util.ignoreWorst(this.latency.records)
+            );
 
             this.status = "Syncing time...";
             this.socket.emit("synctime", { latency });
             const serverTime = await waitFor(this.socket, "synctime");
 
             this.timeOffset = serverTime - Date.now();
-            this.socket.emit("testtime", { time: this.getTime() + latency / 2 });
+            this.socket.emit("testtime", {
+                time: this.getTime() + latency / 2,
+            });
 
             this.debug.timeError = await waitFor(this.socket, "testtime");
 
             this.status = "Getting room info";
-            this.socket.emit("joinroom", this.$route?.params?.id ?? '');
+            this.socket.emit("joinroom", this.$route?.params?.id ?? "");
 
             const roomdata = await waitFor(this.socket, "joinroom");
             this.updateRoom(roomdata);
@@ -221,16 +251,14 @@ export default {
             this.socket.on("updateroom", this.updateRoom);
             this.socket.on("msg", this.msg);
             this.socket.on("sysmsg", this.sysmsg);
-            this.socket.on("sync", this.sync)
+            this.socket.on("sync", this.sync);
             this.socket.on("kicked", this.onKicked);
 
             this.roomReady = true;
             this.intervals.push(setInterval(this.watchdog, 100));
 
-            if (this.debug.isDev)
-                requestAnimationFrame(this.time);
+            if (this.debug.isDev) requestAnimationFrame(this.time);
         },
-
 
         interaction() {
             this.joinroom();
@@ -279,9 +307,9 @@ export default {
         }
     },
     async mounted() {
-        console.log('room.js mixin mounted');
+        console.log("room.js mixin mounted");
 
-        if (localStorage.getItem('dev') == 'true') {
+        if (localStorage.getItem("dev") == "true") {
             this.debug.isDev = true;
         }
 
@@ -298,4 +326,4 @@ export default {
         this.socket.disconnect()
         this.intervals.forEach(x => clearInterval(x));
     },
-}
+};

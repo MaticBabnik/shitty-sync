@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import NRoom from '@/views/NewRoom.vue'
+import NRoom from '@/views/Room.vue'
 import NotFound from '@/views/Errors/NotFound.vue'
 import Home from '@/views/Home.vue'
 import VjsTest from '@/views/vjsTest.vue'
+import Emotes from '@/views/emotes.vue';
 
 const routes = [
     {
@@ -28,6 +29,11 @@ const routes = [
         name: 'test',
         component: VjsTest,
         title: 'test'
+    },{
+        path: '/emotes/',
+        name: 'emotes',
+        component: Emotes,
+        title: 'Emotes'
     },
 ]
 

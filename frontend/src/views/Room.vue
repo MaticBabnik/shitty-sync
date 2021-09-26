@@ -33,42 +33,20 @@
                 <media-picker v-if="admin" @select="changeMedia" />
                 <theme-toggle />
             </div>
-            <div class="dev" v-if="debug.isDev">
-                <span>Stats [ /dev to toggle ]</span>
-                <br />
-                <span>Info </span>
-                <span>---------------------------------------</span>
-                <span>T: {{debug.t}}</span>
-                <span>Last ping: {{ latency.last }}</span>
-                <span>Time offset: {{ timeOffset }} </span>
-                <span>Time error: {{ debug.timeError }}</span>
-
-                <br />
-                <template v-if="admin">
-                    <span>Sync host stats </span>
-                    <span>---------------------------------------</span>
-                    <span>Last sync: {{ debug.lastSyncSent }}</span>
-                    <span>Last event: {{ debug.lastEvent }}</span>
-                </template>
-                <template v-else>
-                    <span>Sync client stats </span>
-                    <span>---------------------------------------</span>
-                    <span>Last sync: {{ debug.lastSyncRecv }}</span>
-                    <span>Last type: {{ debug.lastRecvType }}</span>
-                </template>
-                <br />
-                <span>Build info </span>
-                <span>---------------------------------------</span>
-                <span>Built from: fubuki-fanclub/shitty-sync</span>
-                <span>Branch: {{ branch }}</span>
-                <span>Commit: {{ commit }}</span>
-            </div>
-            <div class="messages">
+            <devtools
+                :debug="debug"
+                :admin="admin"
+                :latency="latency"
+                :timeOffset="timeOffset"
+                v-if="debug.isDev"
+            />
+            <div class="messages" ref="msgbox">
                 <message
                     v-for="(msg, index) in messages"
                     :key="index"
                     :username="msg.username"
                     :message="msg.text"
+                    :type="msg.type"
                 />
             </div>
             <chat-textbox :maxlength="120" @send="sendMessage" />
@@ -77,7 +55,9 @@
             <h1>Joining...</h1>
             <div class="progress-bar"></div>
             <p>{{ status }}</p>
-            <div class="button" v-if="interactionNeeded" @click="interaction">Continue</div>
+            <div class="button" v-if="interactionNeeded" @click="interaction">
+                Continue
+            </div>
         </div>
         <div class="l-overlay" v-if="kicked">
             <h1>Kicked from room</h1>
@@ -98,6 +78,7 @@ import Share from "../components/Share.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
 import User from "../components/User.vue";
 import Videojs from "../components/VideoJS.vue";
+import Devtools from "../components/Devtools.vue";
 
 import roomMixin from "@/room.js";
 
@@ -111,9 +92,7 @@ export default {
         Message,
         MediaPicker,
         Videojs,
-    },
-    $refs: {
-        users: HTMLDivElement,
+        Devtools,
     },
     data() {
         return {
@@ -125,6 +104,14 @@ export default {
         userScroll(e) {
             this.$refs.users.scrollLeft += e.deltaY;
         },
+        isAtBottom() {
+            const el = this.$refs.msgbox;
+            return el.scrollTop + el.clientHeight === el.scrollHeight;
+        },
+        scrollToBottom() {
+            const el = this.$refs.msgbox;
+            el.scrollTo({left:0,top:el.scrollHeight+10000, behavior:"smooth"});
+        }
     },
     mounted() {
         this.$refs.users.addEventListener("wheel", this.userScroll, {
@@ -251,25 +238,11 @@ export default {
                 flex: 1;
             }
         }
-
-        .dev {
-            background-color: #000;
-            border: 2px solid @primary;
-            * {
-                color: #aaa;
-                font-family: monospace;
-            }
-            flex: 0.5;
-            flex-direction: column;
-            overflow-y: scroll;
-            display: flex;
-        }
-
         .messages {
             flex: 1;
             overflow-y: scroll;
             display: flex;
-            flex-direction: column-reverse;
+            flex-direction: column;
         }
         .message-box {
             height: fit-content;

@@ -60,6 +60,11 @@ input[type="text"].input:focus {
     border: 1px solid @primary;
 }
 
+*::selection {
+    color: white;
+    background-color: @accent;
+}
+
 .button {
     color           : #fff; //TODO maybe make a --white var or something
     width           : fit-content;
@@ -124,4 +129,8 @@ input[type="text"].input:focus {
 * {
     scrollbar-width: thin;
     scrollbar-color: @accent @background;
+}
+
+a[href] {
+    color: @accent;
 }
