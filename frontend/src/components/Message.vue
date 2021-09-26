@@ -1,7 +1,7 @@
 <template>
   <p class="msg">
     <span class="username">{{ username }}: </span>
-    <span class="text" v-html="emoteHtml"></span>
+    <span class="text" v-html="type != 2 ? emoteHtml : message"></span>
   </p>
 </template>
 
@@ -9,12 +9,15 @@
 import emotePaths from "../assets/emotes.json";
 
 const emoteReplacer = emotePaths.map(x=>{
-    return [new RegExp(`(^|\\s)${x[0]}($|\\s)`,'gi'),`<img class="emote" src="${x[1]}">`]
+    return [new RegExp(`(^|\\s)${x[0]}(?=$|\\s)`,'gi'),`<img class="emote" src="${x[1]}">`]
 })
 
 
 export default {
     props: {
+        type: {
+            type: Number
+        },
         username: {
             type: String,
             required: true,
@@ -56,6 +59,7 @@ export default {
   .text {
       line-height: 26px;
       vertical-align: middle;
+      word-break: break-all;
       .emote {
           width: 24px;
           height: 24px;
@@ -66,7 +70,8 @@ export default {
       }
   }
   .username {
-    color: @accent;
+    color: @primary;
+    font-weight: bold;
   }
 }
 </style>

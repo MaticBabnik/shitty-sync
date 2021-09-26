@@ -80,6 +80,14 @@ export default {
     },
     methods: {
         openMenu(e) {
+            console.log(e.which);
+            switch (e.which) {
+                case 2:
+                    return;
+                case 3:
+                    e.preventDefault();
+                    break;
+            }
             if (this.menuShow) return;
 
             this.options[0].enabled = this.islocaladmin && !this.local;

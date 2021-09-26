@@ -5,8 +5,8 @@
   "scripts": {
     "serve": "./setvars.sh; vue-cli-service serve",
     "build": "./setvars.sh; vue-cli-service build",
-    "dev": "./setvars.sh; vue-cli-service build --watch",
     "lint": "vue-cli-service lint",
+    "dev": "./setvars.sh; vue-cli-service build --watch",
     "scan-emotes": "node ./misc/dump-emotes.js"
   },
   "dependencies": {
@@ -14,15 +14,15 @@
     "socket.io-client": "^3.1.0",
     "video.js": "^7.11.4",
     "videojs-youtube": "^2.6.1",
-    "vue": "^3.0.0",
+    "vue": "^3.2.19",
     "vue-router": "^4.0.0-0"
   },
   "devDependencies": {
-    "@vue/cli": "^4.5.11",
+    "@vue/cli": "^4.5.13",
     "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.13",
     "@vue/cli-plugin-router": "^4.5.11",
-    "@vue/cli-service": "~4.5.0",
+    "@vue/cli-service": "~4.5.13",
     "@vue/compiler-sfc": "^3.0.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
@@ -36,10 +36,7 @@
       "node": true
     },
     "rules": {
-      "indent": [
-        "warn",
-        4
-      ]
+      "indent": "off"
     },
     "extends": [
       "plugin:vue/vue3-essential"
