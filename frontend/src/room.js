@@ -300,7 +300,7 @@ export default {
                 if (delta > constants.desyncTolerance) {
                     console.warn(`[WD] Player at wrong timestamp (delta = ${delta})`);
 
-                    this.$refs.vjsContainer.seek(args.timestamp);
+                    this.$refs.vjsContainer.seek(this.syncState.timestamp);
                 }
             }
 
