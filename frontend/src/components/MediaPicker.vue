@@ -173,7 +173,7 @@ export default {
             }
         },
         async doDebugCDN() {
-            this.query = "http://cdn.femboy.si/floppa.mp4";
+            this.query = "https://cdn.femboy.si/floppa.mp4";
             await this.doCdn();
         },
         async doDebugYT() {
