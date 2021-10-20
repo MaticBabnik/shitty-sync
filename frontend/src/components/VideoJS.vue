@@ -20,7 +20,7 @@ export default {
                 admin: false,
             },
             options: {
-                preload:true,
+                preload: true,
                 userActions: {
                     hotkeys: false,
                 },
@@ -41,6 +41,7 @@ export default {
     emits: ["vplay", "vpause", "vseek"],
     methods: {
         recreate() {
+            // backup / init volume setting
             if (this.player) this.player.dispose();
 
             const video = document.createElement("video");
@@ -49,6 +50,15 @@ export default {
 
             this.options.userActions.hotkeys = this.customOptions.admin;
             this.player = videojs(video, this.options);
+
+            const localVolume = localStorage.getItem("playerVolume");
+            if (!localVolume) localStorage.setItem("playerVolume", 0.5);
+            this.player.volume(parseFloat(localVolume ?? 0.5));
+
+            this.player.on("volumechange", () => {
+                localStorage.setItem("playerVolume", this.player.volume());
+            });
+
             window.pl = this.player;
             this.player.on("play", () => {
                 this.$emit("vplay", this.player.currentTime());
@@ -139,7 +149,7 @@ export default {
 }
 
 //I hate this
-.disable-user.video-js>*:not(.vjs-control-bar) {
+.disable-user.video-js > *:not(.vjs-control-bar) {
     pointer-events: none;
 }
 </style>
