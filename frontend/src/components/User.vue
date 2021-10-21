@@ -1,7 +1,7 @@
 <template>
     <div class="user" @click="openMenu">
         <img :src="admin ? '/admin.jpg' : '/user.jpg'" />
-        <span :class="{'local':local}">{{ name }}</span>
+        <span :class="{ local: local }">{{ name }}</span>
         <teleport to="#app">
             <context-menu
                 v-if="menuShow"
@@ -19,18 +19,25 @@
             >
                 <input
                     type="text"
-                    ref="newnick"
-                    class="input"
+                    v-model="newName"
+                    :class="{
+                        input: true,
+                        invalid: !(nameValid.len && nameValid.chars),
+                    }"
                     placeholder="New nickname"
                 />
                 <div class="rules">
                     <span>New nickname:</span>
                     <ul>
-                        <li>Must be 3-24 chars long</li>
-                        <li>Can contain only A-Z, 0-9, - and _</li>
+                        <li :class="{ invalid: !nameValid.len }">
+                            Must be 3-24 chars long
+                        </li>
+                        <li :class="{ invalid: !nameValid.chars }">
+                            Can contain only A-Z, 0-9, - and _
+                        </li>
                     </ul>
                 </div>
-                <div class="button" @click="renamee">Apply</div>
+                <div :class="{button:true, disabled: !(nameValid.len && nameValid.chars)}" @click="renamee">Apply</div>
             </popup-dialog>
         </teleport>
     </div>
@@ -39,6 +46,7 @@
 <script>
 /* eslint-disable */
 //keep eslint from being annoying (indent issues on switch statements)
+import constants from '../constants.js';
 
 import ContextMenu from "./ContextMenu.vue";
 import PopupDialog from "./PopupDialog.vue";
@@ -70,8 +78,20 @@ export default {
                     enabled: false,
                 },
             ],
+            nameValid: {
+                len: false,
+                chars: false,
+            },
             rename: false,
+            newName: "",
         };
+    },
+    watch: {
+        newName(newVal, oldVal) {
+            this.nameValid.len = constants.nameRegexes.len.test(newVal);
+            this.nameValid.chars = constants.nameRegexes.chars.test(newVal);
+
+        },
     },
     mounted() {
         this.options[0].enabled = this.islocaladmin && !this.local;
@@ -121,8 +141,10 @@ export default {
             }
         },
         renamee() {
+            if (!(this.nameValid.len && this.nameValid.chars)) return;
+            
             this.rename = false;
-            this.$emit("rename", this.$refs.newnick.value);
+            this.$emit("rename", this.newName);
         },
     },
     props: {
@@ -190,6 +212,9 @@ export default {
         margin: 0;
         li {
             color: @background-light;
+            &.invalid {
+                color: @error;
+            }
         }
     }
 }

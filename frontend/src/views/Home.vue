@@ -1,8 +1,6 @@
 <template>
     <div class="main">
-        <h1 class="title">
-            Shitty<br>Sync
-        </h1>
+        <h1 class="title">Shitty<br />Sync</h1>
         <div class="text-btn">
             <input
                 class="text"
@@ -17,27 +15,29 @@
             />
             <div class="btn" @click="gotoRoom">GO</div>
         </div>
-        <theme-toggle class="theme-toggle"/>
+        <theme-toggle class="theme-toggle" />
         <span class="stats">
-            <a href="https://github.com/fubuki-fanclub/shitty-sync">Repo</a><br>
-            Branch: {{branch}}<br>
-            Commit: {{commit}}
+            <a href="https://github.com/fubuki-fanclub/shitty-sync">Repo</a
+            ><br />
+            Branch: {{ branch }}<br />
+            Commit: {{ commit }}<br />
+            Built on: {{ date }}
         </span>
     </div>
 </template>
 
 <script>
-import ThemeToggle from '../components/ThemeToggle.vue';
+import ThemeToggle from "../components/ThemeToggle.vue";
 export default {
     components: {
-        ThemeToggle
-
+        ThemeToggle,
     },
     data() {
         return {
-            branch:process.env['VUE_APP_BRANCH'] ?? 'unknown',
-            commit:(process.env['VUE_APP_COMMIT'] ?? 'unknown').substr(0,7)
-        }
+            branch: process.env["VUE_APP_BRANCH"] ?? "unknown",
+            commit: (process.env["VUE_APP_COMMIT"] ?? "unknown").substr(0, 7),
+            date: process.env["VUE_APP_DATE"]
+        };
     },
     methods: {
         removeUnsafeChars(e) {
@@ -118,19 +118,19 @@ export default {
     position: absolute;
     right: 0;
     bottom: 0;
-    
+
     text-align: right;
     padding: 10px;
 
     color: @background-light;
-    
+
     a {
-        color:@accent;
+        color: @accent;
     }
 }
 .theme-toggle {
     position: absolute;
-    top:0;
-    right:0;
+    top: 0;
+    right: 0;
 }
 </style>
