@@ -7,6 +7,10 @@ module.exports = {
      * Regex that matches valid usernames
      */
     nameRegex: /^[a-z0-9_-]{3,24}$/i,
+    nameRegexes: {
+        chars:/^[a-z0-9_-]*$/i,
+        len: /^.{3,24}$/i
+    },
     /**
      * Regex that matches valid room IDs
      */
