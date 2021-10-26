@@ -2,15 +2,15 @@ FROM node:16 as build-frontend
 
 RUN apt install git
 
-WORKDIR /app
+COPY . /app
 
-COPY ./frontend .
+WORKDIR /app/frontend
 
 RUN npm i && npm run build
 
 FROM node:16-alpine as base
 
-COPY --from=build-frontend /app/dist /app/frontend/dist
+COPY --from=build-frontend /app/frontend/dist /app/frontend/dist
 
 WORKDIR /app
 
