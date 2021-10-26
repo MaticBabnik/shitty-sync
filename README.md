@@ -1,6 +1,6 @@
 # Shitty Sync
-
 A (somewhat) shitty way to sync videos with your friends.
+### [sync.si instance](https://sync.si/)
 
 ### Getting started
 
@@ -8,14 +8,6 @@ A (somewhat) shitty way to sync videos with your friends.
 - install the dependencies (both in the root folder & in the `frontend` folder)
 - build the frontend with `npm run build`
 - run the server with `npm run start`
-
-### Development
-
-- Instead of `npm run build` & `npm run start` you can run `npm run dev` in both folders to get live reload.
-- After updating any of the svg icons
-  run `node frontend/misc/svgpack/index.js frontend/misc/icons/ frontend/public/icons.svg`(you might have to run `npm i`
-  there too)
-- After changing emotes run `npm start scan-emotes` in the `frontend/` folder
 
 ### Deploying using Docker:
 
@@ -31,6 +23,15 @@ A (somewhat) shitty way to sync videos with your friends.
   docker run -p 8080:8080 shitty-sync:latest
   ```
 
+### Development
+
+- Run `npm run dev` in both the root and `frontend` folder
+
 ### Contributing
 
-do it pls
+PLS contribute
+
+[What to do?](https://github.com/MaticBabnik/shitty-sync/projects/1) 
+
+### Issues
+Please note that issues related to extremely bad internet connections (ping >2000ms or extremely low bandwidth) are unlikely to be solved.
