@@ -16,7 +16,6 @@ WORKDIR /app
 
 COPY ./src ./src
 COPY ./static ./static
-COPY ./app.js .
 COPY ./package.json .
 COPY ./tsconfig.json .
 
