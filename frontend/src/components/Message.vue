@@ -9,7 +9,7 @@
 import emotePaths from "../assets/emotes.json";
 
 const emoteReplacer = emotePaths.map(x=>{
-    return [new RegExp(`(^|\\s)${x[0]}(?=$|\\s)`,'gi'),`<img class="emote" src="${x[1]}">`]
+    return [new RegExp(`(^|\\s)${x[0]}(?=$|\\s)`,'gi'),`<img class="emote" alt="${x[0]}" title="${x[0]}" src="${x[1]}">`]
 })
 
 
@@ -61,7 +61,6 @@ export default {
       vertical-align: middle;
       word-break: break-all;
       .emote {
-          width: 24px;
           height: 24px;
           padding: 0;
           margin: 0;
