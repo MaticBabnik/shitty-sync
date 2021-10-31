@@ -1,30 +1,41 @@
-/*
-------------------------------------------------
-!   Sync.ts - Server side socket code
-?   Most of this is prolly quite bad,    
-?   but the OOP code makes my C#
-?   mind happy.
-------------------------------------------------
-*/
-
-
 import { Socket } from "socket.io";
-import { MESSAGE_COOLDOWN, nameRegex, RENAME_COOLDOWN, roomRegex } from './misc/constants'
+import { MESSAGE_COOLDOWN, nameRegex, RENAME_COOLDOWN, roomRegex } from './constants'
 import * as cdn from './video-sources/cdn';
 import * as yt from './video-sources/youtube';
+import { EventEmitter } from 'events'
+import e from "cors";
 
-
+export type MediaType = 'cdn' | 'yt-search' | 'offline';
 export interface Media {
-    type: 'cdn' | 'yt-search' | 'offline',
+    type: MediaType,
     src: string
 }
 
 
-export class RoomManager {
+interface RoomManagerEvents {
+    'roomcreate': (room: Room) => void,
+    'roomdestroy': (id: string) => void,
+    'roomjoin': (room: Room, newUser: User) => void,
+    'roomleave': (room: Room, userId: string) => void,
+    'roomsourcechanged': (room: Room) => void
+}
+export declare interface RoomManager {
+    on<U extends keyof RoomManagerEvents>(
+        event: U, listener: RoomManagerEvents[U]
+    ): this;
+
+    emit<U extends keyof RoomManagerEvents>(
+        event: U, ...args: Parameters<RoomManagerEvents[U]>
+    ): boolean;
+}
+
+
+export class RoomManager extends EventEmitter {
     public io: Socket;
     private rooms: Map<string, Room>;
 
     constructor(io: Socket, options?: any) {
+        super();
         this.rooms = new Map<string, Room>();
         this.io = io;
         io.on('connect', socket => {
@@ -36,10 +47,8 @@ export class RoomManager {
         })
     }
 
-
-
     public deleteRoom(id: string) {
-
+        this.emit('roomdestroy', id);
         this.rooms.delete(id);
     }
 
@@ -48,10 +57,12 @@ export class RoomManager {
 
         if (!room) {
             room = new Room(id, this, socket);
+            this.emit('roomcreate', room);
             this.rooms.set(id, room);
         }
 
-        room.join(socket);
+        const user = room.join(socket);
+        this.emit('roomjoin', room, user)
     }
 
     private ping(socket: Socket, args: any) {
@@ -92,12 +103,14 @@ export class Room {
         }
     }
 
-    public join(socket: Socket) {
+    public join(socket: Socket): User {
         socket.join(this.id);
-        this.users.set(socket.id, new User(socket, this));
+        const user = new User(socket, this)
+        this.users.set(socket.id, user);
 
         //notify the other users
         this.syncRoom();
+        return user;
     }
 
     public promote(id: string): boolean {
@@ -126,6 +139,8 @@ export class Room {
 
     public userDisconnect(id: string) {
         this.users.delete(id);
+
+        this.roomManager.emit('roomleave', this, id); //TODO: maybe make `Room` an EventEmitter too?
 
         if (id == this.owner) this.owner = this.users.keys().next().value;
 
@@ -195,7 +210,7 @@ export class User {
         this.socket.on('msg', (args) => this.msg(args));
         this.socket.on('promote', (args) => this.promote(args));
         this.socket.on('changenick', (args) => this.changeNick(args));
-        this.socket.on('changemedia', (args) => this.verifyMedia(args));
+        this.socket.on('changemedia', (args) => this.changeMedia(args));
         this.socket.on('kick', (args) => this.kick(args));
         this.socket.on('sync', (args) => this.sync(args));
 
@@ -249,7 +264,7 @@ export class User {
         if (!this.room.kick(args.target)) return; //no such user or something
     }
 
-    private async verifyMedia(args: any) {
+    private async changeMedia(args: any) {
         if (!this.isAdmin) return;
         if (typeof (args.src) !== 'string' && typeof (args.type) !== 'string') return;
         if (!['youtube-search', 'cdn'].includes(args.type)) return;
@@ -271,6 +286,7 @@ export class User {
 
         //media is valid
         this.room.media = args;
+        this.room.roomManager.emit('roomsourcechanged', this.room);
         this.room.syncRoom();
     }
 
@@ -279,13 +295,13 @@ export class User {
         if (typeof args !== 'object') return; //invalid params
         switch (args.status) {
             case 'PLAYING':
-                
+
                 if (typeof args.offset !== "number") return
                 this.room.status = { status: 'PLAYING', offset: args.offset }
                 this.room.sync();
                 break;
             case 'PAUSED':
-                
+
                 if (typeof args.timestamp !== "number") return
                 this.room.status = { status: 'PAUSED', timestamp: args.timestamp }
                 this.room.sync();
