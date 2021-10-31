@@ -14,8 +14,8 @@ import registerVideoSources from './video-sources';
 
 
 import { RoomManager } from './sync';
-import { getIPs } from './misc/misc';
-import expressMetrics from './misc/express-metrics'
+import { getIPs } from './misc';
+import {expressMetrics,roomMetrics} from './metrics'
 
 const app = express();
 
@@ -37,6 +37,9 @@ const http = new Server(app);
 const io: Socket = require('socket.io')(http);
 
 const roomManager = new RoomManager(io);
+
+if (!process.env.NO_METRICS)
+    roomMetrics(roomManager,register);
 
 const port = process.env.PORT ?? 8080;
 
