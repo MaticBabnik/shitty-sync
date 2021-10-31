@@ -49,7 +49,7 @@
                     :type="msg.type"
                 />
             </div>
-            <chat-textbox :maxlength="120" @send="sendMessage" />
+            <chat-textbox :maxlength="180" @send="sendMessage" />
         </div>
         <div class="l-overlay" v-if="!roomReady">
             <h1>Joining...</h1>
