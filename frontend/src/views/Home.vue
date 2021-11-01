@@ -17,7 +17,7 @@
         </div>
         <theme-toggle class="theme-toggle" />
         <span class="stats">
-            <a href="https://github.com/fubuki-fanclub/shitty-sync">Repo</a
+            <a href="https://github.com/maticbabnik/shitty-sync.git">Repo</a
             ><br />
             Branch: {{ branch }}<br />
             Commit: {{ commit }}<br />

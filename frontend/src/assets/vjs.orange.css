@@ -2,6 +2,7 @@
 .vjs-theme-orange {
   --vjs-theme-orange--primary: #FF8C00;
   --vjs-theme-orange--secondary: #FFFFFF;
+  color: #FFFFFF;
 }
 
 /* Big play Button */

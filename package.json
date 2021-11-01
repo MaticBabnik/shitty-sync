@@ -27,22 +27,24 @@
     }
   ],
   "bugs": {
-    "web": "https://github.com/fubuki-fanclub/shitty-sync/issues"
+    "web": "https://github.com/maticbabnik/shitty-sync.git/issues"
   },
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/fubuki-fanclub/shitty-sync.git"
+      "url": "https://github.com/maticbabnik/shitty-sync.git.git"
     }
   ],
   "license": "MIT",
-  "homepage": "https://github.com/fubuki-fanclub/shitty-sync",
+  "homepage": "https://github.com/maticbabnik/shitty-sync.git",
   "dependencies": {
     "@types/compression": "^1.7.0",
     "@types/connect-history-api-fallback": "^1.3.3",
     "@types/express": "^4.17.11",
     "@types/morgan": "^1.9.2",
     "@types/needle": "^2.5.1",
+    "@types/on-finished": "^2.3.1",
+    "@types/on-headers": "^1.0.0",
     "@types/socket.io": "^2.1.13",
     "chalk": "^4.1.0",
     "compression": "^1.7.4",
@@ -50,6 +52,8 @@
     "express": "^4.17.1",
     "morgan": "^1.10.0",
     "needle": "^2.6.0",
+    "on-finished": "^2.3.0",
+    "prom-client": "^14.0.0",
     "socket.io": "^3.1.0",
     "socket.io-events": "^0.4.6",
     "ws": "^7.4.2",

@@ -69,6 +69,8 @@ export default {
     border: 2px solid @background-light;
     border-radius: 5px;
 
+    box-shadow: black 0px 0px 7px 0px;
+
     .child {
         display: flex;
         user-select: none;

@@ -9,6 +9,13 @@ A (somewhat) shitty way to sync videos with your friends.
 - build the frontend with `npm run build`
 - run the server with `npm run start`
 
+### Enviroment variables
+var            | Description
+-------------- | -----------
+`PORT`         | webserver port, defaults to 8080
+`PORT_METRICS` | prometheus `/metrics` port, defaults to 9090 and cannot be the same as PORT
+`NO_METRICS`   | disables metrics if set to a [truthy value](https://developer.mozilla.org/en-US/docs/Glossary/Truthy)
+
 ### Deploying using Docker:
 
 1. Build the image:
