@@ -27,7 +27,7 @@ var            | Description
 2. Run the container:
 
   ```bash
-  docker run -p 8080:8080 shitty-sync:latest
+  docker run -p 8080:8080 -p 9090:9090 shitty-sync:latest
   ```
 
 ### Development
