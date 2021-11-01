@@ -48,6 +48,11 @@
                     :message="msg.text"
                     :type="msg.type"
                 />
+                <div id="scroll-to-bottom" v-if="showScrollToBottom">
+                    <div class="button" @click="scrollToBottom">
+                        Scroll to bottom
+                    </div>
+                </div>
             </div>
             <chat-textbox :maxlength="180" @send="sendMessage" />
         </div>
@@ -72,7 +77,7 @@
 
 <script>
 import ChatTextbox from "../components/ChatTextbox.vue";
-import MediaPicker from "../components/MediaPicker.vue";
+import MediaPicker from "../components/RoomSettings.vue";
 import Message from "../components/Message.vue";
 import Share from "../components/Share.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
@@ -98,6 +103,7 @@ export default {
         return {
             branch: process.env["VUE_APP_BRANCH"] ?? "unknown",
             commit: (process.env["VUE_APP_COMMIT"] ?? "unknown").substr(0, 7),
+            showScrollToBottom: false,
         };
     },
     methods: {
@@ -110,8 +116,9 @@ export default {
         },
         scrollToBottom() {
             const el = this.$refs.msgbox;
-            el.scrollTo({left:0,top:el.scrollHeight+10000, behavior:"smooth"});
-        }
+            el.scrollTo({ left: 0, top: el.scrollHeight + 10000 });
+            this.showScrollToBottom = false;
+        },
     },
     mounted() {
         this.$refs.users.addEventListener("wheel", this.userScroll, {
@@ -243,6 +250,20 @@ export default {
             overflow-y: scroll;
             display: flex;
             flex-direction: column;
+
+            #scroll-to-bottom {
+                width: 100%;
+                position: sticky;
+                bottom: 1rem;
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                .button {
+                    padding: .5rem 1rem;
+                    border-radius: 100vw;
+                    box-shadow: #000 0 0 4px;
+                }
+            }
         }
         .message-box {
             height: fit-content;

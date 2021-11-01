@@ -57,14 +57,20 @@ export default {
             return (Date.now() + this.timeOffset) / 1_000;
         },
         addMessage(msg) {
-            const scroll = this.isAtBottom()
+            const wasAtBottom = this.isAtBottom()
             this.messages.push(msg);
+            
+            //TODO: Fix the scrolling when there are >500 messages
+             if (this.messages.length > 500) {
+                 this.messages.shift();
+         }
 
-            if (this.messages.length > 100) {
-                this.messages.shift();
-            } else if (!scroll)
+            if (wasAtBottom) {
                 this.$nextTick(() =>
                     this.scrollToBottom());
+            } else {
+                this.showScrollToBottom = true;
+            }
         },
         //? ------------------------------------------------------------------------
         //? Socket event emitters
@@ -101,7 +107,7 @@ export default {
                             this.addMessage({
                                 type: 0,
                                 username: "god@heaven",
-                                text: "fuck you",
+                                text: `fuck you ${['pogu','oooo','amazin','widepeepohappy',' 1111111','kekw','poggies','lukeg','modcheck','wojakcope'][Math.floor(Math.random()*10)]} !`,
                             });
                         }, 100);
                         return;
