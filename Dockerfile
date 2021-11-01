@@ -15,7 +15,6 @@ COPY --from=build-frontend /app/frontend/dist /app/frontend/dist
 WORKDIR /app
 
 COPY ./src ./src
-COPY ./static ./static
 COPY ./package.json .
 COPY ./tsconfig.json .
 
