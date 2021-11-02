@@ -63,7 +63,7 @@ if (!process.env.NO_METRICS) {
         }
     })
 
-    const port_metrics = process.env.PORT_METRICS ?? 9080;
+    const port_metrics = process.env.PORT_METRICS ?? 9090;
     app_prom.listen(port_metrics, () => {
         console.log(chalk.cyanBright('Metrics on:'));
         getIPs().forEach(x => console.log(chalk.black(`\thttp://${x}:${port_metrics}/metrics`)));
