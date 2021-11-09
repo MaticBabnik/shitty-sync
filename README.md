@@ -1,27 +1,35 @@
-# Shitty Sync
+# 💩Shitty💩 Sync
+
 A (somewhat) shitty way to sync videos with your friends.
-### [sync.si instance](https://sync.si/)
 
-### Getting started
+Check out a demo [**sync.si instance**](https://sync.si/)!
 
-- pull this repo
-- install the dependencies (both in the root folder & in the `frontend` folder)
-- build the frontend with `npm run build`
-- run the server with `npm run start`
+## Getting started
 
-### Enviroment variables
+1. Pull this repo
+2. Install the dependencies with `npm i` (both in the root folder & in the `frontend` folder)
+3. Build the frontend with `npm run build`
+4. Run the server with `npm run start`
+
+## 📈 Metrics
+
+The server enables access to performance metrics using Prometheus. They are exposed by default on the `/metrics`
+endpoint.
+
+## 🌳Environment variables
+
 var            | Description
 -------------- | -----------
-`PORT`         | webserver port, defaults to 8080
-`PORT_METRICS` | prometheus `/metrics` port, defaults to 9090 and cannot be the same as PORT
-`NO_METRICS`   | disables metrics if set to a [truthy value](https://developer.mozilla.org/en-US/docs/Glossary/Truthy)
+`PORT`         | Webserver port, defaults to 8080
+`PORT_METRICS` | Prometheus `/metrics` port, defaults to 9090 and should not be the same as PORT
+`NO_METRICS`   | Disables metrics if set to a [truthy value](https://developer.mozilla.org/en-US/docs/Glossary/Truthy)
 
-### Deploying using Docker:
+## Deploying using 🐳 Docker:
 
-1. Build the image:
+1. Pull the image:
 
   ```bash
-  docker build --target=run -t shitty-sync .
+  docker pull weebify/shitty-sync:latest
   ```
 
 2. Run the container:
@@ -30,15 +38,25 @@ var            | Description
   docker run -p 8080:8080 -p 9090:9090 shitty-sync:latest
   ```
 
-### Development
+## 🛠️ Development
 
 - Run `npm run dev` in both the root and `frontend` folder
 
-### Contributing
+- To build locally with Docker, execute:
 
-PLS contribute
+  ```bash
+  $ docker build --target=run -t shitty-sync .
+  $ docker run -p 8080:8080 -p 9090:9090 shitty-sync:latest
+  ```
 
-[What to do?](https://github.com/MaticBabnik/shitty-sync/projects/1) 
+## ↪️Contributing
 
-### Issues
-Please note that issues related to extremely bad internet connections (ping >2000ms or extremely low bandwidth) are unlikely to be solved.
+All contributions are welcome! If you want to contribute, but don't know what to do, check out
+the [project board](https://github.com/MaticBabnik/shitty-sync/projects/1).
+
+If you develop a cool new feature or improve existing solutions, submit a PR with the feature and a brief explanation.
+
+## 📢 Issues
+
+Please note that issues related to extremely bad internet connections (ping >2000ms or extremely low bandwidth) are
+unlikely to be solved.
