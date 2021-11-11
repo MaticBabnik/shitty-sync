@@ -2,7 +2,7 @@
     <div class="user" @click="openMenu">
         <img :src="admin ? '/admin.jpg' : '/user.jpg'" />
         <span :class="{ local: local }">{{ name }}</span>
-        <teleport to="#app">
+        <teleport to=".main">
             <context-menu
                 v-if="menuShow"
                 ref="ctxMenu"
