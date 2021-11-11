@@ -6,7 +6,7 @@
             name="edit"
             @click="resetAndShow"
         />
-        <teleport to="body">
+        <teleport to=".main">
             <popup-dialog
                 title="Select media"
                 class="flex-diag"
