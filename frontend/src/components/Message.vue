@@ -59,7 +59,7 @@ export default {
   .text {
       line-height: 26px;
       vertical-align: middle;
-      word-break: break-all;
+      word-break: break-word;
       .emote {
           height: 24px;
           padding: 0;
