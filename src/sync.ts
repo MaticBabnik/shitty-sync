@@ -29,6 +29,10 @@ export declare interface RoomManager {
     ): boolean;
 }
 
+function isChristmas(): boolean {
+    const d = new Date();
+    return d.getMonth() === 11 || (d.getMonth() === 0 && d.getDate() <= 10); //return true in december and in the begining of january
+}
 
 export class RoomManager extends EventEmitter {
     public io: Socket;
@@ -164,7 +168,12 @@ export class Room {
         this.id = id;
         this.roomManager = roomManager;
         this.users = new Map<string, User>();
-        this.media = { type: 'offline', src: '' };
+
+        if (isChristmas())
+            this.media = { type: 'cdn', src: 'https://s3.eu-central-1.wasabisys.com/cdn.femboy.si/padoru.webm' }
+        else
+            this.media = { type: 'offline', src: '' };
+            
         this.status = { status: 'PAUSED', timestamp: 0 };
 
         this.owner = creator.id;// we set the id but don't create the user

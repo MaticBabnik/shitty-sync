@@ -3,6 +3,9 @@ import { createApp } from 'vue'
 import router from './router'
 
 import '@/assets/main.less'
+//christmas 🎅
+import 'particles.js'
+import '@/christmas'
 
 //THEME
 const root = document.querySelector('html');
