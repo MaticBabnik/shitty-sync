@@ -329,7 +329,7 @@ export default {
         }
     },
     beforeUnmount() {
-        this.socket.disconnect()
-        this.intervals.forEach(x => clearInterval(x));
+            this.socket.disconnect()
+            this.intervals.forEach(x => clearInterval(x));
     },
 };
