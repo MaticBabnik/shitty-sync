@@ -4,7 +4,6 @@ import router from './router'
 
 import '@/assets/main.less'
 //christmas 🎅
-import 'particles.js'
 import '@/christmas'
 
 //THEME

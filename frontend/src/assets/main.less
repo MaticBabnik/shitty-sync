@@ -1,41 +1,44 @@
-@import url('./theme.less');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url("./theme.less");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
 
 //
 // DARK THEME
 //
 :root,
 :root[data-theme="dark"] {
-    --background      : @d-background;
+    --background: @d-background;
     --background-light: @d-background-light;
-    --primary         : @d-primary;
-    --accent          : @d-accent;
-    --text            : @d-text;
+    --primary: @d-primary;
+    --accent: @d-accent;
+    --text: @d-text;
 }
 
 //
 // LIGHT THEME
 //
 :root[data-theme="light"] {
-    --background      : @l-background;
+    --background: @l-background;
     --background-light: @l-background-light;
-    --primary         : @l-primary;
-    --accent          : @l-accent;
-    --text            : @l-text;
+    --primary: @l-primary;
+    --accent: @l-accent;
+    --text: @l-text;
 }
 
 html,
 body {
     background-color: @background;
+    padding: 0;
+    margin: 0;
+    overflow: none !important;
 }
 
 * {
-    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color      : @text;
+    font-family: "Roboto", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: @text;
 }
 
 .video-js * {
-    color: #FFF !important;
+    color: #fff !important;
 }
 
 .icon {
@@ -70,14 +73,14 @@ input[type="text"].input:focus {
 }
 
 .button {
-    color           : #fff; //TODO maybe make a --white var or something
-    width           : fit-content;
-    height          : fit-content;
-    padding         : 4px;
-    font-weight     : bold;
-    user-select     : none;
-    border-radius   : 2px;
-    text-transform  : uppercase;
+    color: #fff; //TODO maybe make a --white var or something
+    width: fit-content;
+    height: fit-content;
+    padding: 4px;
+    font-weight: bold;
+    user-select: none;
+    border-radius: 2px;
+    text-transform: uppercase;
     background-color: @primary;
 }
 .button:hover {
@@ -87,24 +90,22 @@ input[type="text"].input:focus {
 
 .button.disabled {
     background-color: @background-light;
-}   
-
-
+}
 
 ::-webkit-scrollbar {
-    width : 4px;
+    width: 4px;
     height: 4px;
 }
 
 ::-webkit-scrollbar-button {
-    width : 0px;
+    width: 0px;
     height: 0px;
 }
 
 ::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-thumb:hover {
-    background   : @accent;
-    border       : none;
+    background: @accent;
+    border: none;
     border-radius: 0px;
 }
 
@@ -114,8 +115,8 @@ input[type="text"].input:focus {
 
 ::-webkit-scrollbar-track,
 ::-webkit-scrollbar-track:hover {
-    background   : @background;
-    border       : none;
+    background: @background;
+    border: none;
     border-radius: 0px;
 }
 
@@ -126,7 +127,6 @@ input[type="text"].input:focus {
 ::-webkit-scrollbar-corner {
     background: transparent;
 }
-
 
 // firefox moment
 
@@ -140,12 +140,15 @@ a[href] {
 }
 
 // christmas
-#video-main  {
+#video-main {
     z-index: 1001;
 }
-.l-overlay, .overlay, .ctx-menu {
+.l-overlay,
+.overlay,
+.ctx-menu {
     z-index: 1002;
 }
+
 #snow {
     display: block;
     position: absolute;
