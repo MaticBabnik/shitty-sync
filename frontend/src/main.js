@@ -4,7 +4,8 @@ import router from './router'
 
 import '@/assets/main.less'
 //christmas 🎅
-import '@/christmas'
+//import 'particles.js'
+//import '@/christmas'
 
 //THEME
 const root = document.querySelector('html');
