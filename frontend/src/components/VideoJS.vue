@@ -9,6 +9,8 @@ import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import "@/assets/vjs.orange.css";
 import "videojs-youtube";
+import "videojs-contrib-dash";
+
 export default {
     props: {
         source: { type: Object },
@@ -102,11 +104,9 @@ export default {
         },
 
         seek(cur) {
-            //console.log('seeking')
             this.player.currentTime(cur);
         },
         play(cur) {
-            //console.log('changing play state')
             if (cur) this.player.play();
             else this.player.pause();
         },
