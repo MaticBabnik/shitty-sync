@@ -1,5 +1,5 @@
 import express from 'express'
-import needle from 'needle'
+import needle, { head } from 'needle'
 
 const router = express.Router();
 
@@ -28,13 +28,31 @@ function prettifySize(size: any): string {
         return `${pSize} B`
 }
 
+const DASH_TYPES = ['application/dash+xml', 'application/dash', 'application/xml', 'application/octet-stream'];
+
 export async function test(url: string) {
-    const response = await needle('head', url);
+    const r = await needle('head', url);
+    const headers = r.headers;
+
+    const isNormalVideo = headers['content-type']?.includes('video')
+
+    if (isNormalVideo) return {
+        valid: true,
+        type: headers['content-type'],
+        size: prettifySize(headers['content-length'])
+    }
+
+    const isDash = url.toLowerCase().endsWith('.mpd')
+        && DASH_TYPES.includes(headers['content-type'] as string);
+
+    if (isDash) return {
+        valid: true,
+        type: 'mpeg/dash manifest',
+        size: 'unkown size'
+    }
 
     return {
-        valid: response.headers['content-type']?.includes('video'),
-        type: response.headers['content-type'],
-        size: prettifySize(response.headers['content-length'])
+        valid: false
     }
 }
 
