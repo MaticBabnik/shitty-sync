@@ -1,5 +1,5 @@
 import express from 'express'
-import needle, { head } from 'needle'
+import needle from 'needle'
 
 const router = express.Router();
 
