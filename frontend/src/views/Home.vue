@@ -52,7 +52,7 @@ export default {
                 .replace(/[^A-Z0-9\-]/gi, "")
                 .substring(0, 16);
             if (code.length > 2)
-                this.$router.push({ name: "NRoom", params: { id: code } });
+                this.$router.push({ name: "Room", params: { id: code } });
             else alert("Invalid code");
         },
     },

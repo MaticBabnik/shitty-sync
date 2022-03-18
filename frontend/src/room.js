@@ -262,6 +262,7 @@ export default {
 
             this.roomReady = true;
             this.intervals.push(setInterval(this.watchdog, 100));
+            document.title = `Sync | ${roomCode}` 
 
             if (this.debug.isDev) requestAnimationFrame(this.time);
         },
