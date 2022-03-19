@@ -22,6 +22,12 @@ export default {
                 admin: false,
             },
             options: {
+                html5: {
+                    nativeCaptions: false,
+                    dash: {
+                        useTTML: true,
+                    },
+                },
                 preload: true,
                 userActions: {
                     hotkeys: false,
