@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<head>
+    <style>
+        * {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html,
+        body {
+            background-color: pink;
+        }
+
+        section {
+            background-color: #fff3;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        span.warn {
+            color: red;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            margin: 0;
+            margin-top: .5rem;
+            margin-bottom: .2rem;
+        }
+
+        code {
+            display: block;
+            background-color: palevioletred;
+            color: white;
+            font-family: monospace;
+            width: fit-content;
+            border: 1px solid white;
+            padding: .2rem;
+            border-radius: .2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Sync IFrame/Worker API</h1>
+    <p>
+        Sync tabs communicate with shared workers. If you are an admin in a room you can send media to them
+        without pasting links.
+        This works by embeding this page as an IFrame and using postMessage.
+        If your website can't embed the IFrame contact this instance's owner.
+        <br>
+        <span class="warn">
+            THIS API IS NOT STABLE, IT MAY CHANGE
+        </span>
+    </p>
+    <section>
+        <h2>UI</h2>
+        <section>
+            <h3>List tabs</h2>
+                <button onclick="query()">Fetch tabs</button>
+                <ul id="list">
+
+                </ul>
+        </section>
+        <section>
+            <h3>Send media to tab</h2>
+                Room ID:
+                <input type="text" name="id" id="id">
+                Type input:
+                <select name="type" id="type">
+                    <option value="cdn">CDN</option>
+                    <option value="youtube-search">Youtube</option>
+                </select>
+                Link:
+                <input type="text" name="link" id="link">
+                <button onclick="sendTabSwitch()">Send</button>
+        </section>
+    </section>
+    <section>
+        <h1>IFrame postMessage API</h1>
+        <section>
+            <h2>Query tabs/rooms</h2>
+            <h3>host -> frame getrooms</h3>
+            post a message with content
+            <code>
+                ["getrooms"]
+            </code>
+            <h3>frame -> host roomsreply</h3>
+            the frame will reply with
+            <code>
+                ["roomsreply", ["ROOM-1", "GROUP-WATCH"]]
+            </code>
+            (The strings in the array are room IDs/codes)
+        </section>
+        <section>
+            <h2>Switch media in a room</h2>
+            post a message with content
+            <code>
+                ["setmedia", id, type, url]
+            </code>
+            <h4>Parameters</h4>
+            <ul>
+                <li>id - the room id</li>
+                <li>type - media type, currently cdn or youtube-search</li>
+                <li>url - media url</li>
+            </ul>
+        </section>
+    </section>
+
+    <script>
+        // Worker API code
+        const worker = new SharedWorker('worker.js');
+
+        function collectResponses(port, type) {
+            return new Promise((resolve) => {
+                const responses = [];
+                const handler = (e) => {
+                    const { data } = e;
+                    if (data[0] == type)
+                        responses.push(data);
+                };
+
+                let a = port.addEventListener("message", handler);
+                port.start();
+                setTimeout(() => {
+                    port.removeEventListener("message", handler)
+                    resolve(responses)
+                }, 10);
+            })
+        }
+
+        function switchTab(roomId, type, link, origin) {
+            worker.port.postMessage(["setmedia", roomId, type, link, origin]);
+        }
+
+        async function getAdminRooms() {
+            worker.port.postMessage(["discovery"]);
+            return (await collectResponses(worker.port, "alive")).map(([type, id]) => id);
+        }
+
+        // UI events
+
+        async function query() {
+            const listEl = document.getElementById("list");
+            const rooms = await getAdminRooms();
+            const html = rooms.map(id => `<li>${id}</li>`).join('\n');
+            listEl.innerHTML = html
+        }
+
+        function sendTabSwitch() {
+            const args = ['id', 'type', 'link'].map(id => document.getElementById(id).value);
+            switchTab(...args, (new URL(window.origin)).host);
+        }
+
+        // postMessage API
+        window.onmessage = async (ev) => {
+            const { data, source, origin } = ev;
+
+            if (!Array.isArray(data)) return;
+            switch (data[0]) {
+
+                case "getrooms":
+                    const rooms = await getAdminRooms();
+                    source.postMessage(['roomsreply', rooms],'*');
+                    break;
+
+                case "setmedia":
+                    if (
+                        typeof data[1] !== 'string' ||
+                        !['cdn', 'youtube-link'].includes(data[2]) ||
+                        typeof data[3] !== 'string'
+                    ) return;
+                    switchTab(data[1], data[2], data[3], (new URL(origin)).host);
+                    break;
+            }
+
+        }
+    </script>
+</body>
+
+</html>

@@ -26,7 +26,13 @@ export default {
             interactionNeeded: false,
             roomReady: false,
             kicked: false,
-            messages: [{ type: 2, username: "System", text: "List of all emotes can be found <a href=\"/emotes\">here</a>" }],
+            messages: [
+                {
+                    type: 2,
+                    username: "System",
+                    text: 'List of all emotes can be found <a href="/emotes">here</a>',
+                },
+            ],
             users: [],
             admin: false,
             source: null,
@@ -42,9 +48,9 @@ export default {
                 lastEvent: "?",
                 lastRecvType: "?",
                 timeError: 0,
-                t: 0
+                t: 0,
             },
-            intervals: []
+            intervals: [],
         };
     },
     methods: {
@@ -53,21 +59,21 @@ export default {
             return Date.now() + this.timeOffset;
         },
 
-        getTimeSeconds() { //same as get time but in seconds
+        getTimeSeconds() {
+            //same as get time but in seconds
             return (Date.now() + this.timeOffset) / 1_000;
         },
         addMessage(msg) {
-            const wasAtBottom = this.isAtBottom()
+            const wasAtBottom = this.isAtBottom();
             this.messages.push(msg);
-            
+
             //TODO: Fix the scrolling when there are >500 messages
-             if (this.messages.length > 500) {
-                 this.messages.shift();
-         }
+            if (this.messages.length > 500) {
+                this.messages.shift();
+            }
 
             if (wasAtBottom) {
-                this.$nextTick(() =>
-                    this.scrollToBottom());
+                this.$nextTick(() => this.scrollToBottom());
             } else {
                 this.showScrollToBottom = true;
             }
@@ -107,7 +113,20 @@ export default {
                             this.addMessage({
                                 type: 0,
                                 username: "god@heaven",
-                                text: `fuck you ${['pogu','oooo','amazin','widepeepohappy',' 1111111','kekw','poggies','lukeg','modcheck','wojakcope'][Math.floor(Math.random()*10)]} !`,
+                                text: `fuck you ${
+                                    [
+                                        "pogu",
+                                        "oooo",
+                                        "amazin",
+                                        "widepeepohappy",
+                                        " 1111111",
+                                        "kekw",
+                                        "poggies",
+                                        "lukeg",
+                                        "modcheck",
+                                        "wojakcope",
+                                    ][Math.floor(Math.random() * 10)]
+                                } !`,
                             });
                         }, 100);
                         return;
@@ -188,8 +207,10 @@ export default {
             this.debug.lastRecvType = args.status;
             this.syncState = args;
 
-            if (args.status === 'PLAYING') {
-                this.$refs.vjsContainer.seek(this.getTimeSeconds() - args.offset);
+            if (args.status === "PLAYING") {
+                this.$refs.vjsContainer.seek(
+                    this.getTimeSeconds() - args.offset
+                );
                 this.$refs.vjsContainer.play(true);
             } else {
                 this.$refs.vjsContainer.seek(args.timestamp);
@@ -262,7 +283,7 @@ export default {
 
             this.roomReady = true;
             this.intervals.push(setInterval(this.watchdog, 100));
-            document.title = `Sync | ${roomCode}` 
+            document.title = `Sync | ${roomCode}`;
 
             if (this.debug.isDev) requestAnimationFrame(this.time);
         },
@@ -276,43 +297,83 @@ export default {
             if (this.admin) return;
             if (this.syncState === null) return;
 
-
-            if (this.syncState.status === 'PLAYING') {
-
+            if (this.syncState.status === "PLAYING") {
                 if (this.$refs.vjsContainer.player.paused()) {
                     console.warn("[WD] Player should be playing!");
 
-                    if (this.$refs.vjsContainer.player.readyState < 3) //dont bother playing if no data is ready
-                        console.warn("[WD] player.readyState is less than HAVE_FUTURE_DATA");
-                    else
-                        this.$refs.vjsContainer.play(true);
+                    if (this.$refs.vjsContainer.player.readyState < 3)
+                        //dont bother playing if no data is ready
+                        console.warn(
+                            "[WD] player.readyState is less than HAVE_FUTURE_DATA"
+                        );
+                    else this.$refs.vjsContainer.play(true);
                 }
-                const delta = Math.abs(this.$refs.vjsContainer.player.currentTime() - (this.getTimeSeconds() - this.syncState.offset));
+                const delta = Math.abs(
+                    this.$refs.vjsContainer.player.currentTime() -
+                        (this.getTimeSeconds() - this.syncState.offset)
+                );
                 if (delta > constants.desyncTolerance) {
                     console.warn(`[WD] Player sync failing (delta =${delta})`);
 
-                    this.$refs.vjsContainer.seek(this.getTimeSeconds() - this.syncState.offset);
-
+                    this.$refs.vjsContainer.seek(
+                        this.getTimeSeconds() - this.syncState.offset
+                    );
                 }
-
             } else {
-
                 if (!this.$refs.vjsContainer.player.paused()) {
                     console.warn("[WD] Player not paused");
 
                     this.$refs.vjsContainer.play(false); //make sure the player is paused
                 }
 
-                const delta = Math.abs(this.$refs.vjsContainer.player.currentTime() - this.syncState.timestamp);
+                const delta = Math.abs(
+                    this.$refs.vjsContainer.player.currentTime() -
+                        this.syncState.timestamp
+                );
                 if (delta > constants.desyncTolerance) {
-                    console.warn(`[WD] Player at wrong timestamp (delta = ${delta})`);
+                    console.warn(
+                        `[WD] Player at wrong timestamp (delta = ${delta})`
+                    );
 
                     this.$refs.vjsContainer.seek(this.syncState.timestamp);
                 }
             }
+        },
+        //? ------------------------------------------------------------------------
+        //? Shared workers
+        //? ------------------------------------------------------------------------
+        handleMessage(event) {
+            const data = event.data;
+            switch (data[0]) {
+                case "discovery":
+                    if (this.admin && this.roomReady && !this.kicked) {
+                        window.worker.port.postMessage([
+                            "alive",
+                            this.roomCode,
+                        ]);
+                    }
+                    break;
+                case "setmedia":
+                    if (data[1] != this.roomCode) break;
+                    if ((!this.admin && !this.roomReady) || this.kicked) break;
 
-        }
+                    const media = {
+                        type: data[2],
+                        src: data[3],
+                    }
+
+                    this.messages.push({
+                        type: 2,
+                        username: "System",
+                        text: `Media changed from ${data[4] ?? 'unknown origin'}`,
+                    },)
+
+                    this.socket.emit("changemedia", media);
+                    break;
+            }
+        },
     },
+
     async mounted() {
         console.log("room.js mixin mounted");
 
@@ -328,9 +389,14 @@ export default {
             this.status = "Click the button bellow to enable autoplay";
             this.interactionNeeded = true;
         }
+
+        if (window.worker.port)
+            window.worker.port.onmessage = (e) => this.handleMessage(e);
     },
     beforeUnmount() {
-            this.socket.disconnect()
-            this.intervals.forEach(x => clearInterval(x));
+        if (window.worker.port) window.worker.port.onmessage = () => {};
+
+        this.socket.disconnect();
+        this.intervals.forEach((x) => clearInterval(x));
     },
 };
