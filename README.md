@@ -1,5 +1,7 @@
 # 💩Shitty💩 Sync
 
+[![Docker Image CI](https://github.com/MaticBabnik/shitty-sync/actions/workflows/docker-image.yml/badge.svg)](https://github.com/MaticBabnik/shitty-sync/actions/workflows/docker-image.yml)
+
 A (somewhat) shitty way to sync videos with your friends.
 
 Check out a demo [**sync.si instance**](https://sync.si/)!
