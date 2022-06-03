@@ -4,3 +4,4 @@ dist
 .env
 package-lock.json
 .env
+out

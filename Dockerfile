@@ -1,4 +1,4 @@
-FROM node:16 as build-frontend
+FROM node:14 as build-frontend
 
 RUN apt install git
 
@@ -10,7 +10,7 @@ RUN chmod +x setvars.sh
 
 RUN npm i && npm run build
 
-FROM node:16-alpine as base
+FROM node:14 as base
 
 COPY --from=build-frontend /app/frontend/dist /app/frontend/dist
 
@@ -22,11 +22,13 @@ COPY ./tsconfig.json .
 
 RUN npm i
 
-FROM node:16-alpine as run
+FROM node:14 as run
 
 COPY --from=base /app /app
 
 WORKDIR /app
+
+RUN npx tsc
 
 # default args
 ARG PORT=8080
@@ -41,4 +43,4 @@ ENV PORT_METRICS=$PORT_METRICS
 EXPOSE $PORT
 EXPOSE $PORT_METRICS
 
-ENTRYPOINT ["npm", "run", "start"]
+ENTRYPOINT ["node","out/main.js"]
