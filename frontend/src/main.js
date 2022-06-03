@@ -2,6 +2,8 @@ import App from './App.vue'
 import { createApp } from 'vue'
 import router from './router'
 
+import { createWorker } from './worker-client'
+
 import '@/assets/main.less'
 
 //THEME
@@ -17,7 +19,8 @@ if (['dark', 'light'].includes(theme)) {
 
 const app = createApp(App);
 
+window.worker = createWorker();
+
 app.use(router);
 app.mount('#app');
 console.log('%c Shitty Sync ', 'color: #FF8C00; font-size: 48px; text-shadow: #FC0 0 0 10px;')
-console.log('%chi', 'font-size:5px');
