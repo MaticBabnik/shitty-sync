@@ -1,5 +1,7 @@
 <template>
     <div class="chat-textbox">
+        <progress-bar :value="nextMsgProgress" />
+
         <textarea
             rows="1"
             ref="textarea"
@@ -11,7 +13,6 @@
             @change="change"
         />
         <span class="char-limit">{{ len }}/{{ maxlength }}</span>
-        <progress-bar :value="nextMsgProgress" />
     </div>
 </template>
 
