@@ -1,6 +1,6 @@
 <template>
   <p class="msg">
-    <span class="username">{{ username }}: </span>
+    <span class="username">{{ displayUsername }}: </span>
     <span class="text" v-html="type != 2 ? emoteHtml : message"></span>
   </p>
 </template>
@@ -34,6 +34,9 @@ export default {
                 msg = msg.replace(replacer[0],replacer[1]);
             });
             return msg;
+        },
+        displayUsername() {
+            return this.type == 2 ? `⚙️ ${this.username}` : this.username;
         },
     },
     methods: {

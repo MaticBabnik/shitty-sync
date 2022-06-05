@@ -109,26 +109,10 @@ export default {
                         return;
 
                     case "fuck-you":
-                        setInterval(() => {
                             this.addMessage({
-                                type: 0,
-                                username: "god@heaven",
-                                text: `fuck you ${
-                                    [
-                                        "pogu",
-                                        "oooo",
-                                        "amazin",
-                                        "widepeepohappy",
-                                        " 1111111",
-                                        "kekw",
-                                        "poggies",
-                                        "lukeg",
-                                        "modcheck",
-                                        "wojakcope",
-                                    ][Math.floor(Math.random() * 10)]
-                                } !`,
-                            });
-                        }, 100);
+                                type: 2,
+                                username: "Sync",
+                                text: "No, fuck you."});
                         return;
                 }
             }

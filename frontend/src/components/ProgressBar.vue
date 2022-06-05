@@ -1,7 +1,6 @@
 <template>
  <div class="progress-bar">
-     <div class="progress" :style="`width: ${value}%;`">
-
+     <div class="progress" :style="`right: ${value}%`">
      </div>
  </div> 
 </template>
@@ -23,12 +22,13 @@ export default {
 .progress-bar 
 {
     width: 100%;
-    height: 2px;
+    height: 3px;
     margin: 0;
     padding: 0;
     position: relative;
     .progress{
         background-color: @primary;
+
         position: absolute;
         top: 0;
         bottom: 0;

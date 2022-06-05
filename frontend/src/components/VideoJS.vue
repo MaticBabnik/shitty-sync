@@ -1,5 +1,16 @@
 <template>
     <div class="video-container">
+        <div class="no-media" v-if="noSource">
+            <span>Media offline</span>
+            <span>メディアオフライン</span>
+            <span>Media hors ligne</span>
+            <span>Offline-Medien</span>
+            <span>脱机媒体文件</span>
+            <span>Medios sin conexion</span>
+            <span>Oggetto multimediale non in linea</span>
+            <span>Медиаданные в автономном режиме</span>
+            <span>Midia offline</span>
+        </div>
         <!-- Video gets created here -->
     </div>
 </template>
@@ -17,6 +28,7 @@ export default {
     },
     data() {
         return {
+            noSource: true,
             player: null,
             customOptions: {
                 admin: false,
@@ -97,6 +109,7 @@ export default {
             }
         },
         change(src) {
+            this.noSource = src?.type === "offline";
             if (src.type == "video/youtube") {
                 this.options.sources = [
                     { src: src.src, type: "video/youtube" },
@@ -143,14 +156,26 @@ export default {
     height: fit-content;
     min-height: 150px;
 
+    .no-media,
     .video-js {
-        width: 100%;
-        height: 100%;
+        // width: 100%;
+        // height: 100%;
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
+    }
+
+    .no-media {
+        z-index: 100;
+        padding: 1rem;
+        background: linear-gradient(to bottom, #e5253c, #4e0010 );
+        color: #fff;
+        font-size: 1.5rem;
+        padding-left: 3rem;
+        display:flex;
+        flex-direction: column;
     }
 }
 
