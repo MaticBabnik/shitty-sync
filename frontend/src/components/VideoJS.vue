@@ -158,8 +158,6 @@ export default {
 
     .no-media,
     .video-js {
-        // width: 100%;
-        // height: 100%;
         position: absolute;
         top: 0;
         left: 0;
@@ -167,6 +165,11 @@ export default {
         bottom: 0;
     }
 
+    .video-js {
+        width: 100%;
+        height: 100%;
+    }
+    
     .no-media {
         z-index: 100;
         padding: 1rem;
