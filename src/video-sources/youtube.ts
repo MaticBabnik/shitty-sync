@@ -44,7 +44,7 @@ export async function test(url: string) {
     return {
         title: r.title,
         url: `https://www.youtube.com/watch?v=${r.videoId}`,
-        thumbnailUrl: r.thumbnail.thumbnails.sort((l, r) => l.width == r.width ? 0 : l.width > r.width ? 1 : -1)[0].url,
+        thumbnailUrl: r.thumbnails.sort((l, r) => l.width == r.width ? 0 : l.width > r.width ? 1 : -1)[0].url,
         author: r.author
     }
 }

@@ -1,9 +1,10 @@
 import { Socket } from "socket.io";
-import { MESSAGE_COOLDOWN, nameRegex, RENAME_COOLDOWN, roomRegex } from './constants'
+import { MESSAGE_COOLDOWN, RENAME_COOLDOWN, roomRegex } from './constants'
 import * as cdn from './video-sources/cdn';
 import * as yt from './video-sources/youtube';
 import { EventEmitter } from 'events'
 import e from "cors";
+import { createHash } from "crypto"
 
 export type MediaType = 'cdn' | 'yt-search' | 'offline';
 export interface Media {
@@ -173,7 +174,7 @@ export class Room {
             this.media = { type: 'cdn', src: 'https://s3.eu-central-1.wasabisys.com/cdn.femboy.si/padoru.webm' }
         else
             this.media = { type: 'offline', src: '' };
-            
+
         this.status = { status: 'PAUSED', timestamp: 0 };
 
         this.owner = creator.id;// we set the id but don't create the user
@@ -184,6 +185,7 @@ export class User {
     public id: string;
     public name: string;
     public socket: Socket;
+    public gravatarHash: string;
     private room: Room;
 
     private lastMessage: number;
@@ -195,13 +197,12 @@ export class User {
     }
 
     public serialize() {
-
         return {
             id: this.id,
             nickname: this.name,
             role: this.isAdmin ? 'admin' : 'user',
+            pfp: `https://www.gravatar.com/avatar/${this.gravatarHash}?d=retro&s=128`
         }
-
     }
 
     constructor(socket: Socket, room: Room) {
@@ -215,6 +216,7 @@ export class User {
         this.lastNickChange = Date.now() - RENAME_COOLDOWN; //make sure we can do everything right away
 
         this.name = `Anon#${this.id.substr(0, 5)}`;
+        this.gravatarHash = createHash('md5').update(this.name.toLowerCase()).digest('hex')
 
         this.socket.on('msg', (args) => this.msg(args));
         this.socket.on('promote', (args) => this.promote(args));
@@ -227,7 +229,6 @@ export class User {
 
         this.socket.emit('joinroom', this.room.serialize());
         this.socket.emit('sync', this.room.status);
-
     }
 
     private msg(args: any) {
@@ -251,19 +252,21 @@ export class User {
         //sucess!
     }
     private changeNick(args: any) {
-
-
         if (typeof (args.nickname) !== 'string') return; //invalid params
-        if (!nameRegex.test(args.nickname)) return; //invalid nick
+        if (!['string', 'undefined'].includes(typeof (args.gravatar))) return;
+        if (args.nickname.length > 24 || args.nickname.length < 3) return; //invalid nick
         if (Date.now() - this.lastNickChange < 60_000) return; //too fast
 
         this.name = args.nickname;
+
         this.lastNickChange = Date.now();
 
+        let gravatarInput: string = args.gravatar ?? args.nickname;
+        this.gravatarHash = createHash('md5').update(gravatarInput.trim().toLowerCase()).digest('hex');
 
         this.room.syncRoom();
-
     }
+
     private kick(args: any) {
 
 

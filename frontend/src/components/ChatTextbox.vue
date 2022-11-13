@@ -40,7 +40,11 @@ export default {
 
             if (this.nextMsgProgress !== 100) return;
 
-            this.$emit("send", this.$refs.textarea.value);
+            if (this.$refs.textarea.value.trim().length === 0) return;
+            
+            
+
+            this.$emit("send", this.$refs.textarea.value.replace(/\s+/g,' '));
             this.$refs.textarea.value = "";
             this.nextMsgTime = Date.now() + this.timeout;
             this.change(e);

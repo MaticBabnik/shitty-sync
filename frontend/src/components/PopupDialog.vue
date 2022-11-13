@@ -71,6 +71,7 @@ export default {
             }
             .close-btn {
                 fill: @text;
+                cursor: pointer;
             }
             margin-bottom: 10px;
         }

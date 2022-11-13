@@ -1,10 +1,10 @@
 <template>
-    <div @click="share" class="theme-toggle">
+    <button @click="share" class="theme-toggle no-btn">
         <svg viewBox="0 0 24 24" class="icon">
             <use xlink:href="/icons.svg#share"></use>
         </svg>
         <span class="notification" v-if="showNotification"> Link copied! </span>
-    </div>
+    </button>
 </template>
 
 <script>
@@ -69,37 +69,38 @@ svg {
     height: 24px;
     fill: @accent;
 }
+
 .theme-toggle {
+    cursor: pointer;
     position: relative;
 }
 
 @keyframes anim {
     0% {
         opacity: 0%;
-        top: -100%;
     }
+
     25% {
         opacity: 100%;
-        top: 100%;
     }
+
     75% {
         opacity: 100%;
-        top: 100%;
     }
+
     100% {
         opacity: 0%;
-        top: 200%;
     }
 }
 
 .notification {
     left: -100px;
-    top: 100%;
+    top: 0;
     color: @text;
     padding: 5px;
     border-radius: 3px;
     position: absolute;
-    animation: anim 2s linear;
+    animation: anim 1s ease-in-out;
     opacity: 0;
     background-color: @primary;
     user-select: none;

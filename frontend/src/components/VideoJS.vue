@@ -1,15 +1,8 @@
 <template>
     <div class="video-container">
         <div class="no-media" v-if="noSource">
-            <span>Media offline</span>
-            <span>メディアオフライン</span>
-            <span>Media hors ligne</span>
-            <span>Offline-Medien</span>
-            <span>脱机媒体文件</span>
-            <span>Medios sin conexion</span>
-            <span>Oggetto multimediale non in linea</span>
-            <span>Медиаданные в автономном режиме</span>
-            <span>Midia offline</span>
+            <img src="@/assets/warn.svg"/>
+            <h2>No source</h2>
         </div>
         <!-- Video gets created here -->
     </div>
@@ -148,6 +141,8 @@ export default {
 </script>
 
 <style lang="less">
+@import url("@/assets/theme.less");
+
 .video-container {
     position: relative;
 
@@ -171,14 +166,21 @@ export default {
     }
     
     .no-media {
+        user-select: none;
         z-index: 100;
         padding: 1rem;
-        background: linear-gradient(to bottom, #e5253c, #4e0010 );
-        color: #fff;
+        // background: radial-gradient(#0000 50%, fade(@l-primary, 50%) 100%);
+        background-color: @background-dark;
         font-size: 1.5rem;
         padding-left: 3rem;
+
         display:flex;
         flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        h2 {
+            margin:0;
+        }
     }
 }
 
