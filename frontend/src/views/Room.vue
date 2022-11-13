@@ -18,6 +18,7 @@
                     :name="user.nickname"
                     :admin="user.role === 'admin'"
                     :local="user.id === socket.id"
+                    :pfp="user.pfp"
                     :islocaladmin="admin"
                     :id="user.id"
                     @kick="kick"
@@ -49,9 +50,9 @@
                     :type="msg.type"
                 />
                 <div id="scroll-to-bottom" v-if="showScrollToBottom">
-                    <div class="button" @click="scrollToBottom">
+                    <button class="button" @click="scrollToBottom">
                         Scroll to bottom
-                    </div>
+                    </button>
                 </div>
             </div>
             <chat-textbox :maxlength="180" @send="sendMessage" />
@@ -60,9 +61,9 @@
             <h1>Joining...</h1>
             <div class="progress-bar"></div>
             <p>{{ status }}</p>
-            <div class="button" v-if="interactionNeeded" @click="interaction">
+            <button class="button" v-if="interactionNeeded" @click="interaction">
                 Continue
-            </div>
+            </button>
         </div>
         <div class="l-overlay" v-if="kicked">
             <h1>Kicked from room</h1>

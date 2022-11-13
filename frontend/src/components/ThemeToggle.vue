@@ -1,9 +1,9 @@
 <template>
-    <div @click="toggleTheme" class="theme-toggle">
+    <button @click="toggleTheme" class="theme-toggle no-btn">
         <svg viewBox="0 0 24 24" class="icon">
             <use :xlink:href="`/icons.svg#${dark?'dark':'light'}`"></use>
         </svg>
-    </div>
+    </button>
 </template>
 
 <script>
@@ -34,5 +34,8 @@ svg {
     width: 24px;
     height: 24px;
     fill: @accent;
+}
+.theme-toggle {
+    cursor: pointer;
 }
 </style>

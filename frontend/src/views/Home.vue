@@ -1,13 +1,12 @@
 <template>
     <div class="main">
-        <h1 class="title">Shitty<br />Sync</h1>
+        <h1 class="title">Sync</h1>
         <div class="text-btn">
             <input
                 class="text"
                 type="text"
                 spellcheck="false"
                 placeholder="Room code"
-                @input="removeUnsafeChars"
                 @keypress.enter="gotoRoom"
                 ref="roomCode"
                 size="16"
@@ -40,18 +39,15 @@ export default {
         };
     },
     methods: {
-        removeUnsafeChars(e) {
-            e.target.value = e.target.value
-                .toUpperCase()
-                .replace(/[^A-Z0-9\-]/gi, "") //TODO: this code is still quite bad
-                .substring(0, 16);
-        },
+        // removeUnsafeChars(e) {
+        //     e.target.value = e.target.value
+        //         .toUpperCase()
+        //         .replace(/[^A-Z0-9\-]/gi, "") //TODO: this code is still quite bad
+        //         .substring(0, 16);
+        // },
         gotoRoom() {
             const code = this.$refs.roomCode.value
-                .toUpperCase()
-                .replace(/[^A-Z0-9\-]/gi, "")
-                .substring(0, 16);
-            if (code.length > 2)
+            if (code.length >= 1 )
                 this.$router.push({ name: "Room", params: { id: code } });
             else alert("Invalid code");
         },
@@ -70,17 +66,9 @@ export default {
     align-items: center;
     justify-content: center;
     .title {
-        background: linear-gradient(@primary 75%, transparent 100%);
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-
-        font-size: 144px;
-        font-weight: 500px;
-        line-height: 150px;
-        text-transform: uppercase;
-        text-align: center;
-
-        margin: 10px;
+        color: @primary;
+        font-size: 7rem;
+        margin: 1rem;
     }
 }
 
@@ -102,6 +90,7 @@ export default {
     }
     .btn {
         color: @background;
+        cursor: pointer;
         margin: 0;
         font-weight: bold;
         font-size: 18px;

@@ -1,48 +1,23 @@
 <template>
     <div>
-        <icon
-            class="icon"
-            file="/icons.svg"
-            name="edit"
-            @click="resetAndShow"
-        />
+        <button class="no-btn">
+            <icon class="icon" file="/icons.svg" name="edit" @click="resetAndShow" />
+        </button>
         <teleport to=".main">
-            <popup-dialog
-                title="Select media"
-                class="flex-diag"
-                @close="() => (show = false)"
-                v-if="show"
-            >
-                <input
-                    type="text"
-                    class="input"
-                    v-model="query"
-                    placeholder="Paste a link or search"
-                    v-if="selectedSource == null"
-                />
+            <popup-dialog title="Select media" class="flex-diag" @close="() => (show = false)" v-if="show">
+                <input type="text" class="input" v-model="query" placeholder="Paste a link or search"
+                    v-if="selectedSource == null" />
                 <div class="results" v-if="!selectedSource">
-                    <div
-                        class="item"
-                        v-if="options.includes('youtube-link')"
-                        @click="doYoutube"
-                    >
+                    <div class="item" v-if="options.includes('youtube-link')" @click="doYoutube">
                         <icon file="/icons.svg" name="youtube" />
                         Youtube link
                     </div>
-                    <div
-                        class="item"
-                        v-if="options.includes('cdn')"
-                        @click="doCdn"
-                    >
+                    <div class="item" v-if="options.includes('cdn')" @click="doCdn">
                         <icon file="/icons.svg" name="cdn" />CDN file
                     </div>
-                    <div
-                        class="item"
-                        v-if="options.includes('youtube-search')"
-                        @click="doSearch"
-                    >
+                    <div class="item" v-if="options.includes('youtube-search')" @click="doSearch">
                         <icon file="/icons.svg" name="search" />Search for "{{
-                            query
+                                query
                         }}"
                     </div>
                     <div class="item" v-if="isDev" @click="doDebugCDN">
@@ -59,42 +34,29 @@
                 </div>
                 <div class="cdn" v-else-if="selectedSource == 'cdn'">
                     <span class="file-valid">{{
-                        result.valid ? "File is valid" : "File is invalid"
+                            result.valid ? "File is valid" : "File is invalid"
                     }}</span>
                     <span class="file-info" v-if="result.valid">{{
-                        result.type
+                            result.type
                     }}</span>
                     <span class="file-info" v-if="result.valid">{{
-                        result.size
+                            result.size
                     }}</span>
                 </div>
-                <div
-                    class="yt-search"
-                    v-else-if="selectedSource == 'youtube-search'"
-                >
-                    <video-card
-                        v-for="(video, index) in result"
-                        :class="{ selected: video.url == selected }"
-                        :key="index"
-                        :title="video.title"
-                        :author="video.author"
-                        :url="video.url"
-                        :thumbnail="video.thumbnailUrl"
-                        @click="
+                <div class="yt-search" v-else-if="selectedSource == 'youtube-search'">
+                    <video-card v-for="(video, index) in result" :class="{ selected: video.url == selected }"
+                        :key="index" :title="video.title" :author="video.author" :url="video.url"
+                        :thumbnail="video.thumbnailUrl" @click="
                             () => {
                                 selected = video.url;
                             }
-                        "
-                    />
+                        " />
                 </div>
-                <div
-                    :class="{ button: true, disabled: !ready && !selected }"
-                    @click="
-                        (e) => {
-                            if (ready || selected) selectMedia();
-                        }
-                    "
-                >
+                <div :class="{ button: true, disabled: !ready && !selected }" @click="
+                    (e) => {
+                        if (ready || selected) selectMedia();
+                    }
+                ">
                     CHANGE
                 </div>
             </popup-dialog>
@@ -237,6 +199,10 @@ export default {
 <style lang="less" scoped>
 @import url("../assets/theme.less");
 
+.icon {
+    cursor: pointer;
+}
+
 input.input[type="text"] {
     margin-right: none;
     font-size: 0.7rem;
@@ -278,12 +244,14 @@ input.input[type="text"] {
         &:hover {
             background-color: @primary;
             color: @background;
+
             svg {
                 fill: @background;
             }
         }
     }
 }
+
 .loading {
     .progress-bar {
         width: 100%;
@@ -295,13 +263,16 @@ input.input[type="text"] {
         border-radius: 2px;
     }
 }
+
 .cdn {
     padding: 10px;
+
     .file-valid {
         color: @accent;
         font-size: 1rem;
         display: block;
     }
+
     .file-info {
         color: @text;
         font-size: 0.7rem;

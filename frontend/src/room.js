@@ -61,7 +61,7 @@ export default {
 
         getTimeSeconds() {
             //same as get time but in seconds
-            return (Date.now() + this.timeOffset) / 1_000;
+            return (Date.now() + this.timeOffset) / 1000;
         },
         addMessage(msg) {
             const wasAtBottom = this.isAtBottom();
@@ -87,10 +87,8 @@ export default {
         promote(id) {
             this.socket.emit("promote", { target: id });
         },
-        changeNick(newNick) {
-            if (constants.nameRegex.test(newNick)) {
-                this.socket.emit("changenick", { nickname: newNick });
-            }
+        changeNick(newNick,gravatar) {
+            this.socket.emit("changenick", { nickname: newNick, gravatar });
         },
         async ping() {
             this.latency.start = Date.now();
@@ -109,10 +107,11 @@ export default {
                         return;
 
                     case "fuck-you":
-                            this.addMessage({
-                                type: 2,
-                                username: "Sync",
-                                text: "No, fuck you."});
+                        this.addMessage({
+                            type: 2,
+                            username: "Sync",
+                            text: "No, fuck you."
+                        });
                         return;
                 }
             }
@@ -269,6 +268,12 @@ export default {
             this.intervals.push(setInterval(this.watchdog, 100));
             document.title = `Sync | ${roomCode}`;
 
+            let username = localStorage.getItem("username") ?? undefined;
+            let gravatar = localStorage.getItem("gravatar") ?? undefined;
+            if (username) {
+                this.changeNick(username,gravatar);
+            }
+
             if (this.debug.isDev) requestAnimationFrame(this.time);
         },
 
@@ -294,7 +299,7 @@ export default {
                 }
                 const delta = Math.abs(
                     this.$refs.vjsContainer.player.currentTime() -
-                        (this.getTimeSeconds() - this.syncState.offset)
+                    (this.getTimeSeconds() - this.syncState.offset)
                 );
                 if (delta > constants.desyncTolerance) {
                     console.warn(`[WD] Player sync failing (delta =${delta})`);
@@ -312,7 +317,7 @@ export default {
 
                 const delta = Math.abs(
                     this.$refs.vjsContainer.player.currentTime() -
-                        this.syncState.timestamp
+                    this.syncState.timestamp
                 );
                 if (delta > constants.desyncTolerance) {
                     console.warn(
@@ -378,7 +383,7 @@ export default {
             window.worker.port.onmessage = (e) => this.handleMessage(e);
     },
     beforeUnmount() {
-        if (window.worker.port) window.worker.port.onmessage = () => {};
+        if (window.worker.port) window.worker.port.onmessage = () => { };
 
         this.socket.disconnect();
         this.intervals.forEach((x) => clearInterval(x));

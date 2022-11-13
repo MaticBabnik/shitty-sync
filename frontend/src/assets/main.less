@@ -6,6 +6,7 @@
 //
 :root,
 :root[data-theme="dark"] {
+    --background-dark: @d-background-dark;
     --background: @d-background;
     --background-light: @d-background-light;
     --primary: @d-primary;
@@ -17,6 +18,7 @@
 // LIGHT THEME
 //
 :root[data-theme="light"] {
+    --background-dark: @l-background-dark;
     --background: @l-background;
     --background-light: @l-background-light;
     --primary: @l-primary;
@@ -76,12 +78,16 @@ input[type="text"].input:focus {
     color: #fff; //TODO maybe make a --white var or something
     width: fit-content;
     height: fit-content;
-    padding: 4px;
+    padding: .3rem .5rem;
     font-weight: bold;
     user-select: none;
-    border-radius: 2px;
+    font-size: 1rem;
+    border-radius: .5rem;
     text-transform: uppercase;
     background-color: @primary;
+
+    outline: none;
+    border: none;
 }
 .button:hover {
     transition: 200ms;
@@ -90,6 +96,16 @@ input[type="text"].input:focus {
 
 .button.disabled {
     background-color: @background-light;
+}
+
+.no-btn {
+    background-color: transparent;
+    color: @text;
+    border: none;
+    padding: 0;
+    font-size: 1rem;
+    font-weight: normal;
+    text-transform: none;
 }
 
 ::-webkit-scrollbar {
