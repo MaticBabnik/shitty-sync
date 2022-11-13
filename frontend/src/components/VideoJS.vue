@@ -166,6 +166,7 @@ export default {
     }
     
     .no-media {
+        user-select: none;
         z-index: 100;
         padding: 1rem;
         // background: radial-gradient(#0000 50%, fade(@l-primary, 50%) 100%);

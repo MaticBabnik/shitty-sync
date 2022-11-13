@@ -59,6 +59,7 @@ export default {
 @import url("@/assets/theme.less");
 
 .main {
+    user-select: none;
     background-color: @background;
     height: 100%;
     display: flex;
@@ -104,6 +105,7 @@ export default {
     }
 }
 .stats {
+    user-select: text;
     position: absolute;
     right: 0;
     bottom: 0;

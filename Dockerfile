@@ -43,4 +43,4 @@ ENV PORT_METRICS=$PORT_METRICS
 EXPOSE $PORT
 EXPOSE $PORT_METRICS
 
-ENTRYPOINT ["node","out/main.js"]
+ENTRYPOINT ["node","out/index.js"]

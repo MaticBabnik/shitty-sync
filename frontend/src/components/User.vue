@@ -1,6 +1,8 @@
 <template>
     <div class="user" @click="openMenu">
-        <img :src="pfp" />
+        <div class="pfp" :style="{ backgroundImage: `url('${pfp}')` }">
+            <img v-if="admin" src="@/assets/admin.svg">
+        </div>
         <span :class="{ local: local }">{{ name }}</span>
         <teleport to=".main">
             <context-menu v-if="menuShow" ref="ctxMenu" class="ctx-menu" :left="menuLeft" :top="menuTop"
@@ -128,7 +130,7 @@ export default {
 
             this.rename = false;
             let gravatar = this.gravatar.trim();
-            if (gravatar.length == 0 ) gravatar = undefined;
+            if (gravatar.length == 0) gravatar = undefined;
 
             localStorage.setItem("username", this.newName);
 
@@ -144,7 +146,7 @@ export default {
         admin: { type: Boolean, required: true },
         local: { type: Boolean, required: true },
         islocaladmin: { type: Boolean, required: true },
-        pfp: {type:String, required:true}
+        pfp: { type: String, required: true }
     },
 };
 </script>
@@ -168,10 +170,22 @@ export default {
     justify-content: center;
     border-radius: 10px;
 
-    img {
+    .pfp {
         width: 64px;
         height: 64px;
         border-radius: 50%;
+        position: relative;
+        object-fit: fill;
+        background-size: 100%;
+
+        img {
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            width: 20px;
+            height: 20px;
+        }
+
     }
 
     span {
