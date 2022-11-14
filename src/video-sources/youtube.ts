@@ -34,18 +34,19 @@ router.post('/search', async (req, res) => {
         }))
 
         res.send(minimalResults ?? "something went wrong");
-    } catch {
+    } catch (e) {
+        console.error(e);
         res.status(503).send();
     }
 });
 
 export async function test(url: string) {
-    const r = (await ytdl.getBasicInfo(url))['player_response'].videoDetails;
+    const r = (await ytdl.getBasicInfo(url)).videoDetails;
     return {
         title: r.title,
         url: `https://www.youtube.com/watch?v=${r.videoId}`,
-        thumbnailUrl: r.thumbnails.sort((l, r) => l.width == r.width ? 0 : l.width > r.width ? 1 : -1)[0].url,
-        author: r.author
+        thumbnailUrl: (r.thumbnails ?? []).sort((l, r) => l.width == r.width ? 0 : l.width > r.width ? 1 : -1)?.[0]?.url,
+        author: r.author.name
     }
 }
 
@@ -58,7 +59,8 @@ router.post('/test', async (req, res) => {
         }
 
         res.send(await test(req.body['url']) ?? "something went wrong");
-    } catch {
+    } catch (e) {
+        console.error(e); 
         res.status(503).send();
     }
 })
