@@ -6,7 +6,7 @@
         <teleport to=".main">
             <popup-dialog title="Select media" class="flex-diag" @close="() => (show = false)" v-if="show">
                 <input type="text" class="input" v-model="query" placeholder="Paste a link or search"
-                    v-if="selectedSource == null" />
+                    v-if="selectedSource == null" @keypress.enter="inputEnter" />
                 <div class="results" v-if="!selectedSource">
                     <div class="item" v-if="options.includes('youtube-link')" @click="doYoutube">
                         <icon file="/icons.svg" name="youtube" />
@@ -50,7 +50,7 @@
                             () => {
                                 selected = video.url;
                             }
-                        " />
+                        " class="card-selectable" />
                 </div>
                 <div :class="{ button: true, disabled: !ready && !selected }" @click="
                     (e) => {
@@ -97,6 +97,19 @@ export default {
         },
     },
     methods: {
+        inputEnter() {
+            switch (this.options?.[0]) {
+                case 'cdn':
+                    this.doCdn();
+                    break;
+                case 'youtube-link':
+                    this.doYoutube();
+                    break;
+                case 'youtube-search':
+                    this.doSearch();
+                    break;
+            }
+        },
         resetAndShow() {
             this.ready = false;
             this.options = [];
@@ -214,6 +227,10 @@ input.input[type="text"] {
     overflow: hidden;
     box-shadow: 0px 0px 5px @primary;
     border-radius: 3px;
+}
+
+.card-selectable {
+    cursor: pointer;
 }
 
 .results {
