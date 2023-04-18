@@ -61,7 +61,11 @@
             <h1>Joining...</h1>
             <div class="progress-bar"></div>
             <p>{{ status }}</p>
-            <button class="button" v-if="interactionNeeded" @click="interaction">
+            <button
+                class="button"
+                v-if="interactionNeeded"
+                @click="interaction"
+            >
                 Continue
             </button>
         </div>
@@ -260,7 +264,7 @@ export default {
                 display: flex;
                 justify-content: center;
                 .button {
-                    padding: .5rem 1rem;
+                    padding: 0.5rem 1rem;
                     border-radius: 100vw;
                     box-shadow: #000 0 0 4px;
                 }

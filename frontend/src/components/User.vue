@@ -1,18 +1,45 @@
 <template>
-    <div class="user" @click="openMenu">
+    <div
+        class="user"
+        @click="openMenu"
+        @contextmenu.prevent.capture.stop="openMenu"
+    >
         <div class="pfp" :style="{ backgroundImage: `url('${pfp}')` }">
-            <img v-if="admin" src="@/assets/admin.svg">
+            <img v-if="admin" src="@/assets/admin.svg" />
         </div>
         <span :class="{ local: local }">{{ name }}</span>
         <teleport to=".main">
-            <context-menu v-if="menuShow" ref="ctxMenu" class="ctx-menu" :left="menuLeft" :top="menuTop"
-                :items="options" @action="action"></context-menu>
-            <popup-dialog v-if="rename" @close="() => (rename = false)" :title="`Change nickname for ${name}`">
-                <input type="text" v-model="newName" :class="{
-                    input: true,
-                    invalid: !(nameValid.len && nameValid.chars),
-                }" placeholder="New nickname" @keypress.enter="renamee" />
-                <input type="text" class="input" placeholder="Gravatar" v-model="gravatar" @keypress.enter="renamee">
+            <context-menu
+                v-if="menuShow"
+                ref="ctxMenu"
+                class="ctx-menu"
+                :left="menuLeft"
+                :top="menuTop"
+                :items="options"
+                @action="action"
+            ></context-menu>
+            <popup-dialog
+                v-if="rename"
+                @close="() => (rename = false)"
+                :title="`Change nickname for ${name}`"
+            >
+                <input
+                    type="text"
+                    v-model="newName"
+                    :class="{
+                        input: true,
+                        invalid: !(nameValid.len && nameValid.chars),
+                    }"
+                    placeholder="New nickname"
+                    @keypress.enter="renamee"
+                />
+                <input
+                    type="text"
+                    class="input"
+                    placeholder="Gravatar"
+                    v-model="gravatar"
+                    @keypress.enter="renamee"
+                />
                 <div class="rules">
                     <span>New nickname:</span>
                     <ul>
@@ -21,8 +48,15 @@
                         </li>
                     </ul>
                 </div>
-                <button :class="{ button: true, disabled: !(nameValid.len && nameValid.chars) }"
-                    @click="renamee">Apply</button>
+                <button
+                    :class="{
+                        button: true,
+                        disabled: !(nameValid.len && nameValid.chars),
+                    }"
+                    @click="renamee"
+                >
+                    Apply
+                </button>
             </popup-dialog>
         </teleport>
     </div>
@@ -31,7 +65,7 @@
 <script>
 /* eslint-disable */
 //keep eslint from being annoying (indent issues on switch statements)
-import constants from '../constants.js';
+import constants from "../constants.js";
 
 import ContextMenu from "./ContextMenu.vue";
 import PopupDialog from "./PopupDialog.vue";
@@ -69,7 +103,7 @@ export default {
             },
             rename: false,
             newName: "",
-            gravatar: ""
+            gravatar: "",
         };
     },
     watch: {
@@ -85,14 +119,6 @@ export default {
     },
     methods: {
         openMenu(e) {
-            console.log(e.which);
-            switch (e.which) {
-                case 2:
-                    return;
-                case 3:
-                    e.preventDefault();
-                    break;
-            }
             if (this.menuShow) return;
 
             this.options[0].enabled = this.islocaladmin && !this.local;
@@ -122,6 +148,8 @@ export default {
                     break;
                 case "rename":
                     this.rename = true;
+                    this.newName = this.name;
+                    this.gravatar = localStorage.getItem("gravatar") ?? "";
                     break;
             }
         },
@@ -146,7 +174,7 @@ export default {
         admin: { type: Boolean, required: true },
         local: { type: Boolean, required: true },
         islocaladmin: { type: Boolean, required: true },
-        pfp: { type: String, required: true }
+        pfp: { type: String, required: true },
     },
 };
 </script>
@@ -185,7 +213,6 @@ export default {
             width: 20px;
             height: 20px;
         }
-
     }
 
     span {
@@ -214,12 +241,11 @@ export default {
     height: fit-content;
     left: 50%;
     right: 50%;
-
 }
 
 .dialog {
     .input {
-        margin: .2rem 0;
+        margin: 0.2rem 0;
     }
 }
 
