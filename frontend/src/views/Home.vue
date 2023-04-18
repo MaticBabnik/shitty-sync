@@ -12,7 +12,7 @@
                 size="16"
                 maxlength="16"
             />
-            <div class="btn" @click="gotoRoom">GO</div>
+            <button class="btn" @click="gotoRoom">Join</button>
         </div>
         <theme-toggle class="theme-toggle" />
         <span class="stats">
@@ -35,19 +35,13 @@ export default {
         return {
             branch: process.env["VUE_APP_BRANCH"] ?? "unknown",
             commit: (process.env["VUE_APP_COMMIT"] ?? "unknown").substr(0, 7),
-            date: process.env["VUE_APP_DATE"]
+            date: process.env["VUE_APP_DATE"],
         };
     },
     methods: {
-        // removeUnsafeChars(e) {
-        //     e.target.value = e.target.value
-        //         .toUpperCase()
-        //         .replace(/[^A-Z0-9\-]/gi, "") //TODO: this code is still quite bad
-        //         .substring(0, 16);
-        // },
         gotoRoom() {
-            const code = this.$refs.roomCode.value
-            if (code.length >= 1 )
+            const code = this.$refs.roomCode.value;
+            if (code.length >= 1)
                 this.$router.push({ name: "Room", params: { id: code } });
             else alert("Invalid code");
         },
@@ -57,6 +51,11 @@ export default {
 
 <style lang="less" scoped>
 @import url("@/assets/theme.less");
+
+button {
+    border: none;
+    outline: none;
+}
 
 .main {
     user-select: none;
@@ -90,7 +89,8 @@ export default {
         margin-left: 12px;
     }
     .btn {
-        color: @background;
+        transition: 0.3s ease;
+        color: @primary;
         cursor: pointer;
         margin: 0;
         font-weight: bold;
@@ -101,6 +101,7 @@ export default {
         background-color: @background-light;
     }
     .btn:hover {
+        color: @background;
         background-color: @primary;
     }
 }
@@ -113,7 +114,8 @@ export default {
     text-align: right;
     padding: 10px;
 
-    color: @background-light;
+    color: @text;
+    opacity: 75%;
 
     a {
         color: @accent;

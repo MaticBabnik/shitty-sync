@@ -1,32 +1,35 @@
 import { Socket } from "socket.io";
-import { MESSAGE_COOLDOWN, RENAME_COOLDOWN, roomRegex } from './constants'
-import * as cdn from './video-sources/cdn';
-import * as yt from './video-sources/youtube';
-import { EventEmitter } from 'events'
+import { MESSAGE_COOLDOWN, RENAME_COOLDOWN, roomRegex } from "./constants";
+import * as cdn from "./video-sources/cdn";
+import * as yt from "./video-sources/youtube";
+import { EventEmitter } from "events";
 import e from "cors";
-import { createHash } from "crypto"
+import { createHash } from "crypto";
+import { type } from "os";
+import { urlToHttpOptions } from "url";
 
-export type MediaType = 'cdn' | 'yt-search' | 'offline';
+export type MediaType = "cdn" | "yt-search" | "offline";
 export interface Media {
-    type: MediaType,
-    src: string
+    type: MediaType;
+    src: string;
 }
 
-
 interface RoomManagerEvents {
-    'roomcreate': (room: Room) => void,
-    'roomdestroy': (id: string) => void,
-    'roomjoin': (room: Room, newUser: User) => void,
-    'roomleave': (room: Room, userId: string) => void,
-    'roomsourcechanged': (room: Room) => void
+    roomcreate: (room: Room) => void;
+    roomdestroy: (id: string) => void;
+    roomjoin: (room: Room, newUser: User) => void;
+    roomleave: (room: Room, userId: string) => void;
+    roomsourcechanged: (room: Room) => void;
 }
 export declare interface RoomManager {
     on<U extends keyof RoomManagerEvents>(
-        event: U, listener: RoomManagerEvents[U]
+        event: U,
+        listener: RoomManagerEvents[U]
     ): this;
 
     emit<U extends keyof RoomManagerEvents>(
-        event: U, ...args: Parameters<RoomManagerEvents[U]>
+        event: U,
+        ...args: Parameters<RoomManagerEvents[U]>
     ): boolean;
 }
 
@@ -43,17 +46,17 @@ export class RoomManager extends EventEmitter {
         super();
         this.rooms = new Map<string, Room>();
         this.io = io;
-        io.on('connect', socket => {
-            socket.on('ping', (args: any) => this.ping(socket, args));
-            socket.on('synctime', (args: any) => this.synctime(socket, args));
-            socket.on('testtime', (args: any) => this.testtime(socket, args));
+        io.on("connect", (socket) => {
+            socket.on("ping", (args: any) => this.ping(socket, args));
+            socket.on("synctime", (args: any) => this.synctime(socket, args));
+            socket.on("testtime", (args: any) => this.testtime(socket, args));
 
-            socket.on('joinroom', (args: any) => this.joinroom(socket, args));
-        })
+            socket.on("joinroom", (args: any) => this.joinroom(socket, args));
+        });
     }
 
     public deleteRoom(id: string) {
-        this.emit('roomdestroy', id);
+        this.emit("roomdestroy", id);
         this.rooms.delete(id);
     }
 
@@ -62,34 +65,37 @@ export class RoomManager extends EventEmitter {
 
         if (!room) {
             room = new Room(id, this, socket);
-            this.emit('roomcreate', room);
+            this.emit("roomcreate", room);
             this.rooms.set(id, room);
         }
 
         const user = room.join(socket);
-        this.emit('roomjoin', room, user)
+        this.emit("roomjoin", room, user);
+        return user;
     }
 
     private ping(socket: Socket, args: any) {
-        socket.emit('pingret');
+        socket.emit("pingret");
     }
 
     private synctime(socket: Socket, args: any) {
-        socket.emit('synctime', Date.now() + (args?.latency ?? 0) / 2);
+        socket.emit("synctime", Date.now() + (args?.latency ?? 0) / 2);
     }
 
     private testtime(socket: Socket, args: any) {
-        socket.emit('testtime', Date.now() - args.time ?? 0);
+        socket.emit("testtime", Date.now() - args.time ?? 0);
     }
 
-    private joinroom(socket: Socket, roomId: any) {
-        if (typeof (roomId) !== "string") return;
-        if (!roomRegex.test(roomId)) return;
+    private joinroom(socket: Socket, args: any) {
+        if (typeof args.roomId !== "string") return;
+        if (!roomRegex.test(args.roomId)) return;
 
+        const newUser = this.joinRoom(args.roomId, socket);
 
-        this.joinRoom(roomId, socket);
+        if (typeof args.nickname !== "string") return; // no nickname specified
+        if (!["string", "undefined"].includes(typeof args.gravatar)) return;
+        newUser.updateNickname(args.nickname, args.gravatar);
     }
-
 }
 
 export class Room {
@@ -104,13 +110,13 @@ export class Room {
         return {
             id: this.id,
             media: this.media,
-            users: Array.from(this.users.values(), x => x.serialize())
-        }
+            users: Array.from(this.users.values(), (x) => x.serialize()),
+        };
     }
 
     public join(socket: Socket): User {
         socket.join(this.id);
-        const user = new User(socket, this)
+        const user = new User(socket, this);
         this.users.set(socket.id, user);
 
         //notify the other users
@@ -134,7 +140,7 @@ export class Room {
 
         if (!user) return false;
 
-        user.socket.emit('kicked');
+        user.socket.emit("kicked");
         user.socket.disconnect(true);
         this.users.delete(id);
 
@@ -145,7 +151,7 @@ export class Room {
     public userDisconnect(id: string) {
         this.users.delete(id);
 
-        this.roomManager.emit('roomleave', this, id); //TODO: maybe make `Room` an EventEmitter too?
+        this.roomManager.emit("roomleave", this, id); //TODO: maybe make `Room` an EventEmitter too?
 
         if (id == this.owner) this.owner = this.users.keys().next().value;
 
@@ -158,11 +164,11 @@ export class Room {
     }
 
     public syncRoom() {
-        this.roomManager.io.to(this.id).emit('updateroom', this.serialize());
+        this.roomManager.io.to(this.id).emit("updateroom", this.serialize());
     }
 
     public sync() {
-        this.roomManager.io.to(this.id).emit('sync', this.status);
+        this.roomManager.io.to(this.id).emit("sync", this.status);
     }
 
     constructor(id: string, roomManager: RoomManager, creator: Socket) {
@@ -171,13 +177,15 @@ export class Room {
         this.users = new Map<string, User>();
 
         if (isChristmas())
-            this.media = { type: 'cdn', src: 'https://s3.eu-central-1.wasabisys.com/cdn.femboy.si/padoru.webm' }
-        else
-            this.media = { type: 'offline', src: '' };
+            this.media = {
+                type: "cdn",
+                src: "https://s3.eu-central-1.wasabisys.com/cdn.femboy.si/padoru.webm",
+            };
+        else this.media = { type: "offline", src: "" };
 
-        this.status = { status: 'PAUSED', timestamp: 0 };
+        this.status = { status: "PAUSED", timestamp: 0 };
 
-        this.owner = creator.id;// we set the id but don't create the user
+        this.owner = creator.id; // we set the id but don't create the user
     }
 }
 
@@ -192,7 +200,6 @@ export class User {
     private lastNickChange: number;
 
     private get isAdmin(): boolean {
-
         return this.id === this.room.owner;
     }
 
@@ -200,9 +207,9 @@ export class User {
         return {
             id: this.id,
             nickname: this.name,
-            role: this.isAdmin ? 'admin' : 'user',
-            pfp: `https://www.gravatar.com/avatar/${this.gravatarHash}?d=retro&s=128`
-        }
+            role: this.isAdmin ? "admin" : "user",
+            pfp: `https://www.gravatar.com/avatar/${this.gravatarHash}?d=retro&s=128`,
+        };
     }
 
     constructor(socket: Socket, room: Room) {
@@ -211,66 +218,76 @@ export class User {
 
         this.room = room;
 
-
         this.lastMessage = Date.now() - MESSAGE_COOLDOWN;
         this.lastNickChange = Date.now() - RENAME_COOLDOWN; //make sure we can do everything right away
 
         this.name = `Anon#${this.id.substr(0, 5)}`;
-        this.gravatarHash = createHash('md5').update(this.name.toLowerCase()).digest('hex')
+        this.gravatarHash = createHash("md5")
+            .update(this.name.toLowerCase())
+            .digest("hex");
 
-        this.socket.on('msg', (args) => this.msg(args));
-        this.socket.on('promote', (args) => this.promote(args));
-        this.socket.on('changenick', (args) => this.changeNick(args));
-        this.socket.on('changemedia', (args) => this.changeMedia(args));
-        this.socket.on('kick', (args) => this.kick(args));
-        this.socket.on('sync', (args) => this.sync(args));
+        this.socket.on("msg", (args) => this.msg(args));
+        this.socket.on("promote", (args) => this.promote(args));
+        this.socket.on("changenick", (args) => this.changeNick(args));
+        this.socket.on("changemedia", (args) => this.changeMedia(args));
+        this.socket.on("kick", (args) => this.kick(args));
+        this.socket.on("sync", (args) => this.sync(args));
 
-        this.socket.on('disconnect', (args) => this.disconnect(args));
+        this.socket.on("disconnect", (args) => this.disconnect(args));
 
-        this.socket.emit('joinroom', this.room.serialize());
-        this.socket.emit('sync', this.room.status);
+        this.socket.emit("joinroom", this.room.serialize());
+        this.socket.emit("sync", this.room.status);
     }
 
     private msg(args: any) {
-
-
-        if (typeof (args.text) !== 'string') return;
+        if (typeof args.text !== "string") return;
         if (Date.now() - this.lastMessage < 2_000) return; //sending too fast
         //TODO: max length check
 
         this.lastMessage = Date.now();
-        this.room.roomManager.io.to(this.room.id).emit('msg', { username: this.name, text: args.text });
+        this.room.roomManager.io
+            .to(this.room.id)
+            .emit("msg", { username: this.name, text: args.text });
     }
 
     private promote(args: any) {
-
-
-        if (typeof (args.target) !== 'string') return; //invalid params
+        if (typeof args.target !== "string") return; //invalid params
         if (this.id !== this.room.owner) return; //no perms
 
         if (!this.room.promote(args.target)) return; //no such user or something
         //sucess!
     }
-    private changeNick(args: any) {
-        if (typeof (args.nickname) !== 'string') return; //invalid params
-        if (!['string', 'undefined'].includes(typeof (args.gravatar))) return;
-        if (args.nickname.length > 24 || args.nickname.length < 3) return; //invalid nick
-        if (Date.now() - this.lastNickChange < 60_000) return; //too fast
 
-        this.name = args.nickname;
+    private changeNick(args: any) {
+        console.log({ args });
+        if (typeof args.nickname !== "string") return; //invalid params
+        if (!["string", "undefined"].includes(typeof args.gravatar)) return;
+        if (Date.now() - this.lastNickChange < 60_000)
+            return this.socket.emit("msg", {
+                username: "⚙️ System",
+                text: "You may only update your nickname once per minute.",
+            }); //too fast
 
         this.lastNickChange = Date.now();
 
-        let gravatarInput: string = args.gravatar ?? args.nickname;
-        this.gravatarHash = createHash('md5').update(gravatarInput.trim().toLowerCase()).digest('hex');
+        this.updateNickname(args.nickname, args.gravatar);
+    }
+
+    public updateNickname(nickname: string, gravatar?: string) {
+        if (nickname.length > 24 || nickname.length < 3) return; //invalid nick
+
+        this.name = nickname;
+
+        let gravatarInput: string = gravatar ?? nickname;
+        this.gravatarHash = createHash("md5")
+            .update(gravatarInput.trim().toLowerCase())
+            .digest("hex");
 
         this.room.syncRoom();
     }
 
     private kick(args: any) {
-
-
-        if (typeof (args.target) !== 'string') return; //invalid params
+        if (typeof args.target !== "string") return; //invalid params
         if (this.id !== this.room.owner) return; //no perms
 
         if (!this.room.kick(args.target)) return; //no such user or something
@@ -278,15 +295,16 @@ export class User {
 
     private async changeMedia(args: any) {
         if (!this.isAdmin) return;
-        if (typeof (args.src) !== 'string' && typeof (args.type) !== 'string') return;
-        if (!['youtube-search', 'cdn'].includes(args.type)) return;
+        if (typeof args.src !== "string" && typeof args.type !== "string")
+            return;
+        if (!["youtube-search", "cdn"].includes(args.type)) return;
 
         try {
             switch (args.type) {
-                case 'youtube-search':
+                case "youtube-search":
                     if (!(await yt.test(args.src)).title) return;
                     break;
-                case 'cdn':
+                case "cdn":
                     if (!(await cdn.test(args.src)).valid) return;
                     break;
                 default:
@@ -298,28 +316,28 @@ export class User {
 
         //media is valid
         this.room.media = args;
-        this.room.roomManager.emit('roomsourcechanged', this.room);
+        this.room.roomManager.emit("roomsourcechanged", this.room);
         this.room.syncRoom();
     }
 
     private sync(args: any) {
         if (!this.isAdmin) return; //no perms
-        if (typeof args !== 'object') return; //invalid params
+        if (typeof args !== "object") return; //invalid params
         switch (args.status) {
-            case 'PLAYING':
-
-                if (typeof args.offset !== "number") return
-                this.room.status = { status: 'PLAYING', offset: args.offset }
+            case "PLAYING":
+                if (typeof args.offset !== "number") return;
+                this.room.status = { status: "PLAYING", offset: args.offset };
                 this.room.sync();
                 break;
-            case 'PAUSED':
-
-                if (typeof args.timestamp !== "number") return
-                this.room.status = { status: 'PAUSED', timestamp: args.timestamp }
+            case "PAUSED":
+                if (typeof args.timestamp !== "number") return;
+                this.room.status = {
+                    status: "PAUSED",
+                    timestamp: args.timestamp,
+                };
                 this.room.sync();
                 break;
         }
-
     }
 
     private disconnect(args: any) {
@@ -328,7 +346,7 @@ export class User {
 }
 
 interface MediaSync {
-    status: 'PLAYING' | 'PAUSED',
-    offset?: number,
-    timestamp?: number
+    status: "PLAYING" | "PAUSED";
+    offset?: number;
+    timestamp?: number;
 }

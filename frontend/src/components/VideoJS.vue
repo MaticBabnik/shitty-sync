@@ -1,7 +1,7 @@
 <template>
     <div class="video-container">
         <div class="no-media" v-if="noSource">
-            <img src="@/assets/warn.svg"/>
+            <img src="@/assets/warn.svg" />
             <h2>No source</h2>
         </div>
         <!-- Video gets created here -->
@@ -11,7 +11,7 @@
 <script>
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
-import "@/assets/vjs.orange.css";
+import "@/assets/vjs.new.css";
 import "videojs-youtube";
 import "videojs-contrib-dash";
 
@@ -63,6 +63,9 @@ export default {
 
             this.options.userActions.hotkeys = this.customOptions.admin;
             this.player = videojs(video, this.options);
+
+            this.player.defaultPlaybackRate(1);
+            this.player.playbackRate(1);
 
             const localVolume = localStorage.getItem("playerVolume");
             if (!localVolume) localStorage.setItem("playerVolume", 0.5);
@@ -116,9 +119,11 @@ export default {
         },
 
         seek(cur) {
+            this.player.playbackRate(1);
             this.player.currentTime(cur);
         },
         play(cur) {
+            this.player.playbackRate(1);
             if (cur) this.player.play();
             else this.player.pause();
         },
@@ -164,7 +169,7 @@ export default {
         width: 100%;
         height: 100%;
     }
-    
+
     .no-media {
         user-select: none;
         z-index: 100;
@@ -174,12 +179,12 @@ export default {
         font-size: 1.5rem;
         padding-left: 3rem;
 
-        display:flex;
+        display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         h2 {
-            margin:0;
+            margin: 0;
         }
     }
 }

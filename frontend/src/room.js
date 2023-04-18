@@ -10,6 +10,7 @@ import { io } from "socket.io-client";
 import util from "@/util";
 import constants from "@/constants";
 import { waitFor, delay } from "@/async-utils";
+import { join } from "path";
 
 export default {
     data() {
@@ -87,7 +88,7 @@ export default {
         promote(id) {
             this.socket.emit("promote", { target: id });
         },
-        changeNick(newNick,gravatar) {
+        changeNick(newNick, gravatar) {
             this.socket.emit("changenick", { nickname: newNick, gravatar });
         },
         async ping() {
@@ -110,7 +111,7 @@ export default {
                         this.addMessage({
                             type: 2,
                             username: "Sync",
-                            text: "No, fuck you."
+                            text: "No, fuck you.",
                         });
                         return;
                 }
@@ -253,7 +254,17 @@ export default {
             this.debug.timeError = await waitFor(this.socket, "testtime");
 
             this.status = "Getting room info";
-            this.socket.emit("joinroom", this.$route?.params?.id ?? "");
+
+            const joinargs = { roomId: this.$route?.params?.id };
+            const username = localStorage.getItem("username") ?? undefined;
+            const gravatar = localStorage.getItem("gravatar") ?? undefined;
+
+            if (username) {
+                joinargs.nickname = username;
+                joinargs.gravatar = gravatar;
+            }
+
+            this.socket.emit("joinroom", joinargs);
 
             const roomdata = await waitFor(this.socket, "joinroom");
             this.updateRoom(roomdata);
@@ -267,12 +278,6 @@ export default {
             this.roomReady = true;
             this.intervals.push(setInterval(this.watchdog, 100));
             document.title = `Sync | ${roomCode}`;
-
-            let username = localStorage.getItem("username") ?? undefined;
-            let gravatar = localStorage.getItem("gravatar") ?? undefined;
-            if (username) {
-                this.changeNick(username,gravatar);
-            }
 
             if (this.debug.isDev) requestAnimationFrame(this.time);
         },
@@ -299,7 +304,7 @@ export default {
                 }
                 const delta = Math.abs(
                     this.$refs.vjsContainer.player.currentTime() -
-                    (this.getTimeSeconds() - this.syncState.offset)
+                        (this.getTimeSeconds() - this.syncState.offset)
                 );
                 if (delta > constants.desyncTolerance) {
                     console.warn(`[WD] Player sync failing (delta =${delta})`);
@@ -317,7 +322,7 @@ export default {
 
                 const delta = Math.abs(
                     this.$refs.vjsContainer.player.currentTime() -
-                    this.syncState.timestamp
+                        this.syncState.timestamp
                 );
                 if (delta > constants.desyncTolerance) {
                     console.warn(
@@ -349,13 +354,15 @@ export default {
                     const media = {
                         type: data[2],
                         src: data[3],
-                    }
+                    };
 
                     this.messages.push({
                         type: 2,
                         username: "System",
-                        text: `Media changed from ${data[4] ?? 'unknown origin'}`,
-                    },)
+                        text: `Media changed from ${
+                            data[4] ?? "unknown origin"
+                        }`,
+                    });
 
                     this.socket.emit("changemedia", media);
                     break;
@@ -383,7 +390,7 @@ export default {
             window.worker.port.onmessage = (e) => this.handleMessage(e);
     },
     beforeUnmount() {
-        if (window.worker.port) window.worker.port.onmessage = () => { };
+        if (window.worker.port) window.worker.port.onmessage = () => {};
 
         this.socket.disconnect();
         this.intervals.forEach((x) => clearInterval(x));
