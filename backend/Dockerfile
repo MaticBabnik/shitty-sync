@@ -1,18 +1,4 @@
-FROM node:14 as build-frontend
-
-RUN apt install git
-
-COPY . /app
-
-WORKDIR /app/frontend
-
-RUN chmod +x setvars.sh
-
-RUN npm i && npm run build
-
-FROM node:14 as base
-
-COPY --from=build-frontend /app/frontend/dist /app/frontend/dist
+FROM node:18 as base
 
 WORKDIR /app
 
@@ -21,14 +7,14 @@ COPY ./package.json .
 COPY ./tsconfig.json .
 
 RUN npm i
+RUN npx tsc
 
-FROM node:14 as run
+
+FROM node:18 as run
 
 COPY --from=base /app /app
 
 WORKDIR /app
-
-RUN npx tsc
 
 # default args
 ARG PORT=8080

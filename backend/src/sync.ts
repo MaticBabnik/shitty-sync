@@ -1,12 +1,9 @@
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { MESSAGE_COOLDOWN, RENAME_COOLDOWN, roomRegex } from "./constants";
 import * as cdn from "./video-sources/cdn";
 import * as yt from "./video-sources/youtube";
 import { EventEmitter } from "events";
-import e from "cors";
 import { createHash } from "crypto";
-import { type } from "os";
-import { urlToHttpOptions } from "url";
 
 export type MediaType = "cdn" | "yt-search" | "offline";
 export interface Media {
@@ -39,14 +36,14 @@ function isChristmas(): boolean {
 }
 
 export class RoomManager extends EventEmitter {
-    public io: Socket;
+    public io: Server;
     private rooms: Map<string, Room>;
 
-    constructor(io: Socket, options?: any) {
+    constructor(io: Server, options?: any) {
         super();
         this.rooms = new Map<string, Room>();
         this.io = io;
-        io.on("connect", (socket) => {
+        io.on("connect", (socket: Socket) => {
             socket.on("ping", (args: any) => this.ping(socket, args));
             socket.on("synctime", (args: any) => this.synctime(socket, args));
             socket.on("testtime", (args: any) => this.testtime(socket, args));

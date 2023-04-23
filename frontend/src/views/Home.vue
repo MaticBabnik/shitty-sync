@@ -115,7 +115,8 @@ button {
     padding: 10px;
 
     color: @text;
-    opacity: 75%;
+
+    opacity: 0.8;
 
     a {
         color: @accent;
