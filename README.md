@@ -20,36 +20,36 @@ endpoint.
 
 ## 🌳Environment variables
 
-var            | Description
--------------- | -----------
-`PORT`         | Webserver port, defaults to 8080
-`PORT_METRICS` | Prometheus `/metrics` port, defaults to 9090 and should not be the same as PORT
-`NO_METRICS`   | Disables metrics if set to a [truthy value](https://developer.mozilla.org/en-US/docs/Glossary/Truthy)
+| var            | Description                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------------- |
+| `PORT`         | Webserver port, defaults to 8080                                                                      |
+| `PORT_METRICS` | Prometheus `/metrics` port, defaults to 9090 and should not be the same as PORT                       |
+| `NO_METRICS`   | Disables metrics if set to a [truthy value](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) |
 
 ## Deploying using 🐳 Docker:
 
 1. Pull the image:
 
-  ```bash
-  docker pull weebify/shitty-sync:latest
-  ```
+```bash
+docker pull weebify/shitty-sync:latest
+```
 
 2. Run the container:
 
-  ```bash
-  docker run -p 8080:8080 -p 9090:9090 shitty-sync:latest
-  ```
+```bash
+docker run -p 8080:8080 -p 9090:9090 shitty-sync:latest
+```
 
 ## 🛠️ Development
 
-- Run `npm run dev` in both the root and `frontend` folder
+-   Run `npm run dev` in both the root and `frontend` folder
 
-- To build locally with Docker, execute:
+-   To build locally with Docker, execute:
 
-  ```bash
-  $ docker build --target=run -t shitty-sync .
-  $ docker run -p 8080:8080 -p 9090:9090 shitty-sync:latest
-  ```
+    ```bash
+    $ docker build --target=run -t shitty-sync .
+    $ docker run -p 8080:8080 -p 9090:9090 shitty-sync:latest
+    ```
 
 ## ↪️Contributing
 

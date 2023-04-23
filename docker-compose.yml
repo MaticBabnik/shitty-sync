@@ -1,0 +1,21 @@
+version: "3"
+services:
+
+  frontend:
+    image: ghcr.io/maticbabnik/shitty-sync-frontend:latest
+    build:
+      context: .
+      dockerfile: frontend.dockerfile
+    ports:
+      - "8001:8001"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    image: ghcr.io/maticbabnik/shitty-sync-backend:latest
+    build: ./backend
+    expose:
+      - "8080"
+      - "9090"
+    restart: unless-stopped
