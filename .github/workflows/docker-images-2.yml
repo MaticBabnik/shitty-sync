@@ -30,6 +30,10 @@ jobs:
         id: meta-frontend
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
+          flavor: |
+            latest=true
+            prefix=
+            suffix=
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_BASENAME }}-frontend
 
       - name: Build and push frontend
@@ -38,15 +42,17 @@ jobs:
           context: .
           file: frontend.dockerfile
           push: true
-          tags: |
-            latest 
-            ${{ steps.meta-frontend.outputs.tags }}
+          tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
 
       - name: Metadata for backend
         id: meta-backend
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
+          flavor: |
+            latest=true
+            prefix=
+            suffix=
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_BASENAME }}-backend
 
       - name: Build and push backend
@@ -55,7 +61,5 @@ jobs:
           context: backend
           file: backend/Dockerfile
           push: true
-          tags: |
-            latest 
-            ${{ steps.meta-backend.outputs.tags }}
+          tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
