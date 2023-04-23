@@ -21,7 +21,7 @@ if (process.env.EXPRESS_STATIC) {
     //history for vue
     app.use(history());
     //vue frontend
-    app.use("/", express.static("./frontend/dist"));
+    app.use("/", express.static("../frontend/dist"));
 }
 
 const http = new Server(app);
