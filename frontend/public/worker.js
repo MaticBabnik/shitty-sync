@@ -6,15 +6,15 @@ function broadcast(message) {
     });
 }
 
-onconnect = function (e) {
-    var port = e.ports[0];
+//TODO: find out how to fix this
+// eslint-disable-next-line no-undef
+onconnect = (e) => {
+    const port = e.ports[0];
     allPorts.push(port);
 
-    port.addEventListener('message', function (e) {
-        var message = e.data;
-        
-        console.log({message});
-
+    port.addEventListener('message', (e) => {
+        const message = e.data;
+        console.log({ message });
         broadcast(message);
     });
 

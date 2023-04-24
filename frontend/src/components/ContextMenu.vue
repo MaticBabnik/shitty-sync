@@ -1,110 +1,109 @@
 <template>
-    <div class="ctx-menu-body" ref="menu" :style="`left:${left}px; top:${top + offset}px;`">
-        <div
-            v-for="item in items"
-            :key="item.name"
-            :class="`child ${item.enabled ? '' : 'disabled'}`"
-            @click="(a)=>emitIfEnabled(a,item)"
-        >
-            <icon file="/icons.svg" :name="item.icon" />
-            {{ item.text }}
-        </div>
+  <div class="ctx-menu-body" ref="menu" :style="`left:${left}px; top:${top + offset}px;`">
+    <div
+      v-for="item in items"
+      :key="item.name"
+      :class="`child ${item.enabled ? '' : 'disabled'}`"
+      @click="(a) => emitIfEnabled(a, item)"
+    >
+      <s-icon file="/icons.svg" :name="item.icon" />
+      {{ item.text }}
     </div>
+  </div>
 </template>
 
 <script>
-import Icon from "./Icon.vue";
+import SIcon from './SIcon.vue'
 export default {
-    components: { Icon },
-    props: {
-        items: {
-            type: Array,
-            required: false,
-        },
-        left: {
-            type: Number,
-            required: false,
-            default: 0,
-        },
-        top: {
-            type: Number,
-            required: false,
-            default: 0,
-        },
+  components: { SIcon },
+  props: {
+    items: {
+      type: Array,
+      required: false
     },
-    $refs: {
-        menu: HTMLDivElement,
+    left: {
+      type: Number,
+      required: false,
+      default: 0
     },
-    methods: {
-        emitIfEnabled (e,item) {
-            if (item.enabled) {
-                this.$emit('action',item.name);
-            }
-        }
-    },
-    mounted() {
-        // it finally works
-        // lesgoooooo
-        this.$nextTick(() => {
-            this.offset = - this.$refs.menu.clientHeight;
-            this.$forceUpdate();
-        });
-    },
-    data() {
-        return {
-            offset: 0,
-        };
-    },
-};
+    top: {
+      type: Number,
+      required: false,
+      default: 0
+    }
+  },
+  $refs: {
+    menu: HTMLDivElement
+  },
+  methods: {
+    emitIfEnabled(e, item) {
+      if (item.enabled) {
+        this.$emit('action', item.name)
+      }
+    }
+  },
+  mounted() {
+    // it finally works
+    // lesgoooooo
+    this.$nextTick(() => {
+      this.offset = -this.$refs.menu.clientHeight
+      this.$forceUpdate()
+    })
+  },
+  data() {
+    return {
+      offset: 0
+    }
+  }
+}
 </script>
 
 <style lang="less">
-@import url("@/assets/theme.less");
+@import url('@/assets/theme.less');
 
 .ctx-menu-body {
+  display: flex;
+  flex-direction: column;
+
+  background-color: @background;
+  border: 2px solid @background-light;
+  border-radius: 5px;
+
+  box-shadow: black 0px 0px 7px 0px;
+
+  .child {
     display: flex;
-    flex-direction: column;
+    user-select: none;
+    padding: 2px;
+    margin: 0;
+    line-height: 24px;
 
-    background-color: @background;
-    border: 2px solid @background-light;
-    border-radius: 5px;
+    color: @text;
 
-    box-shadow: black 0px 0px 7px 0px;
-
-    .child {
-        display: flex;
-        user-select: none;
-        padding: 2px;
-        margin: 0;
-        line-height: 24px;
-
-        color: @text;
-
-        svg {
-            fill: @accent;
-        }
-
+    svg {
+      fill: @accent;
     }
-    .child:hover {
-        background-color: @primary;
-        color:@background;
-        svg{
-            fill: @background;
-        }
+  }
+  .child:hover {
+    background-color: @primary;
+    color: @background;
+    svg {
+      fill: @background;
     }
-    .disabled {
-        color: @background-light;
+  }
+  .disabled {
+    color: @background-light;
 
-        svg {
-            fill: @background-light;
-        }
+    svg {
+      fill: @background-light;
     }
-    .disabled:hover {
-        background-color: @background-light;
-        color:@background;
-        svg{
-            fill: @background;
-        }
+  }
+  .disabled:hover {
+    background-color: @background-light;
+    color: @background;
+    svg {
+      fill: @background;
     }
+  }
 }
 </style>

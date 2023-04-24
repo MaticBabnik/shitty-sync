@@ -7,20 +7,20 @@ import { createWorker } from './worker-client'
 import '@/assets/main.less'
 
 //THEME
-const root = document.querySelector('html');
-const theme = localStorage.getItem('theme');
+const root = document.querySelector('html')
+const theme = localStorage.getItem('theme')
 
 if (['dark', 'light'].includes(theme)) {
-    root.dataset['theme'] = theme;
+  root.dataset['theme'] = theme
 } else {
-    localStorage.setItem('theme', 'dark');
-    root.dataset['theme'] = 'dark';
+  localStorage.setItem('theme', 'dark')
+  root.dataset['theme'] = 'dark'
 }
 
-const app = createApp(App);
+const app = createApp(App)
 
-window.worker = createWorker();
+window.worker = createWorker()
 
-app.use(router);
-app.mount('#app');
+app.use(router)
+app.mount('#app')
 console.log('%c Shitty Sync ', 'color: #FF8C00; font-size: 48px; text-shadow: #FC0 0 0 10px;')

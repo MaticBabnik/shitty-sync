@@ -1,7 +1,6 @@
-node_modules
-dist
-.idea
-.env
-package-lock.json
-.env
-out
+**/node_modules
+**/dist
+**/out
+**/.env
+**/package-lock.json
+**/.env
