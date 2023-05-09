@@ -1,58 +1,52 @@
-import {
-    createRouter,
-    createWebHistory,
-    isNavigationFailure,
-} from "vue-router";
-import NRoom from "@/views/Room.vue";
-import NotFound from "@/views/Errors/NotFound.vue";
-import Home from "@/views/Home.vue";
-import Emotes from "@/views/emotes.vue";
+import { createRouter, createWebHistory, isNavigationFailure } from 'vue-router'
+import NotFound from '@/views/Errors/NotFoundView.vue'
 
 const routes = [
-    {
-        path: "/",
-        name: "Home",
-        component: Home,
-        meta: {
-            title: "Sync",
-        },
-    },
-    {
-        path: "/room/:id/",
-        name: "Room",
-        component: NRoom,
-        meta: {
-            title: "Sync | Room",
-        },
-    },
-    {
-        path: "/:pathMatch(.*)*",
-        name: "NotFound",
-        component: NotFound,
-        meta: {
-            title: "Not found",
-        },
-    },
-    {
-        path: "/emotes/",
-        name: "emotes",
-        component: Emotes,
-        meta: {
-            title: "Emotes",
-        },
-    },
-];
+  {
+    path: '/',
+    name: 'Home',
+    component: () => import('@/views/HomeView.vue'),
+    meta: {
+      title: 'Sync'
+    }
+  },
+  {
+    path: '/room/:id/',
+    name: 'Room',
+    component: () => import('@/views/RoomView.vue'),
+    meta: {
+      title: 'Sync | Room'
+    }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
+    meta: {
+      title: 'Not found'
+    }
+  },
+  {
+    // '/emotes' doesn't play nicely with nginx
+    path: '/emote-list',
+    name: 'emotes',
+    component: () => import('@/views/EmotesView.vue'),
+    meta: {
+      title: 'Emotes'
+    }
+  }
+]
 
 const router = createRouter({
-    history: createWebHistory(),
-    mode: "history",
-    routes,
-});
+  history: createWebHistory(),
+  mode: 'history',
+  routes
+})
 
 router.afterEach((to, from, fail) => {
-    if (!isNavigationFailure(fail)) {
-        document.title = to.meta.title;
-    }
-});
+  if (!isNavigationFailure(fail)) {
+    document.title = to.meta.title
+  }
+})
 
-export default router;
+export default router

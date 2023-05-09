@@ -62,7 +62,7 @@
         <h2>UI</h2>
         <section>
             <h3>List tabs</h2>
-                <button onclick="query()">Fetch tabs</button>
+                <button id="querybtn">Fetch tabs</button>
                 <ul id="list">
 
                 </ul>
@@ -78,7 +78,7 @@
                 </select>
                 Link:
                 <input type="text" name="link" id="link">
-                <button onclick="sendTabSwitch()">Send</button>
+                <button id="sendbtn">Send</button>
         </section>
     </section>
     <section>
@@ -112,75 +112,7 @@
         </section>
     </section>
 
-    <script>
-        // Worker API code
-        const worker = new SharedWorker('worker.js');
-
-        function collectResponses(port, type) {
-            return new Promise((resolve) => {
-                const responses = [];
-                const handler = (e) => {
-                    const { data } = e;
-                    if (data[0] == type)
-                        responses.push(data);
-                };
-
-                let a = port.addEventListener("message", handler);
-                port.start();
-                setTimeout(() => {
-                    port.removeEventListener("message", handler)
-                    resolve(responses)
-                }, 10);
-            })
-        }
-
-        function switchTab(roomId, type, link, origin) {
-            worker.port.postMessage(["setmedia", roomId, type, link, origin]);
-        }
-
-        async function getAdminRooms() {
-            worker.port.postMessage(["discovery"]);
-            return (await collectResponses(worker.port, "alive")).map(([type, id]) => id);
-        }
-
-        // UI events
-
-        async function query() {
-            const listEl = document.getElementById("list");
-            const rooms = await getAdminRooms();
-            const html = rooms.map(id => `<li>${id}</li>`).join('\n');
-            listEl.innerHTML = html
-        }
-
-        function sendTabSwitch() {
-            const args = ['id', 'type', 'link'].map(id => document.getElementById(id).value);
-            switchTab(...args, (new URL(window.origin)).host);
-        }
-
-        // postMessage API
-        window.onmessage = async (ev) => {
-            const { data, source, origin } = ev;
-
-            if (!Array.isArray(data)) return;
-            switch (data[0]) {
-
-                case "getrooms":
-                    const rooms = await getAdminRooms();
-                    source.postMessage(['roomsreply', rooms],'*');
-                    break;
-
-                case "setmedia":
-                    if (
-                        typeof data[1] !== 'string' ||
-                        !['cdn', 'youtube-link'].includes(data[2]) ||
-                        typeof data[3] !== 'string'
-                    ) return;
-                    switchTab(data[1], data[2], data[3], (new URL(origin)).host);
-                    break;
-            }
-
-        }
-    </script>
+    <script src="./src/frame-api.js" type="module"></script>
 </body>
 
 </html>

@@ -1,8 +1,16 @@
-# Shitty Sync
+# Sync
 
 [![Docker Image CI](https://github.com/MaticBabnik/shitty-sync/actions/workflows/docker-images.yml/badge.svg)](https://github.com/MaticBabnik/shitty-sync/actions/workflows/docker-images.yml)
 
-A (somewhat) shitty way to sync videos with your friends.
+A web app for group watching videos.
+
+Currently supported sources:
+
+-   Youtube
+-   Plain video files\*
+-   MPEG DASH videos\*
+
+\* as long as they are hosted publicly and can be accessed cross-origin
 
 Live @ [**sync.si**](https://sync.si/)!
 
