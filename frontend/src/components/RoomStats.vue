@@ -25,7 +25,6 @@
     <br />
     <span>Build info </span>
     <span>---------------------------------------</span>
-    <span>Built from: fubuki-fanclub/shitty-sync</span>
     <span>Branch: {{ branch ?? 'error' }}</span>
     <span>Commit: {{ commit ?? 'error' }}</span>
   </div>

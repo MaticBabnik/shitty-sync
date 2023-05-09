@@ -1,4 +1,4 @@
-FROM node:14 as getenv
+FROM node:18 as getenv
 RUN apt install git
 
 COPY .git /app/.git
@@ -10,7 +10,7 @@ RUN chmod +x /app/setvars.sh
 RUN /app/setvars.sh
 RUN cat .env
 
-FROM node:14 as build-frontend
+FROM node:18 as build-frontend
 
 COPY frontend /frontend
 COPY --from=getenv /app/.env /frontend

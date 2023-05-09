@@ -10,6 +10,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  build: {
+    rollupOptions: {
+      input: {
+        app: fileURLToPath(new URL('./index.html', import.meta.url)),
+        frameApi: fileURLToPath(new URL('./frame-api.html', import.meta.url))
+      }
+    }
+  },
   server: {
     proxy: {
       '^/(cdn|youtube)/.*': 'http://localhost:8080',

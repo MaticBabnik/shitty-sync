@@ -66,7 +66,7 @@ export function sort(array) {
   return array.sort((a, b) => (a > b ? 1 : -1))
 }
 export function ignoreWorst(array) {
-  return this.sort(array).splice(2, array.length - 4)
+  return sort(array).splice(2, array.length - 4)
 }
 export async function checkAutoplay() {
   const v = document.createElement('video')

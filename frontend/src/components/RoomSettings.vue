@@ -20,21 +20,21 @@
         />
         <div class="results" v-if="!selectedSource">
           <div class="item" v-if="options.includes('youtube-link')" @click="doYoutube">
-            <icon file="/icons.svg" name="youtube" />
+            <s-icon file="/icons.svg" name="youtube" />
             Youtube link
           </div>
           <div class="item" v-if="options.includes('cdn')" @click="doCdn">
-            <icon file="/icons.svg" name="cdn" />CDN file
+            <s-icon file="/icons.svg" name="cdn" />CDN file
           </div>
           <div class="item" v-if="options.includes('youtube-search')" @click="doSearch">
-            <icon file="/icons.svg" name="search" />Search for "{{ query }}"
+            <s-icon file="/icons.svg" name="search" />Search for "{{ query }}"
           </div>
           <div class="item" v-if="isDev" @click="doDebugCDN">
-            <icon file="/icons.svg" name="debug" />
+            <s-icon file="/icons.svg" name="debug" />
             Test CDN file
           </div>
           <div class="item" v-if="isDev" @click="doDebugYT">
-            <icon file="/icons.svg" name="debug" />
+            <s-icon file="/icons.svg" name="debug" />
             Test YT
           </div>
         </div>

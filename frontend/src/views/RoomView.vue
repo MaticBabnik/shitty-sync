@@ -99,7 +99,7 @@ export default {
   data() {
     return {
       branch: import.meta.env['VITE_BRANCH'] ?? 'unknown',
-      commit: (import.meta.env['VITE_COMMIT'] ?? 'unknown').substr(0, 7),
+      commit: (import.meta.env['VITE_COMMIT'] ?? 'unknown').substring(0, 7),
       showScrollToBottom: false
     }
   },
@@ -130,7 +130,6 @@ export default {
 
 .cm {
   position: absolute;
-  z-index: 3;
 }
 
 .l-overlay {

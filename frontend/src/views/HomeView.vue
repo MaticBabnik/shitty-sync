@@ -1,6 +1,9 @@
 <template>
   <div class="main">
-    <h1 class="title">Sync</h1>
+    <h1 class="title">
+      <img class="icon" src="@/assets/Icon.svg" />
+      Sync
+    </h1>
     <div class="text-btn">
       <input
         class="text"
@@ -33,7 +36,7 @@ export default {
   data() {
     return {
       branch: import.meta.env['VITE_BRANCH'] ?? 'unknown',
-      commit: (import.meta.env['VITE_COMMIT'] ?? 'unknown').substr(0, 7),
+      commit: (import.meta.env['VITE_COMMIT'] ?? 'unknown').substring(0, 7),
       date: import.meta.env['VITE_DATE']
     }
   },
@@ -67,6 +70,12 @@ button {
     color: @primary;
     font-size: 7rem;
     margin: 1rem;
+
+    .icon {
+      height: 6rem;
+      display: inline;
+      vertical-align: middle;
+    }
   }
 }
 

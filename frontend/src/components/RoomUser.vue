@@ -230,7 +230,6 @@ export default {
 
 .ctx-menu {
   position: absolute;
-  z-index: 5;
   width: fit-content;
   height: fit-content;
   left: 50%;

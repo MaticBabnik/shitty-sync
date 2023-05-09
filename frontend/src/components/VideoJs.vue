@@ -166,13 +166,11 @@ export default {
 
   .no-media {
     user-select: none;
-    z-index: 100;
     padding: 1rem;
-    // background: radial-gradient(#0000 50%, fade(@l-primary, 50%) 100%);
     background-color: @background-dark;
     font-size: 1.5rem;
     padding-left: 3rem;
-
+    z-index: 5;
     display: flex;
     flex-direction: column;
     justify-content: center;
