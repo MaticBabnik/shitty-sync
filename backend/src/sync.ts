@@ -239,12 +239,14 @@ export class User {
     private msg(args: any) {
         if (typeof args.text !== "string") return;
         if (Date.now() - this.lastMessage < 2_000) return; //sending too fast
-        //TODO: max length check
+
+        const text = args.text.trim();
+        if (text.length > 180) return; //too long
 
         this.lastMessage = Date.now();
         this.room.roomManager.io
             .to(this.room.id)
-            .emit("msg", { username: this.name, text: args.text });
+            .emit("msg", { username: this.name, text });
     }
 
     private promote(args: any) {
