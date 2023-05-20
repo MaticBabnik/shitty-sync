@@ -94,6 +94,7 @@ button {
     grid-template-areas: 'fl fl fr' 'ml main mr' 'bl news br';
 
     max-height: 100svh;
+    height: 100vh;
     overflow: hidden;
     max-width: 100%;
 }

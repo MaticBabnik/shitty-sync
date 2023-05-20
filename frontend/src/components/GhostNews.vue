@@ -33,11 +33,11 @@ fetchNews(props.baseUrl, props.apiKey, props.tag, props.limit)
         loading.value = false
     })
     .catch((err) => {
+        console.error({ newsError: err })
         error.value = true
         loading.value = false
     })
 
-//convert date to time ago
 function timeAgo(t) {
     const seconds = Math.floor((new Date() - new Date(t)) / 1000)
 
@@ -69,7 +69,7 @@ function timeAgo(t) {
 <template>
     <div class="news">
         <template v-if="loading">
-            <div class="loading">Loading...</div>
+            <div class="loading">News loading...</div>
         </template>
         <template v-else-if="error">
             <div class="error">Error loading news</div>
@@ -96,6 +96,21 @@ function timeAgo(t) {
 
 <style lang="less" scoped>
 @import url('@/assets/theme.less');
+.error,
+.loading {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.loading {
+    background-color: @background-light;
+}
+
+.error {
+    background-color: @error;
+    font-weight: bold;
+}
 
 .news {
     margin: 1rem 0;

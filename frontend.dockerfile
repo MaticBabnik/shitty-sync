@@ -1,7 +1,5 @@
 FROM node:18 as getenv
-ARG VITE_NEWS_BASE_URL="https://blog.babnik.io"
-ARG VITE_NEWS_API_KEY="df507f44712874951daebff6e9"
-ARG VITE_NEWS_TAG="sync"
+
 
 RUN apt install git
 
@@ -15,6 +13,9 @@ RUN /app/setvars.sh
 RUN cat .env
 
 FROM node:18 as build-frontend
+ARG VITE_NEWS_BASE_URL="https://blog.babnik.io"
+ARG VITE_NEWS_API_KEY="df507f44712874951daebff6e9"
+ARG VITE_NEWS_TAG="sync"
 
 COPY frontend /frontend
 COPY --from=getenv /app/.env /frontend
