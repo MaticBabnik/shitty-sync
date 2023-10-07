@@ -1,8 +1,7 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import morgan from "morgan";
 import { Server } from "http";
 import { Server as SocketIO } from "socket.io";
-import history from "connect-history-api-fallback";
 import chalk from "chalk";
 import prometheusClient, { register } from "prom-client";
 import registerVideoSources from "./video-sources";
@@ -15,17 +14,12 @@ if (!process.env.NO_METRICS) app.use(expressMetrics(app, register));
 
 app.use(morgan("dev"));
 registerVideoSources(app);
-
-if (process.env.EXPRESS_STATIC) {
-    console.log(chalk.yellowBright("Serving fronted with express static"));
-    //history for vue
-    app.use(history());
-    //vue frontend
-    app.use("/", express.static("../frontend/dist"));
-}
+app.use((err: any, req: any, res: any, next: any) => {
+    if (err) console.error(`Error @ ${req.url}`, err);
+});
 
 const http = new Server(app);
-const io = new SocketIO(http);
+const io = new SocketIO(http, { transports: ["websocket"] });
 
 const roomManager = new RoomManager(io);
 

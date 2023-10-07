@@ -1,21 +1,21 @@
 <template>
-  <div class="video-card">
-    <img :src="thumbnail" />
-    <div class="info">
-      <span class="title">{{ title }}</span>
-      <span class="author">{{ author }}</span>
+    <div class="video-card">
+        <img :src="thumbnail" />
+        <div class="info">
+            <span class="title">{{ title }}</span>
+            <span class="author">{{ author }}</span>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 export default {
-  props: {
-    title: { type: String, required: true },
-    author: { type: String, required: true },
-    thumbnail: { type: String, required: true },
-    url: { type: String, required: true }
-  }
+    props: {
+        title: { type: String, required: true },
+        author: { type: String, required: true },
+        thumbnail: { type: String, required: true },
+        url: { type: String, required: true }
+    }
 }
 </script>
 
@@ -23,34 +23,35 @@ export default {
 @import url('../assets/theme.less');
 
 .video-card {
-  display: flex;
-  flex-direction: row;
-  margin: 5px;
-  width: 350px;
+    .transition;
+    display: flex;
+    flex-direction: row;
+    margin: 5px;
+    width: 350px;
 
-  &:hover {
-    background: @background-light;
-  }
-
-  img {
-    width: 112px;
-    height: 62px;
-  }
-
-  .info {
-    padding-left: 5px;
-
-    .title {
-      color: @primary;
-      font-size: 0.7rem;
-      display: block;
-      word-wrap: break-word;
+    &:hover {
+        background: @background-light;
     }
-    .author {
-      color: @text;
-      font-size: 0.6rem;
-      display: block;
+
+    img {
+        width: 112px;
+        height: 62px;
     }
-  }
+
+    .info {
+        padding-left: 5px;
+
+        .title {
+            color: @primary;
+            font-size: 0.7rem;
+            display: block;
+            word-wrap: break-word;
+        }
+        .author {
+            color: @text;
+            font-size: 0.6rem;
+            display: block;
+        }
+    }
 }
 </style>

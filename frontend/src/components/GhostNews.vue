@@ -7,6 +7,10 @@ const news = ref('')
 const loading = ref(true)
 const error = ref(false)
 
+function forceImageSize(url, w) {
+    return url?.replace('/content/images/', `/content/images/size/w${w}/`)
+}
+
 //fetch new from ghost api
 async function fetchNews(baseUrl, key, tag, limit = 5) {
     const url = new URL(baseUrl)
@@ -27,6 +31,8 @@ async function fetchNews(baseUrl, key, tag, limit = 5) {
     news.value = data
 }
 
+// This is fine as it isn't really meant to be reactive
+// eslint-disable-next-line vue/no-setup-props-destructure
 fetchNews(props.baseUrl, props.apiKey, props.tag, props.limit)
     .then(() => {
         error.value = false
@@ -76,7 +82,7 @@ function timeAgo(t) {
         </template>
         <div class="articles-wrapper" v-else>
             <a
-                class="news-item"
+                class="news-item transition"
                 v-for="item in news.posts"
                 :key="item.id"
                 :href="item.url"
@@ -84,7 +90,10 @@ function timeAgo(t) {
                 rel="noopener noreferrer"
             >
                 <div class="img">
-                    <img :src="item.feature_image" :alt="item.feature_image_alt" />
+                    <img
+                        :src="forceImageSize(item.feature_image, 600)"
+                        :alt="item.feature_image_alt"
+                    />
                     <span class="time">{{ timeAgo(item.published_at) }}</span>
                 </div>
                 <span class="title">{{ item.title }} </span>
@@ -108,7 +117,7 @@ function timeAgo(t) {
 }
 
 .error {
-    background-color: @error;
+    background-color: fade(@error, 30%);
     font-weight: bold;
 }
 
@@ -156,6 +165,7 @@ function timeAgo(t) {
             }
 
             .description {
+                color: @text;
                 margin: 0;
             }
             .img {
@@ -174,8 +184,6 @@ function timeAgo(t) {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-
-                    image-rendering: optimizeQuality;
                 }
                 .time {
                     position: absolute;
