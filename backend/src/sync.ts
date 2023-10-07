@@ -1,13 +1,19 @@
 import { Server, Socket } from "socket.io";
 import { MESSAGE_COOLDOWN, RENAME_COOLDOWN, roomRegex } from "./constants";
-import * as cdn from "./video-sources/cdn";
+import * as url from "./video-sources/url";
 import * as yt from "./video-sources/youtube";
 import { EventEmitter } from "events";
 import { createHash } from "crypto";
 
-export type MediaType = "cdn" | "yt-search" | "offline";
+export enum PlayerMediaType {
+    none = "none",
+    video = "video",
+    youtube = "youtube",
+    dash = "dash",
+}
+
 export interface Media {
-    type: MediaType;
+    type: PlayerMediaType;
     src: string;
 }
 
@@ -175,10 +181,10 @@ export class Room {
 
         if (isChristmas())
             this.media = {
-                type: "cdn",
+                type: PlayerMediaType.video,
                 src: "https://s3.eu-central-1.wasabisys.com/cdn.femboy.si/padoru.webm",
             };
-        else this.media = { type: "offline", src: "" };
+        else this.media = { type: PlayerMediaType.none, src: "" };
 
         this.status = { status: "PAUSED", timestamp: 0 };
 
@@ -258,7 +264,6 @@ export class User {
     }
 
     private changeNick(args: any) {
-        console.log({ args });
         if (typeof args.nickname !== "string") return; //invalid params
         if (!["string", "undefined"].includes(typeof args.gravatar)) return;
         if (Date.now() - this.lastNickChange < 60_000)
@@ -296,25 +301,16 @@ export class User {
         if (!this.isAdmin) return;
         if (typeof args.src !== "string" && typeof args.type !== "string")
             return;
-        if (!["youtube-search", "cdn"].includes(args.type)) return;
+        if (!["youtube", "url"].includes(args.type)) return;
 
-        try {
-            switch (args.type) {
-                case "youtube-search":
-                    if (!(await yt.test(args.src)).title) return;
-                    break;
-                case "cdn":
-                    if (!(await cdn.test(args.src)).valid) return;
-                    break;
-                default:
-                    return;
-            }
-        } catch {
-            return;
-        }
+        const result = await (args.type == "url" ? url : yt).test(args.src);
+        if (!result.valid) return;
 
-        //media is valid
-        this.room.media = args;
+        this.room.media = {
+            src: args.src,
+            type: result.type,
+        };
+
         this.room.roomManager.emit("roomsourcechanged", this.room);
         this.room.syncRoom();
     }

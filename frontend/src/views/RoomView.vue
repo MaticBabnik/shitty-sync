@@ -2,7 +2,7 @@
     <div class="main" ref="main">
         <div class="content">
             <div class="media-container">
-                <video-js
+                <video-plyr
                     class="video"
                     id="video-main"
                     ref="vjsContainer"
@@ -79,7 +79,7 @@ import ChatMessage from '../components/ChatMessage.vue'
 import ShareButton from '../components/ShareButton.vue'
 import ThemeToggle from '../components/ThemeToggle.vue'
 import RoomUser from '../components/RoomUser.vue'
-import VideoJs from '../components/VideoJs.vue'
+import VideoPlyr from '../components/VideoPlyr.vue'
 import RoomStats from '../components/RoomStats.vue'
 
 import roomMixin from '@/room.js'
@@ -93,7 +93,7 @@ export default {
         ChatTextbox,
         ChatMessage,
         MediaPicker,
-        VideoJs,
+        VideoPlyr,
         RoomStats
     },
     data() {

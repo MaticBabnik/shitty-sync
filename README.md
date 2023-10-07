@@ -23,9 +23,12 @@ need I say more?
 
 ## Development
 
-1. Install the dependencies with `npm i` (in `backend` & `frontend` folder)
-2. Build the frontend in `frontend` with `npm run build`
-3. Run the server in `backend` with `EXPRESS_STATIC=1 npm run watch`
+> [!NOTE]
+> I use `bun`, but feel free to use any `npm` compatible-ish package manager
+
+1. Install the dependencies with `bun i` (in `backend` & `frontend` folder)
+2. Run the frontend in `frontend` with `bun run dev`
+3. Run the server in `backend` with `bun run watch`
 
 ## 📈 Metrics
 
@@ -34,12 +37,11 @@ endpoint.
 
 ## Backend Environment variables
 
-| var              | Description                                                                  |
-| ---------------- | ---------------------------------------------------------------------------- |
-| `PORT`           | Webserver port, defaults to 8080                                             |
-| `PORT_METRICS`   | Prometheus metrics port, defaults to 9090 and should not be the same as PORT |
-| `NO_METRICS`     | Disables metrics                                                             |
-| `EXPRESS_STATIC` | Serves the frontend, meant for development (doesn't work in the image)       |
+| var            | Description                                                                  |
+| -------------- | ---------------------------------------------------------------------------- |
+| `PORT`         | Webserver port, defaults to 8080                                             |
+| `PORT_METRICS` | Prometheus metrics port, defaults to 9090 and should not be the same as PORT |
+| `NO_METRICS`   | Disables metrics                                                             |
 
 ## Contributing
 

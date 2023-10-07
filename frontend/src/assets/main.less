@@ -33,17 +33,21 @@ body {
     padding: 0;
     margin: 0;
     overflow: none !important;
+    color: @text;
+}
+
+input {
+    color: @text;
 }
 
 * {
     font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: 0.2s ease background-color, 0.2s ease color, 0.2s ease border-color;
-    color: @text;
     -webkit-tap-highlight-color: #0000;
 }
 
 .icon {
     fill: @accent;
+    .transition;
 }
 
 .icon:hover {
@@ -74,6 +78,7 @@ input[type='text'].input:focus {
 }
 
 .button {
+    .transition;
     color: #fff; //TODO maybe make a --white var or something
     width: fit-content;
     height: fit-content;
