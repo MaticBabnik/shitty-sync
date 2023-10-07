@@ -44,6 +44,13 @@ function sendTabSwitch() {
     switchTab(...args, new URL(window.origin).host)
 }
 
+function compatType(type) {
+    if (type == 'cdn') return 'url'
+    if (type == 'youtube-search') return 'youtube'
+
+    return type
+}
+
 // postMessage API
 window.onmessage = async (ev) => {
     const { data, source, origin } = ev
@@ -59,11 +66,11 @@ window.onmessage = async (ev) => {
         case 'setmedia':
             if (
                 typeof data[1] !== 'string' ||
-                !['url', 'youtube-link'].includes(data[2]) ||
+                !['url', 'youtube', 'cdn', 'youtube-search'].includes(data[2]) ||
                 typeof data[3] !== 'string'
             )
                 return
-            switchTab(data[1], data[2], data[3], new URL(origin).host)
+            switchTab(data[1], compatType(data[2]), data[3], new URL(origin).host)
             break
     }
 }

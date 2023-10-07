@@ -6,7 +6,6 @@
 import { io } from 'socket.io-client'
 
 import * as util from '@/util'
-import constants from '@/constants'
 import { waitFor, delay } from '@/async-utils'
 
 export default {
@@ -270,26 +269,27 @@ export default {
         //? Shared workers
         //? ------------------------------------------------------------------------
         handleMessage(event) {
-            const data = event.data
-            switch (data[0]) {
+            const [eventType] = event.data
+            switch (eventType) {
                 case 'discovery':
                     if (this.admin && this.roomReady && !this.kicked) {
                         window.worker.port.postMessage(['alive', this.roomCode])
                     }
                     break
                 case 'setmedia': {
-                    if (data[1] != this.roomCode) break
+                    let [room, mediaType, src, origin] = event.data.slice(1)
+                    if (room != this.roomCode) break
                     if ((!this.admin && !this.roomReady) || this.kicked) break
 
                     const media = {
-                        type: data[2],
-                        src: data[3]
+                        type: mediaType,
+                        src: src
                     }
 
                     this.messages.push({
                         type: 2,
                         username: 'System',
-                        text: `Media changed from ${data[4] ?? 'unknown origin'}`
+                        text: `Media changed from ${origin ?? 'unknown origin'}`
                     })
 
                     this.socket.emit('changemedia', media)
