@@ -1,12 +1,9 @@
 <script setup>
 /*
-TODO(b4 merge): custom theme 
-TODO(b4 merge): plyr sometimes misreports seeks as seek+pause WHY?
-
-TODO(v2): keep all sync related state in a store so player can access it
-            vue's reactivity should be good enough to handle syncing the player
-
-TODO(v2): steal jellyfin's idea and modify playback speed to make up for small desyncs
+TODO: custom theme 
+TODO: keep all sync related state in a store so player can access it
+        vue's reactivity should be good enough to handle syncing the player
+TODO: steal jellyfin's idea and modify playback speed to make up for small desyncs
 */
 
 import 'plyr/dist/plyr.css'
@@ -82,13 +79,13 @@ function createPlayer(element) {
     const newConf = { ...CONFIG, ...(admin ? ADMIN_CONFIG : USER_CONFIG) }
     const p = new Plyr(element, newConf)
 
-    // when all controls are disabled non-admins can still click
-    // the player... or can they!?
     p.elements.container.addEventListener(
         'click',
-        (e) => {
-            if (!admin) e.stopPropagation()
-        },
+        (e) =>
+            !admin &&
+            e.target.tagName !== 'INPUT' &&
+            e.target.tagName !== 'BUTTON' &&
+            e.stopPropagation(), // this prevents pausing by clicking on the player
         true
     )
 
@@ -100,7 +97,7 @@ function createPlayer(element) {
         emit('vpause', p.currentTime)
     })
     p.on('seeked', () => {
-        emit('vseek', p.currentTime)
+        emit('vseek', p.currentTime, p.playing)
     })
     p.on('volumechange', () => {
         storeVolume(p.volume)
@@ -232,7 +229,6 @@ function change({ src: newSrc, type }) {
 
 function seek(v) {
     if (!player) return
-    player.speed = 1
     console.log('seek', v)
     player.currentTime = v
 }
@@ -252,7 +248,6 @@ async function stupidYoutubePlayerReadyHack() {
 async function play(v, t) {
     if (!player) return
     console.log('play', v)
-    player.speed = 1
 
     if (v) {
         t += await stupidYoutubePlayerReadyHack()
