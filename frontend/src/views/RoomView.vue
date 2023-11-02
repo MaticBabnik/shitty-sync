@@ -200,7 +200,13 @@ export default {
         .media-container {
             background-color: #000;
             flex: 1;
+            position: relative;
             .video-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
                 width: 100%;
                 height: 100%;
             }
