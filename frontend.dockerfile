@@ -14,7 +14,7 @@ RUN cat .env
 
 FROM node:18 as build-frontend
 ARG VITE_NEWS_BASE_URL="https://blog.babnik.io"
-ARG VITE_NEWS_API_KEY="df507f44712874951daebff6e9"
+ARG VITE_NEWS_API_KEY="7408878c79ec3abf83721f0d20"
 ARG VITE_NEWS_TAG="sync"
 
 COPY frontend /frontend
