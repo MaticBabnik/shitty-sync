@@ -24,10 +24,11 @@
                     @kick="kick"
                     @promote="promote"
                     @rename="changeNick"
+                    @toggleChat="() => toggleChat = !toggleChat"
                 />
             </div>
         </div>
-        <div class="chat">
+        <div v-if="toggleChat" class="chat">
             <div class="top">
                 <span>{{ roomCode }}</span>
                 <share-button />
@@ -98,6 +99,7 @@ export default {
     },
     data() {
         return {
+            toggleChat: true,
             branch: import.meta.env['VITE_BRANCH'] ?? 'unknown',
             commit: (import.meta.env['VITE_COMMIT'] ?? 'unknown').substring(0, 7),
             showScrollToBottom: false

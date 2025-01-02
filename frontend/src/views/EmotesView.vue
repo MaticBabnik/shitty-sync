@@ -19,9 +19,6 @@ export default {
             emotes
         }
     },
-    mounted() {
-        console.log(emotes)
-    }
 }
 </script>
 
