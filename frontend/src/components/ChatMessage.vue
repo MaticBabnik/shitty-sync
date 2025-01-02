@@ -10,7 +10,7 @@ import emotePaths from '../assets/emotes.json'
 
 const emoteReplacer = emotePaths.map(([name, path]) => {
   return [
-    new RegExp(`(^|\\s)(${name})($|\\s)`, 'gi'),
+    new RegExp(`\\b${name}\\b`, 'gi'),
     `<img class="emote" alt="${name}" title="${name}" src="${path}">`
   ]
 })
@@ -37,7 +37,7 @@ export default {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;')
 
-      const msg = emoteReplacer.reduce((msg, [reg, img]) => msg.replace(reg, `$1${img}$3`), escapedMsg);
+      const msg = emoteReplacer.reduce((msg, [reg, img]) => msg.replace(reg, img), escapedMsg).replace(/>\s+</g, '><');
       return msg
     },
     displayUsername() {

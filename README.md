@@ -23,12 +23,10 @@ need I say more?
 
 ## Development
 
-> [!NOTE]
-> I use `bun`, but feel free to use any `npm` compatible-ish package manager
 
-1. Install the dependencies with `bun i` (in `backend` & `frontend` folder)
-2. Run the frontend in `frontend` with `bun run dev`
-3. Run the server in `backend` with `bun run watch`
+1. Install the dependencies with `npm i` (in `backend` & `frontend` folder)
+2. Run the frontend in `frontend` with `npm run dev`
+3. Run the server in `backend` with `npm run watch`
 
 ## 📈 Metrics
 

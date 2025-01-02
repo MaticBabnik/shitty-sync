@@ -90,7 +90,7 @@ export default {
                     icon: 'edit',
                     enabled: false
                 },
-                { name: 'toggle-chat', text: 'Toggle Chat', icon: 'close', enabled: true },
+                { name: 'toggle-chat', text: 'Toggle Chat', icon: 'close', enabled: true }
             ],
             nameValid: {
                 len: false,
@@ -111,6 +111,7 @@ export default {
         this.options[0].enabled = this.islocaladmin && !this.local
         this.options[1].enabled = this.islocaladmin && !this.local
         this.options[2].enabled = this.local
+        if (!this.local) this.options.pop() // peak
     },
     methods: {
         openMenu(e) {
@@ -147,7 +148,7 @@ export default {
                     this.gravatar = localStorage.getItem('gravatar') ?? ''
                     break
                 case 'toggle-chat':
-                    this.$emit('toggleChat');
+                    this.$emit('toggleChat')
                     break
             }
         },
