@@ -1,4 +1,4 @@
-FROM node:18 as base
+FROM node:23 as base
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN npm i
 RUN npx tsc
 
 
-FROM node:18 as run
+FROM node:23 as run
 
 COPY --from=base /app /app
 
