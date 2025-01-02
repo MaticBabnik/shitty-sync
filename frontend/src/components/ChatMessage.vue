@@ -8,10 +8,10 @@
 <script>
 import emotePaths from '../assets/emotes.json'
 
-const emoteReplacer = emotePaths.map((x) => {
+const emoteReplacer = emotePaths.map(([name, path]) => {
   return [
-    new RegExp(`(^|\\s)${x[0]}(?=$|\\s)`, 'gi'),
-    `<img class="emote" alt="${x[0]}" title="${x[0]}" src="${x[1]}">`
+    new RegExp(`(^|\\s)(${name})($|\\s)`, 'gi'),
+    `<img class="emote" alt="${name}" title="${name}" src="${path}">`
   ]
 })
 
@@ -31,26 +31,19 @@ export default {
   },
   computed: {
     emoteHtml() {
-      let msg = this.escapeHtml(this.message)
-      emoteReplacer.forEach((replacer) => {
-        msg = msg.replace(replacer[0], replacer[1])
-      })
+      const escapedMsg = this.message.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+
+      const msg = emoteReplacer.reduce((msg, [reg, img]) => msg.replace(reg, `$1${img}$3`), escapedMsg);
       return msg
     },
     displayUsername() {
       return this.type == 2 ? `⚙️ ${this.username}` : this.username
     }
   },
-  methods: {
-    escapeHtml(unsafe) {
-      return unsafe
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;')
-    }
-  }
 }
 </script>
 
@@ -67,9 +60,6 @@ export default {
     word-break: break-word;
     .emote {
       height: 24px;
-      padding: 0;
-      margin: 0;
-      display: inline;
       vertical-align: middle;
     }
   }

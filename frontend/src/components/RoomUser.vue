@@ -89,7 +89,8 @@ export default {
                     text: 'Change nickname',
                     icon: 'edit',
                     enabled: false
-                }
+                },
+                { name: 'toggle-chat', text: 'Toggle Chat', icon: 'close', enabled: true },
             ],
             nameValid: {
                 len: false,
@@ -144,6 +145,9 @@ export default {
                     this.rename = true
                     this.newName = this.name
                     this.gravatar = localStorage.getItem('gravatar') ?? ''
+                    break
+                case 'toggle-chat':
+                    this.$emit('toggleChat');
                     break
             }
         },
