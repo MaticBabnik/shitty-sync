@@ -1,0 +1,33 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-stretch: 50% 200%;
+    font-style: normal;
+    font-weight: 100 900;
+    src: url('./Inter-VariableFont_opsz\,wght.ttf') format('ttf');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-stretch: 50% 200%;
+    font-style: italic;
+    font-weight: 100 900;
+    src: url('./Inter-Italic-VariableFont_opsz\,wght.ttf') format('ttf');
+}
+
+body {
+    font-family: 'Inter';
+    min-height: 100vh;
+    line-height: 1.6;
+    font-size: 15px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

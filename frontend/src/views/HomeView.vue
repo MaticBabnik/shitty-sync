@@ -1,187 +1,241 @@
-<template>
-    <div class="home">
-        <div class="tl desktop-only">
-            <span class="stats">
-                Built on: {{ date }}<br />
-                Commit: {{ commit }}<br />
-                Branch: {{ branch }}<br />
-                <a href="https://github.com/maticbabnik/shitty-sync.git">Repo</a>
-            </span>
-        </div>
-        <div class="tr">
-            <theme-toggle class="theme-toggle" />
-        </div>
+<script setup lang="ts">
+import { ref } from 'vue';
 
-        <div class="middle">
-            <img class="logo" src="@/assets/logo.svg" alt="Sync" />
-            <div class="text-btn">
-                <input
-                    class="text"
-                    type="text"
-                    spellcheck="false"
-                    placeholder="Room code"
-                    @keypress.enter="gotoRoom"
-                    ref="roomCode"
-                    size="16"
-                    maxlength="16"
-                />
-                <button class="btn" @click="gotoRoom">Join</button>
+const peopleExpanded = ref(true),
+    chatExpanded = ref(true);
+
+function togglePeople() {
+    peopleExpanded.value = !peopleExpanded.value;
+}
+
+function toggleChat() {
+    chatExpanded.value = !chatExpanded.value;
+}
+
+</script>
+
+<template>
+    <main>
+        <div class="sidebar" :class="{ open: peopleExpanded }" id="people">
+            <div class="sidebar-header">
+
+                <div class="sidebar-title">
+                    <h1>Sync3</h1>
+                </div>
+
+                <div class="toggle-button-container">
+                    <button class="toggle-button" @click="togglePeople">{{ peopleExpanded ? '<' : '>' }}</button>
+                </div>
+
+
+            </div>
+            <hr>
+
+
+            <div class="sidebar-list-body">
+                <div class="user" v-for="id in 100" :title="`user ${id}`">
+                    <div class="avatar"></div>
+                    <span>
+                        user {{ id }}
+                    </span>
+                </div>
             </div>
         </div>
 
-        <ghost-news
-            class="home-news"
-            :base-url="news.baseUrl"
-            :api-key="news.apiKey"
-            :tag="news.tag"
-            limit="5"
-        />
-    </div>
+        <div id="video-container">
+            <div class="toggle-button-container toggle-chat" v-if="!chatExpanded">
+                <button class="toggle-button" @click="toggleChat">&lt;</button>
+            </div>
+        </div>
+
+
+        <div class="sidebar" id="chat" :class="{ open: chatExpanded }">
+            <div class="sidebar-header">
+
+                <div class="toggle-button-container">
+                    <button class="toggle-button" @click="toggleChat">&gt;</button>
+                </div>
+
+                <div class="sidebar-title">
+                    <h2>Room title</h2>
+                </div>
+            </div>
+            <hr>
+
+
+            <div class="sidebar-list-body"></div>
+        </div>
+    </main>
 </template>
 
-<script>
-import GhostNews from '@/components/GhostNews.vue'
-import ThemeToggle from '../components/ThemeToggle.vue'
-
-export default {
-    components: {
-        ThemeToggle,
-        GhostNews
-    },
-    data() {
-        return {
-            branch: import.meta.env['VITE_BRANCH'] ?? 'unknown',
-            commit: (import.meta.env['VITE_COMMIT'] ?? 'unknown').substring(0, 7),
-            date: import.meta.env['VITE_DATE'],
-            news: {
-                baseUrl: import.meta.env['VITE_NEWS_BASE_URL'],
-                apiKey: import.meta.env['VITE_NEWS_API_KEY'],
-                tag: import.meta.env['VITE_NEWS_TAG']
-            }
-        }
-    },
-    methods: {
-        gotoRoom() {
-            const code = this.$refs.roomCode.value
-            if (code.length >= 1) this.$router.push({ name: 'Room', params: { id: code } })
-            else alert('Invalid code')
-        }
-    }
-}
-</script>
-
-<style lang="less" scoped>
-@import url('@/assets/theme.less');
-
-button {
-    border: none;
-    outline: none;
-}
-
-@media screen and (max-width: 900px) {
-    .home {
-        grid-template-columns: 1rem 1fr 1rem !important;
-    }
-    .desktop-only {
-        display: none !important;
-    }
-}
-
-.home {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    grid-template-rows: 1fr auto 1fr;
-    grid-template-areas: 'fl fl fr' 'ml main mr' 'bl news br';
-
-    max-height: 100svh;
-    height: 100vh;
-    overflow: hidden;
-    max-width: 100%;
-}
-
-.tl {
-    grid-area: fl;
-
-    user-select: text;
-    padding: 10px;
-
-    color: @text;
-
-    opacity: 0.8;
-
-    a {
-        color: @accent;
-    }
-}
-.tr {
-    grid-area: fr;
+<style lang="scss" scoped>
+main {
+    min-height: 100vh;
+    max-height: 100vh;
+    padding: 1rem 0;
     display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-
-    .theme-toggle {
-        padding: 0.5rem;
-    }
+    flex-direction: row;
+    gap: 1rem;
 }
 
-.middle {
-    grid-area: main;
+
+#video-container {
+    background-color: black;
+    flex: 1;
+    border-radius: 10px;
+    position: relative;
+}
+
+#people {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    width: 48px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-inline-start: none;
+    border-radius: 0 10px 10px 0;
 
-    user-select: none;
-    background-color: @background;
-    gap: 1rem;
-    width: 100%;
+    transition: .1s ease-in-out width;
 
-    .logo {
-        width: 100%;
-        max-width: 352px;
+    &.open {
+        width: 248px;
     }
 }
-.home-news {
-    grid-area: news;
+
+#chat {
+    display: flex;
+    flex-direction: column;
+    width: 0px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-inline-end: none;
+    border-radius: 10px 0 0 10px;
+
+    transition: .1s ease-in-out width;
+
+    &.open {
+        width: 360px;
+    }
 }
 
-.text-btn {
+.sidebar-header {
     height: 48px;
     width: 100%;
-    max-width: 50rem;
-    border-radius: 24px;
     display: flex;
-    align-items: stretch;
     overflow: hidden;
-    border: 2px solid @background-light;
-    max-width: 28rem;
 
-    .text {
-        flex: 1;
-        min-width: 0 !important;
-        width: 100%;
-        background-color: @background;
-        color: @text;
-        font-size: 36px;
-        border: 0px !important;
-        padding: 0;
-        margin-left: 12px;
+    .sidebar-title {
+        display: flex;
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+
+        align-items: center;
+
+        h1 {
+            margin: 0;
+            padding: 0 .5rem;
+            font-weight: 500;
+        }
     }
-    .btn {
-        transition: 0.3s ease;
-        color: @primary;
-        cursor: pointer;
-        margin: 0;
-        font-weight: bold;
-        font-size: 18px;
-        padding: 0 10px;
-        line-height: 48px;
-        user-select: none;
-        background-color: @background-light;
+
+    .toggle-button-container {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        min-height: 48px;
+
+        .toggle-button {
+            width: 36px;
+            height: 36px;
+            margin: 6px;
+            border-radius: 4px;
+
+            &:hover {
+                background-color: #ddd8;
+            }
+        }
     }
-    .btn:hover {
-        color: @background;
-        background-color: @primary;
+}
+
+@keyframes a1 {}
+
+.toggle-chat {
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+
+    .toggle-button {
+        width: 36px;
+        height: 36px;
+        margin: 6px;
+        border-radius: 4px;
+        color: white;
+
+        &:hover {
+            background-color: #ddd8;
+        }
+    }
+}
+
+.open .sidebar-list-body {
+    scrollbar-width: thin;
+}
+
+.sidebar-list-body {
+    flex: 1;
+    overflow-y: auto;
+
+    scrollbar-width: none;
+}
+
+hr {
+    margin: 0 10px;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
+
+button {
+    appearance: none;
+    outline: none;
+    border: none;
+    background-color: transparent;
+}
+
+.sidebar {
+    overflow: hidden;
+}
+
+.user {
+    margin-top: 10px;
+    display: flex;
+    padding: 0 10px;
+    gap: 10px;
+
+    align-items: center;
+    overflow: hidden;
+
+    .avatar {
+        width: 28px;
+        height: 28px;
+        background-color: gray;
+        border-radius: 50%;
+
+        flex: 0 1 auto;
+        min-width: 28px;
+    }
+
+    span {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-wrap: nowrap;
     }
 }
 </style>

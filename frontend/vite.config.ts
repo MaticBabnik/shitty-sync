@@ -1,39 +1,26 @@
 import { fileURLToPath, URL } from 'node:url'
-import { visualizer } from 'rollup-plugin-visualizer'
+
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vueDevTools from 'vite-plugin-vue-devtools'
+import { vite as vidstack } from 'vidstack/plugins'
 
+// https://vite.dev/config/
 export default defineConfig({
     plugins: [
-        vue(),
-        visualizer({
-            emitFile: true,
-            filename: 'bundle.html',
-            gzipSize: true,
-            template: 'treemap'
-        })
+        vue({
+            template: {
+                compilerOptions: {
+                    isCustomElement: (tag) => tag.startsWith('media-'),
+                },
+            },
+        }),
+        vueDevTools(),
+        vidstack(),
     ],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
+        },
     },
-    build: {
-        rollupOptions: {
-            input: {
-                app: fileURLToPath(new URL('./index.html', import.meta.url)),
-                frameApi: fileURLToPath(new URL('./frame-api.html', import.meta.url))
-            }
-        }
-    },
-    server: {
-        proxy: {
-            '^/(url|youtube)/.*': 'http://localhost:8080',
-            '/socket.io': {
-                target: 'http://localhost:8080',
-                ws: true
-            }
-        }
-    },
-    optimizeDeps: {}
 })
